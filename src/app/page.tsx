@@ -82,90 +82,124 @@ export default function Home() {
           <p className="mt-3 text-center text-[15px] text-[#5a6282]">Full access to all official Cambridge IELTS practice tests.</p>
 
           {/* Book covers */}
-          <div className="mt-10 flex items-end justify-center gap-3 md:gap-5 flex-wrap">
+          <div className="mt-10 flex items-center justify-center gap-3 md:gap-4 flex-wrap">
             {[
-              { num: "9", color: "dark" },
-              { num: "10", color: "dark" },
-              { num: "11", color: "dark" },
-              { num: "12", color: "dark" },
-              { num: "13", color: "dark" },
+              { num: "9", color: "#a78bfa" },
+              { num: "10", color: "#818cf8" },
+              { num: "11", color: "#c084fc" },
+              { num: "12", color: "#a78bfa" },
+              { num: "13", color: "#818cf8" },
             ].map((book) => (
               <div
                 key={book.num}
-                className="group relative w-[100px] md:w-[120px] aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1"
+                className="group relative w-[90px] md:w-[115px] aspect-[3/4.2] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1 shadow-[0_12px_28px_rgba(16,21,60,0.25)]"
                 style={{
-                  background: "linear-gradient(160deg, #1a1f4e 0%, #12163d 40%, #1e2460 100%)",
-                  boxShadow: "0 12px 28px rgba(16,21,60,0.35), inset -3px 0 6px rgba(255,255,255,0.05)",
+                  background: `linear-gradient(145deg, #111424 0%, #151932 60%, ${book.color}40 100%)`,
+                  border: "1px solid rgba(255,255,255,0.05)"
                 }}
               >
                 {/* Spine effect */}
-                <div className="absolute left-0 top-0 h-full w-[8px]" style={{ background: "linear-gradient(180deg, #080c28 0%, #131744 100%)" }} />
-                {/* Top overlay */}
-                <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/30 to-transparent" />
+                <div className="absolute left-0 top-0 h-full w-[6px]" style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.2) 100%)" }} />
+                
                 {/* Content */}
-                <div className="relative z-10 flex flex-col items-center justify-center h-full px-2 py-3">
-                  <div className="rounded border border-white/20 bg-black/25 px-2 py-0.5 text-[7px] md:text-[8px] font-bold tracking-[0.15em] text-white/80 mb-1">
-                    CAMBRIDGE
+                <div className="relative z-10 flex flex-col items-start justify-start h-full pl-3 pr-2 py-3 w-full">
+                  {/* Top: Logo and Shield */}
+                  <div className="flex justify-between w-full items-start mb-1.5">
+                    <div className="flex flex-col">
+                      <span className="text-[5px] md:text-[6px] font-bold tracking-[0.05em] text-white/90 leading-none">CAMBRIDGE</span>
+                      <span className="text-[4px] md:text-[5px] font-medium tracking-wide text-white/70 leading-none mt-0.5">UNIVERSITY PRESS</span>
+                    </div>
+                    {/* Gold Shield Placeholder */}
+                    <div className="w-2.5 h-3 bg-gradient-to-br from-[#f2d06b] to-[#b8860b] rounded-b-sm shadow-sm" />
                   </div>
-                  <div className="text-[8px] md:text-[9px] font-medium tracking-[0.1em] text-white/60">CAMBRIDGE</div>
-                  <div className="text-2xl md:text-3xl font-extrabold text-white leading-none mt-1">IELTS</div>
-                  <div className="text-xl md:text-2xl font-black text-white mt-1">{book.num}</div>
-                  <div className="text-[7px] md:text-[8px] font-semibold tracking-[0.08em] text-white/60 mt-2">ACADEMIC</div>
+                  
+                  <div className="text-[6.5px] md:text-[7.5px] font-medium tracking-[0.1em] text-white/90 mt-1">CAMBRIDGE</div>
+                  <div className="text-[22px] md:text-[26px] font-extrabold text-white leading-none mt-0.5 tracking-tight font-sans">IELTS</div>
+                  
+                  {/* Number */}
+                  <div className="text-[36px] md:text-[44px] font-normal mt-0.5 leading-none" style={{ color: book.color }}>
+                    {book.num}
+                  </div>
+                  
+                  {/* Academic */}
+                  <div className="text-[5px] md:text-[6px] font-semibold tracking-[0.1em] text-white/80 mt-auto mb-1">ACADEMIC</div>
+                  
+                  {/* Bottom right graphic */}
+                  <div className="absolute bottom-2 right-2 w-8 h-8 opacity-50 flex items-end justify-end">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="w-full h-full" style={{ color: book.color }}>
+                       <circle cx="12" cy="12" r="8" strokeDasharray="2 2" />
+                       <circle cx="12" cy="12" r="4" />
+                       <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                    </svg>
+                  </div>
                 </div>
-                {/* Decorative circle */}
-                <div className="absolute bottom-3 right-2 w-6 h-6 rounded-full border border-white/10 opacity-40" />
               </div>
             ))}
 
             {/* Dots separator */}
-            <div className="flex items-center justify-center w-[40px] md:w-[50px] self-center">
-              <span className="text-2xl md:text-3xl font-bold text-[#8b90b0] tracking-[0.15em]">···</span>
+            <div className="flex items-center justify-center w-[30px] md:w-[40px] self-center">
+              <span className="text-xl md:text-2xl font-bold text-[#141c41] tracking-[0.15em]">...</span>
             </div>
 
             {/* Book 20 - Orange */}
             <div
-              className="group relative w-[100px] md:w-[120px] aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1"
+              className="group relative w-[90px] md:w-[115px] aspect-[3/4.2] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1 shadow-[0_12px_28px_rgba(230,90,16,0.25)]"
               style={{
-                background: "linear-gradient(160deg, #ff9f5a 0%, #ff7a2d 40%, #e85a10 100%)",
-                boxShadow: "0 12px 28px rgba(230,90,16,0.35), inset -3px 0 6px rgba(255,255,255,0.1)",
+                background: "linear-gradient(145deg, #ff8c42 0%, #f46217 50%, #d63d00 100%)",
+                border: "1px solid rgba(255,255,255,0.1)"
               }}
             >
-              <div className="absolute left-0 top-0 h-full w-[8px]" style={{ background: "linear-gradient(180deg, #c44e08 0%, #e06510 100%)" }} />
-              <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/15 to-transparent" />
-              <div className="relative z-10 flex flex-col items-center justify-center h-full px-2 py-3">
-                <div className="rounded border border-white/30 bg-black/15 px-2 py-0.5 text-[7px] md:text-[8px] font-bold tracking-[0.15em] text-white/90 mb-1">
-                  CAMBRIDGE
+              <div className="absolute left-0 top-0 h-full w-[6px]" style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.15) 100%)" }} />
+              <div className="relative z-10 flex flex-col items-start justify-start h-full pl-3 pr-2 py-3 w-full">
+                <div className="flex justify-between w-full items-start mb-1.5">
+                  <div className="flex flex-col">
+                    <span className="text-[5px] md:text-[6px] font-bold tracking-[0.05em] text-white/90 leading-none">CAMBRIDGE</span>
+                    <span className="text-[4px] md:text-[5px] font-medium tracking-wide text-white/80 leading-none mt-0.5">UNIVERSITY PRESS</span>
+                  </div>
+                  <div className="w-2.5 h-3 bg-gradient-to-br from-[#f2d06b] to-[#b8860b] rounded-b-sm shadow-sm" />
                 </div>
-                <div className="text-[8px] md:text-[9px] font-medium tracking-[0.1em] text-white/70">CAMBRIDGE</div>
-                <div className="text-2xl md:text-3xl font-extrabold text-white leading-none mt-1">IELTS</div>
-                <div className="text-xl md:text-2xl font-black text-white mt-1">20</div>
-                <div className="text-[7px] md:text-[8px] font-semibold tracking-[0.08em] text-white/70 mt-2">ACADEMIC</div>
+                
+                <div className="text-[6.5px] md:text-[7.5px] font-medium tracking-[0.1em] text-white/90 mt-1">CAMBRIDGE</div>
+                <div className="text-[22px] md:text-[26px] font-extrabold text-white leading-none mt-0.5 tracking-tight font-sans">IELTS</div>
+                
+                <div className="text-[36px] md:text-[44px] font-normal mt-0.5 leading-none text-white">
+                  20
+                </div>
+                
+                <div className="text-[5px] md:text-[6px] font-semibold tracking-[0.1em] text-white/90 mt-auto mb-1">ACADEMIC</div>
+                
+                <div className="absolute bottom-2 right-2 w-8 h-8 opacity-40 flex items-end justify-end">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1" className="w-full h-full">
+                     <circle cx="12" cy="12" r="8" strokeDasharray="2 2" />
+                     <circle cx="12" cy="12" r="4" />
+                     <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Timeline progress bar */}
-          <div className="mt-10 flex items-center justify-center px-2 md:px-8">
+          <div className="mt-10 flex items-center justify-center w-full max-w-[800px] mx-auto px-2 md:px-4">
             {/* Number 9 circle */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1f4e] flex items-center justify-center text-white text-sm font-bold shadow-[0_4px_12px_rgba(26,31,78,0.4)]">
+            <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#7c3aed] flex items-center justify-center text-white text-sm md:text-base font-bold shadow-[0_4px_12px_rgba(124,58,237,0.4)]">
               9
             </div>
-            {/* Progress line */}
-            <div className="flex-1 h-[3px] mx-2 relative">
-              <div className="absolute inset-0 rounded-full bg-[#e0e3ef]" />
-              <div className="absolute left-0 top-0 h-full rounded-full w-[45%]" style={{ background: "linear-gradient(90deg, #1a1f4e, #3b4a9e)" }} />
-              {/* Dots on the line */}
-              <div className="absolute inset-0 flex items-center justify-between px-[2%]">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-[6px] h-[6px] rounded-full ${i < 5 ? "bg-[#1a1f4e]" : "bg-[#d0d3e2]"}`}
-                  />
-                ))}
-              </div>
-            </div>
+            
+            {/* Progress line with dots */}
+            <div 
+              className="flex-1 h-[6px] mx-2 md:mx-4" 
+              style={{
+                background: "linear-gradient(90deg, #7c3aed 0%, #ffab66 100%)",
+                WebkitMaskImage: "radial-gradient(circle, black 2.5px, transparent 2.5px), linear-gradient(black, black)",
+                WebkitMaskSize: "28px 6px, 100% 2px",
+                WebkitMaskPosition: "center, center",
+                WebkitMaskRepeat: "repeat-x, no-repeat",
+              }} 
+            />
+            
             {/* Number 20 circle */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white text-sm font-bold shadow-[0_4px_12px_rgba(255,122,0,0.4)]">
+            <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white text-sm md:text-base font-bold shadow-[0_4px_12px_rgba(255,122,0,0.4)]">
               20
             </div>
           </div>
@@ -173,34 +207,34 @@ export default function Home() {
           {/* Feature badges */}
           <div className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-10">
             <div className="flex items-center gap-2 text-[#4b5472]">
-              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-[#8b90b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span className="text-sm font-semibold">Official Tests</span>
+              <span className="text-sm font-semibold text-[#141c41]">Official Tests</span>
             </div>
             <div className="flex items-center gap-2 text-[#4b5472]">
-              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-[#8b90b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-sm font-semibold">Real Exam Experience</span>
+              <span className="text-sm font-semibold text-[#141c41]">Real Exam Experience</span>
             </div>
             <div className="flex items-center gap-2 text-[#4b5472]">
-              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-[#8b90b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span className="text-sm font-semibold">AI Evaluation</span>
+              <span className="text-sm font-semibold text-[#141c41]">AI Evaluation</span>
             </div>
             <div className="flex items-center gap-2 text-[#4b5472]">
-              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-[#8b90b0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="text-sm font-semibold">Detailed Feedback</span>
+              <span className="text-sm font-semibold text-[#141c41]">Detailed Feedback</span>
             </div>
           </div>
         </section>
 
-        <section className="mb-6 grid gap-6 md:grid-cols-[1fr_1.6fr] items-center">
+        <section className="mb-6 grid gap-6 md:grid-cols-2 items-center">
           {/* Left side - Text content */}
           <div className="p-6 md:p-8">
             <h3 className="text-4xl md:text-5xl leading-[1.08] font-extrabold text-[#121a3c]">
@@ -290,7 +324,7 @@ export default function Home() {
                 {/* Main dashboard content */}
                 <div className="flex-1 p-5 relative">
                   {/* Robot mascot inside dashboard */}
-                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-[40%] w-[110px] h-[110px] z-20 pointer-events-none">
+                  <div className="hidden md:block absolute -right-10 top-1/2 -translate-y-[40%] w-[110px] h-[110px] z-20 pointer-events-none">
                     <img
                       src="/assets/robot-mascot.png"
                       alt="AI Robot Assistant"
