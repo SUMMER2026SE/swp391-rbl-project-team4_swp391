@@ -1,0 +1,598 @@
+export default function Home() {
+  return (
+    <div className="bg-[#f4f5f9] text-[#0f1738]">
+      <header className="mx-auto flex w-full max-w-[1160px] items-center justify-between px-9 py-6">
+        <div className="flex items-center gap-2 text-xl font-extrabold text-[#11193f]">
+          <span className="text-[#ff7a00]">*</span>
+          <span>QualiCode</span>
+        </div>
+        <nav className="hidden items-center gap-8 text-sm font-medium text-[#404965] md:flex">
+          <a href="#">Home</a>
+          <a href="#">Features</a>
+          <a href="#">Cambridge Cams</a>
+          <a href="#">Pricing</a>
+          <a href="#">About Us</a>
+          <a href="#">Blog</a>
+        </nav>
+        <div className="hidden items-center gap-3 md:flex">
+          <button className="rounded-xl border border-[#e7e9f1] px-5 py-2 text-sm font-semibold">Log in</button>
+          <button className="rounded-xl bg-[#ff7a00] px-5 py-2 text-sm font-semibold text-white">Get Started</button>
+        </div>
+      </header>
+
+      <section
+        className="relative min-h-screen bg-no-repeat bg-top bg-[length:100%_auto] md:bg-[length:100%_auto]"
+        style={{ backgroundImage: "url('/assets/background-hero-finall.jpeg')", backgroundPosition: "center 10px" }}
+      >
+        <div className="relative mx-auto flex min-h-[calc(100vh-96px)] w-full max-w-[1160px] flex-col px-4 py-0 md:px-8 md:py-2">
+          <div className="grid flex-1 items-start gap-8 p-4 pt-[9px] md:grid-cols-2 md:p-6 md:pt-[11px]">
+            <div className="flex flex-col justify-center">
+              <span className="mt-20 mb-5 inline-flex w-fit rounded-full border border-[#e8eaf2] bg-[#fbfcff] px-4 py-2 text-xs font-bold tracking-[0.02em] text-[#5e6792]">
+                AI-POWERED IELTS LEARNING
+              </span>
+              <h1 className="mb-4 text-5xl leading-[1.08] font-extrabold text-[#0d153a] md:text-7xl">
+                Crack IELTS.
+                <br />
+                The <span className="text-[#ff7a00]">AI</span> Way.
+              </h1>
+              <p className="mb-7 max-w-[470px] text-lg leading-8 text-[#4b5472]">
+                100% AI. Zero human intervention. Adaptive learning that understands you, and takes you from
+                <span className="font-bold text-[#ff7a00]"> 9 to 20</span>.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button className="rounded-xl bg-[#ff7a00] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_18px_rgba(255,122,0,0.35)]">
+                  Start Free AI Assessment
+                </button>
+                <button className="rounded-xl border border-[#dde1ee] bg-white px-6 py-3 text-sm font-semibold text-[#2b355b]">
+                  Watch how it works
+                </button>
+              </div>
+            </div>
+            <div className="relative min-h-[520px]">
+              <div className="absolute right-6 top-10 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(20,28,58,0.12)]">
+                <p className="text-xs font-semibold text-[#5f678a]">Listening</p>
+                <p className="text-2xl font-extrabold text-[#121a41]">8.5</p>
+                <p className="text-xs font-medium text-[#2fa56f]">Advanced</p>
+              </div>
+              <div className="absolute right-0 top-44 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(20,28,58,0.12)]">
+                <p className="text-xs font-semibold text-[#5f678a]">Reading</p>
+                <p className="text-2xl font-extrabold text-[#121a41]">7.0</p>
+                <p className="text-xs font-medium text-[#6a7397]">Good</p>
+              </div>
+              <div className="absolute left-2 top-62 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(20,28,58,0.12)]">
+                <p className="text-xs font-semibold text-[#5f678a]">Writing</p>
+                <p className="text-2xl font-extrabold text-[#121a41]">7.0</p>
+                <p className="text-xs font-medium text-[#6a7397]">Good</p>
+              </div>
+              <div className="absolute right-8 bottom-8 rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(20,28,58,0.12)]">
+                <p className="text-xs font-semibold text-[#5f678a]">Speaking</p>
+                <p className="text-2xl font-extrabold text-[#121a41]">7.5</p>
+                <p className="text-xs font-medium text-[#6a7397]">Good</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="mx-auto w-full max-w-[1160px] px-4 py-6 md:px-8 md:py-8">
+        <section className="mb-6 rounded-3xl bg-white p-8 md:p-12 shadow-[0_4px_32px_rgba(20,28,60,0.07)]">
+          <h2 className="text-center text-3xl md:text-4xl font-extrabold text-[#141c41]">
+            Complete Cambridge Cams <span className="text-[#ff7a00]">9 → 20</span>
+          </h2>
+          <p className="mt-3 text-center text-[15px] text-[#5a6282]">Full access to all official Cambridge IELTS practice tests.</p>
+
+          {/* Book covers */}
+          <div className="mt-10 flex items-end justify-center gap-3 md:gap-5 flex-wrap">
+            {[
+              { num: "9", color: "dark" },
+              { num: "10", color: "dark" },
+              { num: "11", color: "dark" },
+              { num: "12", color: "dark" },
+              { num: "13", color: "dark" },
+            ].map((book) => (
+              <div
+                key={book.num}
+                className="group relative w-[100px] md:w-[120px] aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1"
+                style={{
+                  background: "linear-gradient(160deg, #1a1f4e 0%, #12163d 40%, #1e2460 100%)",
+                  boxShadow: "0 12px 28px rgba(16,21,60,0.35), inset -3px 0 6px rgba(255,255,255,0.05)",
+                }}
+              >
+                {/* Spine effect */}
+                <div className="absolute left-0 top-0 h-full w-[8px]" style={{ background: "linear-gradient(180deg, #080c28 0%, #131744 100%)" }} />
+                {/* Top overlay */}
+                <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/30 to-transparent" />
+                {/* Content */}
+                <div className="relative z-10 flex flex-col items-center justify-center h-full px-2 py-3">
+                  <div className="rounded border border-white/20 bg-black/25 px-2 py-0.5 text-[7px] md:text-[8px] font-bold tracking-[0.15em] text-white/80 mb-1">
+                    CAMBRIDGE
+                  </div>
+                  <div className="text-[8px] md:text-[9px] font-medium tracking-[0.1em] text-white/60">CAMBRIDGE</div>
+                  <div className="text-2xl md:text-3xl font-extrabold text-white leading-none mt-1">IELTS</div>
+                  <div className="text-xl md:text-2xl font-black text-white mt-1">{book.num}</div>
+                  <div className="text-[7px] md:text-[8px] font-semibold tracking-[0.08em] text-white/60 mt-2">ACADEMIC</div>
+                </div>
+                {/* Decorative circle */}
+                <div className="absolute bottom-3 right-2 w-6 h-6 rounded-full border border-white/10 opacity-40" />
+              </div>
+            ))}
+
+            {/* Dots separator */}
+            <div className="flex items-center justify-center w-[40px] md:w-[50px] self-center">
+              <span className="text-2xl md:text-3xl font-bold text-[#8b90b0] tracking-[0.15em]">···</span>
+            </div>
+
+            {/* Book 20 - Orange */}
+            <div
+              className="group relative w-[100px] md:w-[120px] aspect-[3/4] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 hover:-translate-y-1"
+              style={{
+                background: "linear-gradient(160deg, #ff9f5a 0%, #ff7a2d 40%, #e85a10 100%)",
+                boxShadow: "0 12px 28px rgba(230,90,16,0.35), inset -3px 0 6px rgba(255,255,255,0.1)",
+              }}
+            >
+              <div className="absolute left-0 top-0 h-full w-[8px]" style={{ background: "linear-gradient(180deg, #c44e08 0%, #e06510 100%)" }} />
+              <div className="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-black/15 to-transparent" />
+              <div className="relative z-10 flex flex-col items-center justify-center h-full px-2 py-3">
+                <div className="rounded border border-white/30 bg-black/15 px-2 py-0.5 text-[7px] md:text-[8px] font-bold tracking-[0.15em] text-white/90 mb-1">
+                  CAMBRIDGE
+                </div>
+                <div className="text-[8px] md:text-[9px] font-medium tracking-[0.1em] text-white/70">CAMBRIDGE</div>
+                <div className="text-2xl md:text-3xl font-extrabold text-white leading-none mt-1">IELTS</div>
+                <div className="text-xl md:text-2xl font-black text-white mt-1">20</div>
+                <div className="text-[7px] md:text-[8px] font-semibold tracking-[0.08em] text-white/70 mt-2">ACADEMIC</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline progress bar */}
+          <div className="mt-10 flex items-center justify-center px-2 md:px-8">
+            {/* Number 9 circle */}
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1f4e] flex items-center justify-center text-white text-sm font-bold shadow-[0_4px_12px_rgba(26,31,78,0.4)]">
+              9
+            </div>
+            {/* Progress line */}
+            <div className="flex-1 h-[3px] mx-2 relative">
+              <div className="absolute inset-0 rounded-full bg-[#e0e3ef]" />
+              <div className="absolute left-0 top-0 h-full rounded-full w-[45%]" style={{ background: "linear-gradient(90deg, #1a1f4e, #3b4a9e)" }} />
+              {/* Dots on the line */}
+              <div className="absolute inset-0 flex items-center justify-between px-[2%]">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-[6px] h-[6px] rounded-full ${i < 5 ? "bg-[#1a1f4e]" : "bg-[#d0d3e2]"}`}
+                  />
+                ))}
+              </div>
+            </div>
+            {/* Number 20 circle */}
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#ff7a00] flex items-center justify-center text-white text-sm font-bold shadow-[0_4px_12px_rgba(255,122,0,0.4)]">
+              20
+            </div>
+          </div>
+
+          {/* Feature badges */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-10">
+            <div className="flex items-center gap-2 text-[#4b5472]">
+              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="text-sm font-semibold">Official Tests</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#4b5472]">
+              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-semibold">Real Exam Experience</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#4b5472]">
+              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="text-sm font-semibold">AI Evaluation</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#4b5472]">
+              <svg className="w-5 h-5 text-[#5a6282]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-semibold">Detailed Feedback</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="mb-6 grid gap-6 md:grid-cols-[1fr_1.6fr] items-center">
+          {/* Left side - Text content */}
+          <div className="p-6 md:p-8">
+            <h3 className="text-4xl md:text-5xl leading-[1.08] font-extrabold text-[#121a3c]">
+              Adaptive Learning.
+              <br />
+              Built Just <span className="text-[#ff7a00]">For You.</span>
+            </h3>
+            <p className="mt-4 text-[15px] leading-7 text-[#5b6484]">
+              Our AI analyzes your performance in real-time, identifies strengths and weaknesses, and creates a learning path that evolves with you.
+            </p>
+
+            {/* Feature bullets */}
+            <div className="mt-8 space-y-5">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5 w-9 h-9 rounded-xl bg-[#fff3e8] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#ff7a00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-bold text-[#121a3c] text-[15px]">Diagnose</div>
+                  <div className="text-sm text-[#6b7394]">AI analyzes 4 skills in depth</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5 w-9 h-9 rounded-xl bg-[#fff3e8] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#ff7a00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-bold text-[#121a3c] text-[15px]">Personalize</div>
+                  <div className="text-sm text-[#6b7394]">Get a plan unique to your profile</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5 w-9 h-9 rounded-xl bg-[#fff3e8] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#ff7a00]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="font-bold text-[#121a3c] text-[15px]">Improve</div>
+                  <div className="text-sm text-[#6b7394]">Focus on what matters, improve faster</div>
+                </div>
+              </div>
+            </div>
+
+            <button className="mt-8 rounded-xl bg-[#ff7a00] px-7 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(255,122,0,0.3)] hover:shadow-[0_12px_28px_rgba(255,122,0,0.4)] transition-all duration-300 flex items-center gap-2">
+              See How It Works
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Right side - Dashboard card */}
+          <div className="relative">
+            <div className="rounded-2xl bg-white border border-[#e8ebf3] shadow-[0_8px_40px_rgba(20,28,60,0.08)] overflow-visible relative">
+              <div className="flex">
+                {/* Sidebar navigation */}
+                <div className="hidden md:flex flex-col w-[140px] border-r border-[#eef0f6] bg-[#fafbfe] p-3 gap-1 rounded-l-2xl">
+                  {[
+                    { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Overview", active: true },
+                    { icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z", label: "Practice", active: false },
+                    { icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4", label: "Mock Tests", active: false },
+                    { icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6", label: "Progress", active: false },
+                    { icon: "M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z", label: "AI Tutor", active: false },
+                    { icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", label: "Reports", active: false },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium cursor-pointer transition-colors ${
+                        item.active
+                          ? "bg-white text-[#ff7a00] shadow-sm font-semibold"
+                          : "text-[#7b83a6] hover:bg-white/60"
+                      }`}
+                    >
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                      </svg>
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Main dashboard content */}
+                <div className="flex-1 p-5 relative">
+                  {/* Robot mascot inside dashboard */}
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-[40%] w-[110px] h-[110px] z-20 pointer-events-none">
+                    <img
+                      src="/assets/robot-mascot.png"
+                      alt="AI Robot Assistant"
+                      className="w-full h-full object-contain drop-shadow-[0_6px_16px_rgba(0,0,0,0.12)]"
+                    />
+                  </div>
+
+                  {/* Your Progress header + Overall Band */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-[#1a2348] text-[15px]">Your Progress</span>
+                        <span className="text-xs text-[#8b90b0]">Overall Band</span>
+                      </div>
+                      {/* Chart area */}
+                      <div className="relative h-[120px] rounded-xl bg-gradient-to-b from-white to-[#f8f9ff] border border-[#eef0f6] overflow-hidden">
+                        {/* Grid lines */}
+                        <div className="absolute inset-0 flex flex-col justify-between py-3 px-4">
+                          {[0, 1, 2, 3].map((i) => (
+                            <div key={i} className="border-b border-dashed border-[#eef0f6]" />
+                          ))}
+                        </div>
+                        {/* Chart line (SVG) */}
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#ff7a00" stopOpacity="0.15" />
+                              <stop offset="100%" stopColor="#ff7a00" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+                          <path d="M20 90 Q60 85 100 80 T180 65 T260 45 T340 35 T380 30" fill="none" stroke="#ff7a00" strokeWidth="2.5" strokeLinecap="round" />
+                          <path d="M20 90 Q60 85 100 80 T180 65 T260 45 T340 35 T380 30 L380 120 L20 120 Z" fill="url(#chartGrad)" />
+                        </svg>
+                        {/* Month labels */}
+                        <div className="absolute bottom-1 inset-x-0 flex justify-between px-4 text-[10px] text-[#a0a5c0]">
+                          <span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Overall Band circle */}
+                    <div className="ml-5 flex flex-col items-center">
+                      <div className="relative w-[90px] h-[90px]">
+                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#eef0f6" strokeWidth="6" />
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#ff7a00" strokeWidth="6" strokeLinecap="round" strokeDasharray={`${0.75 * 2 * Math.PI * 42} ${2 * Math.PI * 42}`} />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-2xl font-extrabold text-[#1a2348]">7.5</span>
+                        </div>
+                      </div>
+                      <div className="mt-1 text-xs font-medium text-[#2fa56f] flex items-center gap-1">
+                        Good Progress! 🎉
+                      </div>
+                      <div className="text-[11px] text-[#2fa56f] font-semibold mt-0.5">▲ 1.5</div>
+                    </div>
+                  </div>
+
+                  {/* Skill Breakdown */}
+                  <div className="mt-4">
+                    <div className="font-bold text-[#1a2348] text-[14px] mb-3">Skill Breakdown</div>
+                    <div className="grid grid-cols-4 gap-3">
+                      {[
+                        { score: "8.5", label: "Listening", level: "Advanced", color: "#ff7a00" },
+                        { score: "7.0", label: "Reading", level: "Good", color: "#3b82f6" },
+                        { score: "7.0", label: "Writing", level: "Good", color: "#8b5cf6" },
+                        { score: "7.5", label: "Speaking", level: "Good", color: "#10b981" },
+                      ].map((skill) => (
+                        <div key={skill.label} className="flex flex-col items-center">
+                          <div className="relative w-[52px] h-[52px]">
+                            <svg className="w-full h-full -rotate-90" viewBox="0 0 60 60">
+                              <circle cx="30" cy="30" r="24" fill="none" stroke="#eef0f6" strokeWidth="4" />
+                              <circle
+                                cx="30" cy="30" r="24" fill="none"
+                                stroke={skill.color}
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeDasharray={`${(parseFloat(skill.score) / 9) * 2 * Math.PI * 24} ${2 * Math.PI * 24}`}
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-[13px] font-extrabold text-[#1a2348]">{skill.score}</span>
+                            </div>
+                          </div>
+                          <div className="mt-1.5 text-[11px] font-semibold text-[#1a2348]">{skill.label}</div>
+                          <div className="text-[10px] text-[#8b90b0]">{skill.level}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* AI Recommendation */}
+                  <div className="mt-4 flex items-center justify-between rounded-xl bg-[#f8f5ff] border border-[#e8e0f8] px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-[#7c3aed] flex items-center justify-center">
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-[#5b21b6]">AI Recommendation</div>
+                        <div className="text-[11px] text-[#7c7fa0]">Focus on Writing Task 2: Improve idea development</div>
+                      </div>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#ff7a00] cursor-pointer hover:underline whitespace-nowrap">Start Practice →</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Why QualiCode */}
+        <section className="mb-6 rounded-3xl bg-[linear-gradient(135deg,#0a1540_0%,#1a1060_40%,#2f1f6f_100%)] px-6 py-8 md:px-10 md:py-10 text-white overflow-hidden relative">
+          {/* Decorative blurred circles */}
+          <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#ff7a00]/10 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4f84ff]/10 blur-3xl" />
+
+          <h3 className="mb-8 text-center text-2xl md:text-3xl font-extrabold relative z-10">
+            Why <span className="text-[#ff8a28]">QualiCode?</span>
+          </h3>
+          <div className="relative z-10 grid grid-cols-2 gap-4 md:gap-0 md:grid-cols-5 md:divide-x md:divide-white/10">
+            {[
+              {
+                title: "100% AI Learning",
+                desc: "No human tutors. AI handles everything.",
+                icon: (
+                  <svg className="w-10 h-10 mx-auto" viewBox="0 0 48 48" fill="none" stroke="#ff8a28" strokeWidth={1.8}>
+                    {/* Brain icon */}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M24 8c-3.5 0-6.5 1.2-8.5 3.5C13.5 14 12.5 17 13 20c-2 1-3 3-3 5.5 0 3 2 5.5 4.5 6 .5 2.5 2.5 4.5 5.5 4.5" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M24 8c3.5 0 6.5 1.2 8.5 3.5 2 2.5 3 5.5 2.5 8.5 2 1 3 3 3 5.5 0 3-2 5.5-4.5 6-.5 2.5-2.5 4.5-5.5 4.5" />
+                    <path strokeLinecap="round" d="M24 8v28M18 16h12M16 22h4M28 22h4M18 28h4M26 28h4" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Adaptive & Smart",
+                desc: "Learning path that adapts to you.",
+                icon: (
+                  <svg className="w-10 h-10 mx-auto" viewBox="0 0 48 48" fill="none" stroke="#ff8a28" strokeWidth={1.8}>
+                    {/* Target/bullseye icon */}
+                    <circle cx="24" cy="24" r="18" />
+                    <circle cx="24" cy="24" r="12" />
+                    <circle cx="24" cy="24" r="6" />
+                    <circle cx="24" cy="24" r="2" fill="#ff8a28" />
+                    <path strokeLinecap="round" d="M34 14l-7 7" />
+                    <path strokeLinecap="round" d="M32 10h6v6" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Cambridge Standard",
+                desc: "Official Cambridge materials 9 to 20.",
+                icon: (
+                  <svg className="w-10 h-10 mx-auto" viewBox="0 0 48 48" fill="none" stroke="#ff8a28" strokeWidth={1.8}>
+                    {/* Book with bookmark icon */}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h8a4 4 0 014 4v22a3 3 0 00-3-3H8V10z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M40 10h-8a4 4 0 00-4 4v22a3 3 0 013-3h9V10z" />
+                    <path strokeLinecap="round" d="M18 18h4M26 18h4M18 24h4M26 24h4" />
+                    <path strokeLinejoin="round" d="M32 10v10l3-2.5 3 2.5V10" fill="none" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Real-Time Feedback",
+                desc: "Instant AI feedback on everything.",
+                icon: (
+                  <svg className="w-10 h-10 mx-auto" viewBox="0 0 48 48" fill="none" stroke="#ff8a28" strokeWidth={1.8}>
+                    {/* Chat bubble with lightning */}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h24a2 2 0 012 2v16a2 2 0 01-2 2H16l-6 6v-6H8a2 2 0 01-2-2V12a2 2 0 012-2z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 16l-3 6h6l-3 6" />
+                    <circle cx="38" cy="18" r="7" />
+                    <path strokeLinecap="round" d="M36 16l2 2 4-4" />
+                  </svg>
+                ),
+              },
+              {
+                title: "Privacy First",
+                desc: "Your data is secure and always private.",
+                icon: (
+                  <svg className="w-10 h-10 mx-auto" viewBox="0 0 48 48" fill="none" stroke="#ff8a28" strokeWidth={1.8}>
+                    {/* Shield lock icon */}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M24 4L8 12v10c0 11 7 20 16 22 9-2 16-11 16-22V12L24 4z" />
+                    <rect x="18" y="22" width="12" height="10" rx="2" strokeLinejoin="round" />
+                    <path strokeLinecap="round" d="M21 22v-4a3 3 0 016 0v4" />
+                    <circle cx="24" cy="27" r="1.5" fill="#ff8a28" />
+                  </svg>
+                ),
+              },
+            ].map((f) => (
+              <div key={f.title} className="group flex flex-col items-center text-center px-3 py-4 md:px-5 transition-all duration-300 hover:scale-[1.03]">
+                <div className="mb-3">{f.icon}</div>
+                <div className="text-[14px] font-bold mb-1">{f.title}</div>
+                <div className="text-[11px] text-white/55 leading-relaxed">{f.desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Loved by Learners Worldwide */}
+        <section className="mb-6 rounded-3xl bg-white p-8 md:p-12 shadow-[0_4px_32px_rgba(20,28,60,0.07)]">
+          <h3 className="mb-8 text-center text-3xl md:text-4xl font-extrabold text-[#141b40]">
+            Loved by <span className="text-[#ff7a00]">Learners</span> Worldwide
+          </h3>
+          <div className="relative">
+            {/* Navigation arrows */}
+            <button className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-[#e8ebf3] shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#4b5472] hover:bg-[#f8f9fc] transition-colors">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-[#e8ebf3] shadow-[0_4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center text-[#4b5472] hover:bg-[#f8f9fc] transition-colors">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <div className="grid gap-5 md:grid-cols-3 px-4">
+              {[
+                {
+                  name: "Ananya S.",
+                  band: "Band 8.0 Achiever",
+                  quote: "QualiCode's AI knows me better than I know myself. It helped me improve from 6.0 to 8.0 in 2 months!",
+                  color: "#ff7a00",
+                },
+                {
+                  name: "Minh T.",
+                  band: "Band 7.5 Achiever",
+                  quote: "The adaptive practice is insanely good. I only practice what I need, and I see real improvement.",
+                  color: "#3b82f6",
+                },
+                {
+                  name: "Fatima K.",
+                  band: "Band 8.5 Achiever",
+                  quote: "All Cambridge Cams, AI feedback, and mock tests – everything I need in one place!",
+                  color: "#8b5cf6",
+                },
+              ].map((item) => (
+                <article
+                  key={item.name}
+                  className="relative rounded-2xl border border-[#e8ebf3] bg-[#fafbfe] p-6 transition-all duration-300 hover:shadow-[0_8px_24px_rgba(20,28,60,0.08)] hover:border-[#d0d4e4]"
+                >
+                  {/* Quote mark */}
+                  <div className="mb-3 text-3xl font-serif leading-none" style={{ color: item.color }}>
+                    &ldquo;&ldquo;
+                  </div>
+                  <p className="mb-5 text-[14px] leading-relaxed text-[#495170]">
+                    {item.quote}
+                  </p>
+                  <div className="flex items-center gap-3 pt-3 border-t border-[#eef0f6]">
+                    <div
+                      className="h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                      style={{ background: `linear-gradient(135deg, ${item.color}99, ${item.color})` }}
+                    >
+                      {item.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-bold text-[14px] text-[#182045]">— {item.name}</div>
+                      <div className="text-[11px] text-[#8b90b0]">{item.band}</div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA - Ready to Achieve */}
+        <section className="relative rounded-3xl overflow-hidden" style={{ background: "linear-gradient(105deg, #ff6b00 0%, #e85500 30%, #b25cff 60%, #4f84ff 100%)" }}>
+          {/* Decorative overlay */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCBmaWxsPSJ1cmwoI2EpIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIvPjwvc3ZnPg==')] opacity-50" />
+          <div className="relative z-10 flex flex-col items-center gap-6 p-8 md:p-0 md:flex-row md:items-end">
+            {/* Robot mascot */}
+            <div className="hidden md:block flex-shrink-0 w-[220px] h-[220px] relative -mb-1 ml-4">
+              <img
+                src="/assets/robot-mascot.png"
+                alt="AI Robot Mascot"
+                className="w-full h-full object-contain drop-shadow-[0_12px_32px_rgba(0,0,0,0.25)]"
+              />
+            </div>
+
+            {/* Text content */}
+            <div className="flex-1 md:py-10">
+              <h3 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                Ready to Achieve Your
+                <br />
+                Dream IELTS Score?
+              </h3>
+              <p className="mt-3 text-[15px] text-white/85 leading-relaxed">
+                Start your AI-powered journey today. 100% AI. 100% For You.
+              </p>
+            </div>
+
+            {/* CTA button */}
+            <div className="flex flex-col items-center gap-2 md:pr-10 flex-shrink-0 md:pb-10">
+              <button className="rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-[#ff7a00] shadow-[0_8px_24px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.2)] transition-all duration-300 hover:scale-105 whitespace-nowrap">
+                Start Free Now →
+              </button>
+              <span className="text-[11px] text-white/60 italic">No credit card required</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
