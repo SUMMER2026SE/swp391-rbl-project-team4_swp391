@@ -1,0 +1,42 @@
+[
+  {
+    "id": "log_x8fzwao",
+    "timestamp": "2026-05-21T07:17:59.123Z",
+    "adminName": "QualiCode System Admin",
+    "adminEmail": "admin@qualicode.com",
+    "action": "UPDATE",
+    "targetName": "ádadas",
+    "targetEmail": "biminbon3@gmail.com",
+    "details": "Cập nhật thông tin tài khoản (Vai trò cũ: STUDENT -> Vai trò mới: GUEST)"
+  },
+  {
+    "id": "log_ps4yin0",
+    "timestamp": "2026-05-21T07:18:07.411Z",
+    "adminName": "QualiCode System Admin",
+    "adminEmail": "admin@qualicode.com",
+    "action": "UPGRADE",
+    "targetName": "ádadas",
+    "targetEmail": "biminbon3@gmail.com",
+    "details": "Nâng cấp quyền học viên (từ GUEST lên STUDENT)"
+  },
+  {
+    "id": "log_veyaz8o",
+    "timestamp": "2026-05-21T07:22:29.274Z",
+    "adminName": "QualiCode System Admin",
+    "adminEmail": "admin@qualicode.com",
+    "action": "UPDATE",
+    "targetName": "ádadas",
+    "targetEmail": "biminbon3@gmail.com",
+    "details": "Cập nhật thông tin tài khoản (Vai trò cũ: STUDENT -> Vai trò mới: GUEST)"
+  },
+  {
+    "id": "log_bzrwjjg",
+    "timestamp": "2026-05-21T07:22:40.042Z",
+    "adminName": "QualiCode System Admin",
+    "adminEmail": "admin@qualicode.com",
+    "action": "UPGRADE",
+    "targetName": "ádadas",
+    "targetEmail": "biminbon3@gmail.com",
+    "details": "Nâng cấp quyền học viên (từ GUEST lên STUDENT)"
+  }
+]

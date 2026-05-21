@@ -1,7 +1,62 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { User, LogOut, ShieldAlert, Sparkles, Calendar, Mail, UserCheck } from "lucide-react";
+
 export default function Home() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Check current session
+  useEffect(() => {
+    async function checkUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user && session.user.email_confirmed_at) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    }
+    checkUser();
+
+    // Listen for session modifications
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && session.user.email_confirmed_at) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle outside clicks to close the dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setShowDropdown(false);
+    window.location.reload();
+  };
+
   return (
     <div className="bg-[#f4f5f9] text-[#0f1738]">
-      <header className="mx-auto flex w-full max-w-[1160px] items-center justify-between px-9 py-6">
+      <header className="mx-auto flex w-full max-w-[1160px] items-center justify-between px-9 py-6 relative z-30">
         <div className="flex items-center gap-2 text-xl font-extrabold text-[#11193f]">
           <span className="text-[#ff7a00]">*</span>
           <span>QualiCode</span>
@@ -14,9 +69,87 @@ export default function Home() {
           <a href="#">About Us</a>
           <a href="#">Blog</a>
         </nav>
-        <div className="hidden items-center gap-3 md:flex">
-          <button className="rounded-xl border border-[#e7e9f1] px-5 py-2 text-sm font-semibold">Log in</button>
-          <button className="rounded-xl bg-[#ff7a00] px-5 py-2 text-sm font-semibold text-white">Get Started</button>
+        
+        {/* Dynamic Auth Header section */}
+        <div className="flex items-center gap-3 relative" ref={dropdownRef}>
+          {loading ? (
+            <div className="w-8 h-8 border-2 border-[#ff7a00]/30 border-t-[#ff7a00] rounded-full animate-spin" />
+          ) : user ? (
+            <>
+              {/* Premium User Avatar Bubble */}
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ff7a00] to-[#7c3aed] text-white font-extrabold text-sm flex items-center justify-center cursor-pointer shadow-[0_4px_16px_rgba(255,122,0,0.15)] hover:scale-105 hover:shadow-[0_6px_20px_rgba(255,122,0,0.25)] active:scale-95 transition-all outline-none border border-white/40 select-none relative group"
+                aria-label="User menu"
+              >
+                <div className="absolute inset-0 rounded-full border border-white/20 scale-105 group-hover:scale-110 transition-all duration-300" />
+                <span>
+                  {(user.user_metadata?.name || user.email || "U").charAt(0).toUpperCase()}
+                </span>
+              </button>
+
+              {/* User Dropdown Menu */}
+              {showDropdown && (
+                <div className="absolute right-0 top-12 w-64 rounded-2xl bg-white/95 border border-slate-100 shadow-[0_16px_48px_rgba(15,23,56,0.1)] backdrop-blur-md p-4 animate-scale-in z-50 text-left">
+                  <div className="border-b border-slate-100 pb-3 mb-3">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider leading-none mb-1">Đang đăng nhập</p>
+                    <p className="text-xs font-black text-[#0d153a] truncate">
+                      {user.user_metadata?.name || "Người dùng QualiCode"}
+                    </p>
+                    <p className="text-[10px] font-medium text-slate-500 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setShowProfileModal(true);
+                        setShowDropdown(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-bold text-[#5e6792] hover:bg-slate-50 hover:text-[#ff7a00] active:scale-[0.98] transition-all cursor-pointer border-none outline-none"
+                    >
+                      <User className="w-4 h-4 text-[#ff7a00]" />
+                      <span>Thông tin tài khoản</span>
+                    </button>
+
+                    {user.user_metadata?.role === "ADMIN" && (
+                      <Link
+                        href="/admin/users"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-bold text-[#5e6792] hover:bg-slate-50 hover:text-[#7c3aed] active:scale-[0.98] transition-all cursor-pointer"
+                      >
+                        <ShieldAlert className="w-4 h-4 text-[#7c3aed]" />
+                        <span>Trang Quản trị Admin</span>
+                      </Link>
+                    )}
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-left text-xs font-bold text-red-500 hover:bg-red-50 active:scale-[0.98] transition-all cursor-pointer border-none outline-none border-t border-slate-50 mt-1 pt-2"
+                    >
+                      <LogOut className="w-4 h-4 text-red-500" />
+                      <span>Đăng xuất</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="rounded-xl border border-[#e7e9f1] px-5 py-2 text-sm font-semibold hover:bg-slate-100 transition-colors cursor-pointer select-none"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/register"
+                className="rounded-xl bg-[#ff7a00] px-5 py-2 text-sm font-semibold text-white hover:bg-orange-600 transition-colors shadow-sm cursor-pointer select-none"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
@@ -624,6 +757,99 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      {/* Premium Glassmorphic User Profile Modal */}
+      {showProfileModal && user && (
+        <div 
+          onClick={() => setShowProfileModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-fade-in select-none"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-[480px] rounded-3xl bg-white/95 border border-white/60 shadow-[0_24px_64px_rgba(15,23,56,0.15)] p-6 md:p-8 animate-scale-in text-left relative overflow-hidden"
+          >
+            <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-gradient-to-tr from-[#ff7a00]/10 to-[#7c3aed]/10 blur-2xl" />
+
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-4 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#ff7a00] to-[#ff9e4f] text-white flex items-center justify-center shadow-[0_4px_12px_rgba(255,122,0,0.15)]">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#0d153a]">Thông tin tài khoản</h3>
+                <p className="text-[10px] font-bold text-slate-400">Chi tiết tài khoản học viên QualiCode</p>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="space-y-5 mb-6 relative z-10">
+              {/* Profile Avatar Card */}
+              <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-br from-[#fafaff] to-[#fff8f2] border border-slate-100/60 shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#ff7a00] via-[#ff9e4f] to-[#7c3aed] text-white text-xl font-extrabold flex items-center justify-center shadow-[0_4px_16px_rgba(255,122,0,0.2)]">
+                  {(user.user_metadata?.name || user.email || "U").charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[#0d153a]">
+                    {user.user_metadata?.name || "Thành viên QualiCode"}
+                  </h4>
+                  <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-[#ff7a00]/10 text-[#ff7a00] border border-[#ff7a00]/25">
+                    {user.user_metadata?.role === "ADMIN" ? "Quản trị viên (ADMIN)" : user.user_metadata?.role === "STUDENT" ? "Học sinh (STUDENT)" : "Khách (GUEST)"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Data list */}
+              <div className="space-y-3.5 p-4 bg-slate-50/50 border border-slate-100 rounded-2xl">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-4 h-4 text-[#7c3aed] mt-0.5 shrink-0" />
+                  <div>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Địa chỉ Email</span>
+                    <span className="text-xs font-bold text-[#0d153a] break-all">{user.email}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-4 h-4 text-[#ff7a00] mt-0.5 shrink-0" />
+                  <div>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Ngày tham gia</span>
+                    <span className="text-xs font-bold text-[#0d153a]">
+                      {new Date(user.created_at).toLocaleDateString("vi-VN", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <UserCheck className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">Trạng thái hệ thống</span>
+                    <span className="text-xs font-bold text-green-600 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-pulse" />
+                      Đang hoạt động (Active)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(false)}
+                className="w-full py-3 px-4 bg-gradient-to-r from-[#0d153a] to-[#252f5f] hover:from-[#1b2550] hover:to-[#3b477c] text-white font-bold text-xs rounded-2xl shadow-[0_4px_12px_rgba(13,21,58,0.15)] hover:shadow-[0_6px_18px_rgba(13,21,58,0.25)] active:scale-[0.98] transition-all cursor-pointer text-center border-none outline-none"
+              >
+                Đóng thông tin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

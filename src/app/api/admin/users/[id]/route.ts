@@ -1,0 +1,151 @@
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase";
+import { logActivity } from "@/lib/activityLogger";
+
+// PUT: Cập nhật thông tin chi tiết người dùng trên Supabase Auth DB
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const { name, email, role, isLocked } = body;
+
+    if (!name || !email || !role) {
+      return NextResponse.json(
+        { message: "Vui lòng cung cấp đầy đủ thông tin: Tên, Email và Vai trò." },
+        { status: 400 }
+      );
+    }
+
+    const validRoles = ["ADMIN", "STUDENT", "GUEST"];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json(
+        { message: "Vai trò không hợp lệ." },
+        { status: 400 }
+      );
+    }
+
+    console.log(`⚡ [Supabase Auth] Đang cập nhật người dùng: ${id}...`);
+
+    // Fetch current user details to preserve other metadata if any
+    const { data: { user: currentUser }, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(id);
+    if (fetchError || !currentUser) {
+      return NextResponse.json(
+        { message: "Không tìm thấy người dùng này trên Supabase." },
+        { status: 404 }
+      );
+    }
+
+    const newMetadata = {
+      ...(currentUser.user_metadata || {}),
+      name,
+      role,
+      isLocked: typeof isLocked === "boolean" ? isLocked : (currentUser.user_metadata?.isLocked === true),
+    };
+
+    // Update email and metadata
+    const { data: { user }, error: updateError } = await supabaseAdmin.auth.admin.updateUserById(id, {
+      email,
+      user_metadata: newMetadata,
+      // If user is locked, set ban duration to 10 years, else none
+      ban_duration: newMetadata.isLocked ? "87600h" : "none",
+    });
+
+    if (updateError || !user) {
+      throw new Error(updateError?.message || "Không thể cập nhật thông tin người dùng.");
+    }
+
+    const formattedUser = {
+      id: user.id,
+      name: user.user_metadata?.name || name,
+      email: user.email || email,
+      role: user.user_metadata?.role || role,
+      isLocked: user.user_metadata?.isLocked === true || !!user.banned_until,
+      updatedAt: user.updated_at,
+    };
+
+    // Ghi nhận lịch sử hoạt động
+    const oldRole = currentUser.user_metadata?.role || "GUEST";
+    const isUpgraded = oldRole === "GUEST" && role === "STUDENT";
+    
+    if (isUpgraded) {
+      await logActivity(
+        "UPGRADE",
+        formattedUser.name,
+        formattedUser.email,
+        "Nâng cấp quyền học viên (từ GUEST lên STUDENT)",
+        request
+      );
+    } else {
+      await logActivity(
+        "UPDATE",
+        formattedUser.name,
+        formattedUser.email,
+        `Cập nhật thông tin tài khoản (Vai trò cũ: ${oldRole} -> Vai trò mới: ${formattedUser.role})`,
+        request
+      );
+    }
+
+    return NextResponse.json({
+      message: "Cập nhật thông tin người dùng thành công trên Supabase!",
+      user: formattedUser,
+    });
+  } catch (error: any) {
+    console.error(`❌ Lỗi API PUT /api/admin/users/[id]:`, error);
+    return NextResponse.json(
+      { message: "Đã xảy ra lỗi khi cập nhật thông tin người dùng trên Supabase.", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE: Xóa người dùng hoàn toàn khỏi Supabase
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    console.log(`⚡ [Supabase Auth] Đang xóa người dùng: ${id}...`);
+
+    // Fetch user details first to get their name for response
+    const { data: { user }, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(id);
+    if (fetchError || !user) {
+      return NextResponse.json(
+        { message: "Không tìm thấy người dùng này trên Supabase." },
+        { status: 404 }
+      );
+    }
+
+    const name = user.user_metadata?.name || user.email || "Người dùng";
+
+    // Delete user from Supabase Auth
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(id);
+
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
+
+    // Ghi nhận lịch sử hoạt động
+    await logActivity(
+      "DELETE",
+      name,
+      user.email || "",
+      `Xóa vĩnh viễn tài khoản người dùng khỏi hệ thống`,
+      request
+    );
+
+    return NextResponse.json({
+      message: `Đã xóa tài khoản '${name}' thành công khỏi hệ thống Supabase!`,
+    });
+  } catch (error: any) {
+    console.error(`❌ Lỗi API DELETE /api/admin/users/[id]:`, error);
+    return NextResponse.json(
+      { message: "Đã xảy ra lỗi khi xóa tài khoản người dùng trên Supabase.", error: error.message },
+      { status: 500 }
+    );
+  }
+}
