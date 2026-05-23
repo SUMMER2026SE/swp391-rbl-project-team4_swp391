@@ -62,12 +62,14 @@ export default function Home() {
           <span>QualiCode</span>
         </div>
         <nav className="hidden items-center gap-8 text-sm font-medium text-[#404965] md:flex">
-          <a href="#">Home</a>
-          <a href="#">Features</a>
+          <Link href="/">Home</Link>
+          <Link href="/speaking" className="text-[#ff7a00] font-black flex items-center gap-1 transition-all hover:scale-105">
+            <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#ff7a00]" />
+            <span>Speaking AI</span>
+          </Link>
           <a href="#">Cambridge Cams</a>
           <a href="#">Pricing</a>
           <a href="#">About Us</a>
-          <a href="#">Blog</a>
         </nav>
         {/* Dynamic Auth Header section */}
         <div className="flex items-center gap-3 relative" ref={dropdownRef}>
@@ -172,9 +174,13 @@ export default function Home() {
                 <span className="font-bold text-[#ff7a00]"> 9 to 20</span>.
               </p>
               <div className="flex flex-wrap gap-3">
-                <button className="rounded-xl bg-[#ff7a00] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_18px_rgba(255,122,0,0.35)]">
-                  Start Free AI Assessment
-                </button>
+                <Link 
+                  href="/speaking"
+                  className="rounded-xl bg-[#ff7a00] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_18px_rgba(255,122,0,0.35)] hover:bg-orange-600 transition-colors select-none cursor-pointer flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-4 h-4 animate-pulse" />
+                  <span>Practice Speaking AI</span>
+                </Link>
                 <button className="rounded-xl border border-[#dde1ee] bg-white px-6 py-3 text-sm font-semibold text-[#2b355b]">
                   Watch how it works
                 </button>
