@@ -194,6 +194,7 @@ function SpeakingFeedbackContent() {
         <nav className="hidden items-center gap-8 text-sm font-medium text-[#404965] md:flex">
           <Link href="/">Trang chủ</Link>
           <Link href="/speaking" className="text-[#ff7a00] font-bold">Luyện Speaking</Link>
+          <Link href="/exam/review" className="hover:text-[#ff7a00] transition-colors">Review Đáp án</Link>
           <a href="#">Cambridge Cams</a>
           <a href="#">Bảng xếp hạng</a>
           <a href="#">Hỗ trợ</a>

@@ -67,6 +67,7 @@ export default function Home() {
             <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#ff7a00]" />
             <span>Speaking AI</span>
           </Link>
+          <Link href="/exam/review" className="hover:text-[#ff7a00] transition-colors">Review Đáp án</Link>
           <a href="#">Cambridge Cams</a>
           <a href="#">Pricing</a>
           <a href="#">About Us</a>
