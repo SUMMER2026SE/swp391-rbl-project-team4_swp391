@@ -1,0 +1,91 @@
+import { supabaseAdmin } from "@/lib/supabase";
+import { NextRequest } from "next/server";
+
+// GET /api/admin/exams — List all exams
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
+
+    let query = supabaseAdmin
+      .from("exams")
+      .select("*, exam_sections(id, section_no, title)")
+      .order("created_at", { ascending: false });
+
+    if (status && status !== "all") {
+      query = query.eq("status", status);
+    }
+
+    if (search) {
+      query = query.ilike("title", `%${search}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ exams: data });
+  } catch (err) {
+    console.error("GET /api/admin/exams error:", err);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+// POST /api/admin/exams — Create a new exam
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { title, description, audio_url, cambridge_no, test_no, status, sections } = body;
+
+    if (!title) {
+      return Response.json({ error: "Tiêu đề đề thi là bắt buộc" }, { status: 400 });
+    }
+
+    // Insert exam
+    const { data: exam, error: examError } = await supabaseAdmin
+      .from("exams")
+      .insert({
+        title,
+        description: description || null,
+        audio_url: audio_url || null,
+        cambridge_no: cambridge_no ? parseInt(cambridge_no) : null,
+        test_no: test_no ? parseInt(test_no) : null,
+        status: status || "draft",
+      })
+      .select()
+      .single();
+
+    if (examError) {
+      return Response.json({ error: examError.message }, { status: 500 });
+    }
+
+    // Insert sections if provided
+    if (sections && Array.isArray(sections) && sections.length > 0) {
+      const sectionsToInsert = sections.map((s: any) => ({
+        exam_id: exam.id,
+        section_no: s.section_no,
+        title: s.title || `Section ${s.section_no}`,
+        content: s.content || null,
+        answers: s.answers || null,
+      }));
+
+      const { error: sectionsError } = await supabaseAdmin
+        .from("exam_sections")
+        .insert(sectionsToInsert);
+
+      if (sectionsError) {
+        // Rollback exam if sections fail
+        await supabaseAdmin.from("exams").delete().eq("id", exam.id);
+        return Response.json({ error: sectionsError.message }, { status: 500 });
+      }
+    }
+
+    return Response.json({ exam }, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/admin/exams error:", err);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

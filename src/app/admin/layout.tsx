@@ -14,6 +14,7 @@ import {
   LogOut,
   ShieldCheck,
   Clock,
+  FileText,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -68,6 +69,12 @@ export default function AdminLayout({
       href: "/admin/users",
       icon: Users,
       active: pathname.startsWith("/admin/users"),
+    },
+    {
+      label: "Quản lý Đề Thi",
+      href: "/admin/exams",
+      icon: FileText,
+      active: pathname.startsWith("/admin/exams"),
     },
     {
       label: "Lịch sử hoạt động",
@@ -195,6 +202,8 @@ export default function AdminLayout({
                   ? "Tổng quan"
                   : pathname.startsWith("/admin/users")
                   ? "Quản lý người dùng"
+                  : pathname.startsWith("/admin/exams")
+                  ? "Quản lý đề thi"
                   : pathname.startsWith("/admin/activity-logs")
                   ? "Lịch sử hoạt động"
                   : "Cấu hình hệ thống"}
