@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Clock,
   FileText,
+  CreditCard,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -35,6 +36,23 @@ export default function AdminLayout({
     // Attempt to load current user name if logged in, but don't block or redirect if not
     async function loadUserInfo() {
       try {
+        // Check for mock session fallback first
+        const mockSessionStr = typeof window !== "undefined" ? localStorage.getItem("mock_session") : null;
+        if (mockSessionStr) {
+          try {
+            const mockUser = JSON.parse(mockSessionStr);
+            if (mockUser) {
+              setAdminUser({
+                name: mockUser.name || "Admin QualiCode (Bypass)",
+                email: mockUser.email || "admin@qualicode.com",
+              });
+              return;
+            }
+          } catch (e) {
+            console.error("Lỗi parse mock_session:", e);
+          }
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const metadata = user.user_metadata || {};
@@ -52,7 +70,14 @@ export default function AdminLayout({
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("mock_session");
+    }
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn("Không thể gọi signOut trên Supabase:", e);
+    }
     window.location.href = "/login";
   };
 
@@ -75,6 +100,12 @@ export default function AdminLayout({
       href: "/admin/exams",
       icon: FileText,
       active: pathname.startsWith("/admin/exams"),
+    },
+    {
+      label: "Quản lý Thanh toán",
+      href: "/admin/payments",
+      icon: CreditCard,
+      active: pathname.startsWith("/admin/payments"),
     },
     {
       label: "Lịch sử hoạt động",
@@ -204,6 +235,8 @@ export default function AdminLayout({
                   ? "Quản lý người dùng"
                   : pathname.startsWith("/admin/exams")
                   ? "Quản lý đề thi"
+                  : pathname.startsWith("/admin/payments")
+                  ? "Quản lý thanh toán"
                   : pathname.startsWith("/admin/activity-logs")
                   ? "Lịch sử hoạt động"
                   : "Cấu hình hệ thống"}

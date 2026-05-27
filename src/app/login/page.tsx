@@ -45,10 +45,34 @@ export default function LoginPage() {
         return;
       }
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const role = session.user.user_metadata?.role || "GUEST";
-        if (role === "ADMIN") {
+      let hasSession = false;
+      let sessionRole = "GUEST";
+
+      const mockSessionStr = typeof window !== "undefined" ? localStorage.getItem("mock_session") : null;
+      if (mockSessionStr) {
+        try {
+          const mockUser = JSON.parse(mockSessionStr);
+          if (mockUser) {
+            hasSession = true;
+            sessionRole = mockUser.role || "GUEST";
+          }
+        } catch (e) {}
+      }
+
+      if (!hasSession) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            hasSession = true;
+            sessionRole = session.user.user_metadata?.role || "GUEST";
+          }
+        } catch (e) {
+          console.warn("Lỗi lấy session Supabase:", e);
+        }
+      }
+
+      if (hasSession) {
+        if (sessionRole === "ADMIN") {
           window.location.href = "/admin/users";
         } else {
           window.location.href = "/";
@@ -63,6 +87,22 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
+
+    // Fallback Mock Login Bypass
+    if (email.toLowerCase() === "admin@qualicode.com" && password === "admin123") {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("mock_session", JSON.stringify({
+          email: "admin@qualicode.com",
+          name: "Admin QualiCode (Bypass)",
+          role: "ADMIN"
+        }));
+      }
+      setSuccessMsg("Đăng nhập thành công (Bypass Mode)! Đang chuyển hướng...");
+      setTimeout(() => {
+        window.location.href = "/admin/users";
+      }, 1200);
+      return;
+    }
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({

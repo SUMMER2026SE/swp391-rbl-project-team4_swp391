@@ -1,0 +1,49 @@
+[
+  {
+    "id": "pkg_1",
+    "name": "IELTS Premium 3 Tháng",
+    "price": 299000,
+    "durationMonths": 3,
+    "description": "Gói học IELTS cơ bản cho học viên muốn cải thiện cấp tốc trong 3 tháng.",
+    "features": [
+      "Truy cập đầy đủ ngân hàng câu hỏi Speaking",
+      "Đánh giá AI tự động phản hồi phát âm",
+      "Xem đáp án chi tiết các phần thi",
+      "Luyện tập 30 bài thi thử IELTS thực tế"
+    ],
+    "isActive": true,
+    "createdAt": "2026-03-28T09:00:32.509Z"
+  },
+  {
+    "id": "pkg_2",
+    "name": "IELTS VIP 6 Tháng",
+    "price": 599000,
+    "durationMonths": 6,
+    "description": "Gói học tập nâng cao, chấm chữa chi tiết, thích hợp cho mục tiêu tăng 1.0 - 1.5 band.",
+    "features": [
+      "Tất cả tính năng của gói Premium 3 Tháng",
+      "Đánh giá chi tiết từ AI nâng cao (ngữ pháp, từ vựng, độ trôi chảy)",
+      "Ưu tiên phản hồi hỗ trợ trong 2 giờ",
+      "Thống kê tiến độ học tập thông minh",
+      "Tặng thêm tài liệu Speaking dự đoán quý mới nhất"
+    ],
+    "isActive": true,
+    "createdAt": "2026-03-28T09:00:32.509Z"
+  },
+  {
+    "id": "pkg_3",
+    "name": "IELTS Master 12 Tháng",
+    "price": 999000,
+    "durationMonths": 12,
+    "description": "Giải pháp luyện thi toàn diện trong 1 năm cho người mất gốc hoặc mục tiêu band điểm cao 7.5+.",
+    "features": [
+      "Tất cả tính năng của gói VIP 6 Tháng",
+      "Thời hạn học tập trọn vẹn 12 tháng không giới hạn lượt truy cập",
+      "Báo cáo phân tích điểm yếu kèm lộ trình khắc phục cá nhân hóa",
+      "Cam kết đầu ra chuẩn IELTS Cambridge",
+      "Hỗ trợ giải đáp bài tập 1-1 trực tuyến cùng giảng viên"
+    ],
+    "isActive": true,
+    "createdAt": "2026-03-28T09:00:32.509Z"
+  }
+]

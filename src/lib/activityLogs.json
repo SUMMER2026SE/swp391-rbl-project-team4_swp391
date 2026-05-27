@@ -108,5 +108,15 @@
     "targetName": "ádasdsa",
     "targetEmail": "khietdannguyen12@gmail.com",
     "details": "Tạo tài khoản mới thành công (Vai trò: STUDENT)"
+  },
+  {
+    "id": "log_cw29t48",
+    "timestamp": "2026-05-27T09:08:08.442Z",
+    "adminName": "Admin Verify Script",
+    "adminEmail": "verifyscript@qualicode.com",
+    "action": "UPDATE",
+    "targetName": "Cấu hình Hệ thống",
+    "targetEmail": "system-settings",
+    "details": "Cập nhật thành công các cấu hình hệ thống, thiết lập mail SMTP và ngưỡng điểm IELTS Band."
   }
 ]
