@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+      from: process.env.RESEND_FROM_EMAIL || "noreply@luyenielts.site",
       to: email,
       subject: "Chào mừng bạn đến với QualiIelts! 🎉",
       html: `
