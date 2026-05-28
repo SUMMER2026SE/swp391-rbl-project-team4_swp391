@@ -1,0 +1,29 @@
+{
+  "system": {
+    "appName": "QualiCode IELTS Master Pro API Tested",
+    "supportEmail": "api-test@qualicode.com",
+    "maintenanceMode": false,
+    "allowRegistration": true,
+    "defaultUserRole": "STUDENT"
+  },
+  "email": {
+    "smtpHost": "smtp.gmail.com",
+    "smtpPort": 587,
+    "smtpUser": "notifications@qualicode.com",
+    "sendOnRegister": true,
+    "sendOnPayment": true,
+    "sendOnLock": true
+  },
+  "bandScore": {
+    "fluencyWeight": 0.25,
+    "lexicalWeight": 0.25,
+    "grammarWeight": 0.25,
+    "pronunciationWeight": 0.25,
+    "beginnerMaxBand": 4.5,
+    "intermediateMaxBand": 6.5,
+    "advancedMinBand": 7,
+    "beginnerFeedback": "Nhận xét cơ bản mới.",
+    "intermediateFeedback": "Nhận xét trung cấp mới.",
+    "advancedFeedback": "Nhận xét nâng cao mới."
+  }
+}
