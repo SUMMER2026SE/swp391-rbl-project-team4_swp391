@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
 
     if (!actionLink) return NextResponse.json({ error: "Failed to generate confirmation link" }, { status: 500 });
 
-    const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "noreply@luyenielts.site";
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    await resend.emails.send({
+    const { error: sendError } = await resend.emails.send({
       from: fromEmail,
       to: email,
       subject: "Xác nhận email để kích hoạt tài khoản QualiIelts",
@@ -130,6 +130,11 @@ export async function POST(request: NextRequest) {
         </html>
       `,
     });
+
+    if (sendError) {
+      console.error("[register] Resend error:", sendError);
+      return NextResponse.json({ error: `Email send failed: ${sendError.message}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
