@@ -1,14 +1,22 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { Resend } from "resend";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name } = await request.json();
+    const { email, name, userId } = await request.json();
     console.log("[send-welcome] called for:", email);
     if (!email) return NextResponse.json({ error: "Email required" }, { status: 400 });
+
+    // Mark welcomeEmailSent so callback never sends a duplicate
+    if (userId) {
+      await supabaseAdmin.auth.admin.updateUserById(userId, {
+        user_metadata: { welcomeEmailSent: true },
+      }).catch(() => {});
+    }
 
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",

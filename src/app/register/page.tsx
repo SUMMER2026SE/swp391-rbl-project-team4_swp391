@@ -107,7 +107,13 @@ export default function RegisterPage() {
       }
 
       if (data?.user) {
-        // Sign out immediately to clear unconfirmed user session
+        // Send welcome email immediately via Resend API (bypasses Supabase SMTP entirely)
+        fetch("/api/auth/send-welcome", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, name, userId: data.user.id }),
+        }).catch(() => {});
+
         await supabase.auth.signOut();
         setStep(2);
         startCountdown();
