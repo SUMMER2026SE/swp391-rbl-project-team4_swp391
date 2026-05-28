@@ -3,8 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { Eye, EyeOff, Mail, Lock, User, UserCheck, AlertTriangle, ArrowRight, Shield, Brain, Sparkles, TrendingUp, BookOpen, Compass, Zap, CheckCircle2, ArrowLeft, RefreshCw } from "lucide-react";
-import { OtpInput } from "@/components/ui/OtpInput";
+import { Eye, EyeOff, Mail, Lock, User, UserCheck, AlertTriangle, ArrowRight, Shield, Brain, TrendingUp, BookOpen, Compass, Zap, CheckCircle2, ArrowLeft, RefreshCw } from "lucide-react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -21,9 +20,6 @@ export default function RegisterPage() {
 
   // Multi-step: 1 = form, 2 = OTP
   const [step, setStep] = useState<1 | 2>(1);
-
-  // OTP state
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
 
   // Countdown for resend
   const [countdown, setCountdown] = useState(0);
@@ -585,7 +581,7 @@ export default function RegisterPage() {
               </div>
             </>
           ) : (
-            /* ============ STEP 2: OTP Verification ============ */
+            /* ============ STEP 2: Email Confirmation Waiting ============ */
             <>
               <div className="my-auto max-w-[420px] w-full">
                 {/* Back button */}
@@ -595,7 +591,6 @@ export default function RegisterPage() {
                     setStep(1);
                     setErrorMsg("");
                     setSuccessMsg("");
-                    setOtp(["", "", "", "", "", ""]);
                   }}
                   className="flex items-center gap-1.5 text-xs font-bold text-[#5e6792] hover:text-[#3B5C37] transition-colors mb-6 bg-transparent border-none cursor-pointer outline-none"
                 >
@@ -603,101 +598,58 @@ export default function RegisterPage() {
                   <span>Quay lại</span>
                 </button>
 
-                {/* OTP Icon */}
+                {/* Mail Icon */}
                 <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#3B5C37]/15 to-[#ff9e4f]/10 text-[#3B5C37] flex items-center justify-center mx-auto mb-5 relative">
                   <div className="absolute inset-0 rounded-3xl bg-[#3B5C37]/20 scale-110 blur-md opacity-50 animate-pulse" />
                   <Mail className="w-7 h-7 relative z-10" />
                 </div>
 
                 <h2 className="text-2xl font-extrabold text-[#0d153a] tracking-tight mb-2 text-center">
-                  Xác thực OTP
+                  Xác nhận Email của bạn
                 </h2>
                 <p className="text-xs font-semibold text-[#5e6792] mb-2 text-center leading-relaxed">
-                  Chúng tôi đã gửi mã xác thực 6 số đến email:
-                </p>
-                <p className="text-sm font-bold text-[#0d153a] text-center mb-6 bg-[#f0f4fd] py-2 px-4 rounded-xl border border-[#e1e4ed]/40 inline-block mx-auto w-fit break-all">
-                  {email}
+                  Đăng ký thành công! Đang chờ bạn xác thực Email từ Gmail...
                 </p>
 
-                {/* Yêu cầu xác nhận Banner */}
-                <div className="mb-6 p-4 rounded-2xl bg-[#3B5C37]/5 border border-[#3B5C37]/25 flex flex-col gap-3 animate-fade-in">
-                  <div className="flex items-start gap-3 text-left">
-                    <div className="w-8 h-8 rounded-xl bg-[#3B5C37]/10 text-[#3B5C37] flex items-center justify-center shrink-0">
-                      <Shield className="w-4.5 h-4.5" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-[#0d153a] uppercase tracking-wider">
-                        Yêu cầu xác nhận Email
-                      </h4>
-                      <p className="text-[11px] text-[#5e6792] font-semibold leading-relaxed mt-0.5">
-                        Bạn cần nhập mã OTP được gửi tới hòm thư của mình để hoàn tất kích hoạt tài khoản. Yêu cầu này chỉ có hiệu lực trong vòng 5 phút.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Timer Badge */}
-                  <div className={`flex items-center justify-between p-2.5 rounded-xl border transition-all duration-300 ${
-                    expiryCountdown <= 60 
-                      ? "bg-red-50 border-red-100 text-red-600 animate-pulse" 
-                      : "bg-[#3B5C37]/5 border-[#3B5C37]/10 text-[#3B5C37]"
-                  }`}>
-                    <span className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5" />
-                      {expiryCountdown <= 0 ? "Yêu cầu đã hết hạn" : "Thời gian xác thực còn lại"}
-                    </span>
-                    <span className="text-sm font-black tracking-wider">
-                      {formatExpiryTime(expiryCountdown)}
-                    </span>
-                  </div>
+                {/* Email display */}
+                <div className="bg-[#f0f4fd] border border-[#e1e4ed]/60 rounded-2xl px-4 py-3 text-center mb-6">
+                  <p className="text-[11px] text-[#5e6792] font-semibold mb-1">Chúng tôi đã gửi một liên kết xác nhận tài khoản đến địa chỉ:</p>
+                  <p className="text-sm font-black text-[#0d153a] break-all">{email}</p>
                 </div>
 
-                {/* Error Message */}
+                {/* Instructions */}
+                <div className="p-4 rounded-2xl bg-[#3B5C37]/5 border border-[#3B5C37]/20 mb-6 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-xl bg-[#3B5C37]/10 text-[#3B5C37] flex items-center justify-center shrink-0 mt-0.5">
+                      <Shield className="w-3.5 h-3.5" />
+                    </div>
+                    <p className="text-[11px] text-[#5e6792] font-semibold leading-relaxed">
+                      Vui lòng mở hòm thư của bạn và bấm vào liên kết xác nhận để kích hoạt tài khoản.
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-[#3B5C37] font-bold leading-relaxed pl-10">
+                    Sau khi bấm nút xác thực trong email, hệ thống sẽ tự động chuyển hướng bạn đến trang Đăng nhập để tiếp tục.
+                  </p>
+                </div>
+
+                {/* Error / Success */}
                 {errorMsg && (
-                  <div className="mb-5 p-3.5 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3 text-red-700 text-xs animate-shake">
+                  <div className="mb-5 p-3.5 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3 text-red-700 text-xs">
                     <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{errorMsg}</span>
                   </div>
                 )}
-
-                {/* Expiry Warning Message */}
-                {expiryCountdown <= 0 && (
-                  <div className="mb-5 p-3.5 rounded-2xl bg-red-50 border border-red-100 flex items-start gap-3 text-red-700 text-xs animate-shake">
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>Mã OTP đã hết hạn sau 5 phút. Vui lòng nhấn gửi lại mã mới bên dưới.</span>
-                  </div>
-                )}
-
-                {/* Success Message */}
                 {successMsg && (
-                  <div className="mb-5 p-3.5 rounded-2xl bg-green-50 border border-green-100 flex items-start gap-3 text-green-700 text-xs animate-fade-in">
+                  <div className="mb-5 p-3.5 rounded-2xl bg-green-50 border border-green-100 flex items-start gap-3 text-green-700 text-xs">
                     <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{successMsg}</span>
                   </div>
                 )}
 
-                <OtpInput value={otp} onChange={setOtp} disabled={expiryCountdown <= 0 || isLoading} />
-
-                {/* Verify button */}
-                <button
-                  type="button"
-                  onClick={handleVerifyOTP}
-                  disabled={isLoading || otp.join("").length !== 6 || expiryCountdown <= 0}
-                  className="w-full h-13 bg-[#3B5C37] hover:bg-[#ff8e26] text-white font-bold text-xs rounded-2xl shadow-[0_10px_25px_rgba(59, 92, 55,0.25)] hover:shadow-[0_12px_32px_rgba(59, 92, 55,0.35)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 cursor-pointer border-none outline-none"
-                >
-                  {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span>Xác thực tài khoản</span>
-                      <CheckCircle2 className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-
-                {/* Resend OTP */}
-                <div className="mt-5 text-center">
+                {/* Resend */}
+                <div className="text-center">
                   <p className="text-[11px] font-semibold text-[#97a0c3] mb-2">
-                    Không nhận được mã? Kiểm tra thư mục Spam/Quảng cáo.
+                    * Lưu ý: Hãy kiểm tra cả hòm thư <strong>Spam (Thư rác)</strong> hoặc <strong>Quảng cáo</strong> nếu không nhận được sau 1-2 phút.
                   </p>
                   <button
                     type="button"
@@ -713,7 +665,7 @@ export default function RegisterPage() {
                     {countdown > 0 ? (
                       <span>Gửi lại sau {countdown}s</span>
                     ) : (
-                      <span>Gửi lại mã OTP</span>
+                      <span>Gửi lại email xác nhận</span>
                     )}
                   </button>
                 </div>
