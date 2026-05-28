@@ -134,6 +134,11 @@ const AuthPage = () => {
         if (error) throw error;
 
         if (data?.user) {
+          fetch("/api/auth/send-welcome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: trimmedEmail, name: trimmedName, userId: data.user.id }),
+          }).catch(() => {});
           // Sign out immediately to clear localstorage of unconfirmed user session
           await supabase.auth.signOut();
           setMessage("Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.");
