@@ -13,8 +13,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QualiCode | AI IELTS",
-  description: "Login and registration for QualiCode with Supabase authentication.",
+  metadataBase: new URL("https://quali-ielts.com"),
+  title: "Quali IELTS | Nền tảng Luyện thi IELTS AI thế hệ mới",
+  description: "Quali IELTS - Nền tảng luyện thi IELTS AI thế hệ mới, đầy đủ tài liệu, bài luyện, phương pháp giúp bạn chinh phục IELTS dễ dàng hơn mỗi ngày.",
+  icons: {
+    icon: "/icon.png",
+  },
+  openGraph: {
+    title: "Quali IELTS | Nền tảng Luyện thi IELTS AI thế hệ mới",
+    description: "Quali IELTS - Nền tảng luyện thi IELTS AI thế hệ mới, đầy đủ tài liệu, bài luyện, phương pháp giúp bạn chinh phục IELTS dễ dàng hơn mỗi ngày.",
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 512,
+        height: 512,
+        alt: "Quali IELTS Logo",
+      },
+    ],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

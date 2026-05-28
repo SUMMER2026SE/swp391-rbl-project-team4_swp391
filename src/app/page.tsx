@@ -21,7 +21,7 @@ export default function Home() {
         <div className="absolute inset-0 mx-auto w-full max-w-[1160px] h-full pointer-events-none select-none">
           
           {/* Left Column Stack */}
-          <div className="absolute left-[36px] top-[calc(18%+60px)] sm:top-[calc(20%+60px)] md:top-[calc(22%+60px)] max-w-[650px] pointer-events-auto text-left select-text flex flex-col gap-6 md:gap-8">
+          <div className="absolute left-[36px] top-[calc(18%+80px)] sm:top-[calc(20%+80px)] md:top-[calc(22%+80px)] max-w-[650px] pointer-events-auto text-left select-text flex flex-col gap-6 md:gap-8">
             
             {/* Headline Group */}
             <div>
