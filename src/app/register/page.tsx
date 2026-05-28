@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Mail, Lock, User, UserCheck, AlertTriangle, ArrowRight, Shield, Brain, Sparkles, TrendingUp, BookOpen, Compass, Zap, CheckCircle2, ArrowLeft, RefreshCw } from "lucide-react";
+import { OtpInput } from "@/components/ui/OtpInput";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -23,7 +24,6 @@ export default function RegisterPage() {
 
   // OTP state
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Countdown for resend
   const [countdown, setCountdown] = useState(0);
@@ -165,8 +165,6 @@ export default function RegisterPage() {
         setExpiryTimerTrigger((prev) => prev + 1);
         startCountdown();
         setIsLoading(false);
-        // Auto-focus first OTP input
-        setTimeout(() => otpRefs.current[0]?.focus(), 100);
       }
     } catch (err: any) {
       let msg = err.message || "Đã xảy ra lỗi trong quá trình đăng ký.";
@@ -204,7 +202,6 @@ export default function RegisterPage() {
       startCountdown();
       setExpiryTimerTrigger((prev) => prev + 1);
       setOtp(["", "", "", "", "", ""]);
-      setTimeout(() => otpRefs.current[0]?.focus(), 100);
     } catch (err: any) {
       let msg = err.message || "Không thể gửi lại OTP.";
       if (msg.includes("rate limit exceeded") || msg.includes("For security purposes")) {
@@ -239,6 +236,15 @@ export default function RegisterPage() {
       }
 
       if (data?.session) {
+        // Send welcome email via Resend
+        try {
+          await fetch("/api/auth/send-welcome", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, name }),
+          });
+        } catch (_) { /* non-blocking */ }
+
         // Verification succeeded, sign out then redirect to login
         await supabase.auth.signOut();
         window.location.href = "/login?verified=true";
@@ -252,52 +258,6 @@ export default function RegisterPage() {
       }
       setErrorMsg(msg);
       setIsLoading(false);
-    }
-  };
-
-  // OTP input handlers
-  const handleOtpChange = (index: number, value: string) => {
-    // Only allow digits
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const newOtp = [...otp];
-    newOtp[index] = digit;
-    setOtp(newOtp);
-
-    // Auto-focus next input
-    if (digit && index < 5) {
-      otpRefs.current[index + 1]?.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (!otp[index] && index > 0) {
-        // Move to previous input on backspace if current is empty
-        const newOtp = [...otp];
-        newOtp[index - 1] = "";
-        setOtp(newOtp);
-        otpRefs.current[index - 1]?.focus();
-      }
-    } else if (e.key === "Enter") {
-      const otpCode = otp.join("");
-      if (otpCode.length === 6) {
-        handleVerifyOTP();
-      }
-    }
-  };
-
-  const handleOtpPaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (pastedData.length > 0) {
-      const newOtp = [...otp];
-      for (let i = 0; i < 6; i++) {
-        newOtp[i] = pastedData[i] || "";
-      }
-      setOtp(newOtp);
-      // Focus the next empty input or the last one
-      const nextEmpty = newOtp.findIndex((d) => d === "");
-      otpRefs.current[nextEmpty === -1 ? 5 : nextEmpty]?.focus();
     }
   };
 
@@ -716,29 +676,7 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {/* OTP Input Boxes */}
-                <div className="flex justify-center gap-3 mb-6" onPaste={handleOtpPaste}>
-                  {otp.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={(el) => { otpRefs.current[index] = el; }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      disabled={expiryCountdown <= 0}
-                      onChange={(e) => handleOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className={`w-12 h-14 text-center text-xl font-black rounded-2xl border-2 outline-none transition-all duration-300 bg-[#f0f4fd] text-[#0d153a] ${
-                        digit
-                          ? "border-[#ff7a00] bg-white shadow-[0_4px_16px_rgba(255,122,0,0.12)] scale-105"
-                          : "border-[#e1e4ed]/60 hover:border-[#ff7a00]/40"
-                      } focus:border-[#ff7a00] focus:bg-white focus:ring-4 focus:ring-[#ff7a00]/10 focus:scale-105 ${
-                        expiryCountdown <= 0 ? "opacity-50 pointer-events-none cursor-not-allowed" : ""
-                      }`}
-                    />
-                  ))}
-                </div>
+                <OtpInput value={otp} onChange={setOtp} disabled={expiryCountdown <= 0 || isLoading} />
 
                 {/* Verify button */}
                 <button
