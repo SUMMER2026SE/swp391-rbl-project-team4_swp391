@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
-import { db } from "@/lib/db";
 
 // PUT: Cập nhật thông tin chi tiết người dùng trên Supabase Auth DB
 export async function PUT(
@@ -123,31 +122,7 @@ export async function DELETE(
 
     const name = user.user_metadata?.name || user.email || "Người dùng";
     const emailAddress = user.email || "";
-
-    // 1. Delete from Prisma PostgreSQL users table if database is active
-    try {
-      if (emailAddress) {
-        // Try deleting by email since email is @unique and guaranteed to be consistent
-        await db.user.delete({
-          where: { email: emailAddress }
-        }).catch(async () => {
-          // If fail, try deleting by id
-          return db.user.delete({
-            where: { id }
-          });
-        });
-        console.log(`✅ [Prisma DB] Đã xóa người dùng với email: ${emailAddress} (ID: ${id}) khỏi bảng public.users`);
-      } else {
-        await db.user.delete({
-          where: { id }
-        });
-        console.log(`✅ [Prisma DB] Đã xóa người dùng với ID: ${id} khỏi bảng public.users`);
-      }
-    } catch (dbErr: any) {
-      console.log(`⚠️ [Prisma DB] Bỏ qua hoặc không thể xóa khỏi bảng public.users:`, dbErr.message);
-    }
-
-    // 2. Delete from public.users / public.profiles in Supabase public schema
+    // Delete from public.users / public.profiles in Supabase public schema
     try {
       await supabaseAdmin.from("users").delete().eq("id", id);
       if (emailAddress) {
