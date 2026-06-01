@@ -1,0 +1,237 @@
+{
+  "nav": {
+    "home": "Home",
+    "speaking": "Speaking AI",
+    "review": "Answer Review",
+    "loggedInAs": "Logged in as",
+    "profile": "My Profile",
+    "adminPanel": "Admin Panel",
+    "logout": "Log out",
+    "login": "Log in",
+    "getStarted": "Get Started",
+    "switchLang": "VI"
+  },
+  "home": {
+    "hero": {
+      "tagline": "The Platform for",
+      "title": "IELTS Mastery",
+      "subtitle": "Full materials, practice tests, methods, and vocabulary to help you conquer IELTS every day.",
+      "ctaFree": "Explore Free Materials",
+      "followUs": "Follow us on"
+    },
+    "blog": {
+      "link": "Quali IELTS Blog →"
+    },
+    "skills": {
+      "listening": {
+        "title": "Listening",
+        "desc": "Train your listening daily with 100+ real conversations, understand naturally like a native.",
+        "count": "100+ Tests"
+      },
+      "reading": {
+        "title": "Reading",
+        "desc": "Read diverse topics with 100+ curated passages, expand vocabulary and thinking.",
+        "count": "100+ Tests"
+      },
+      "speaking": {
+        "title": "Speaking",
+        "desc": "Speak confidently with 100+ familiar communication topics, easy to apply.",
+        "count": "100+ Tests"
+      },
+      "writing": {
+        "title": "Writing",
+        "desc": "Write grammatically correct, express clearly with 100+ exercises from basic to advanced.",
+        "count": "100+ Tests"
+      },
+      "orientation": {
+        "title": "Self-Study\nOrientation",
+        "desc": "Personalized learning path, curated materials and effective study tips to help you progress daily.",
+        "count": "FREE"
+      },
+      "vocabGrammar": {
+        "title": "Vocab &\nGrammar",
+        "desc": "Expand thematic vocabulary and reinforce communicative and academic grammar structures.",
+        "count": "100+ Tests"
+      }
+    },
+    "cambridge": {
+      "title": "Complete Cambridge Cams",
+      "range": "9 → 20",
+      "desc": "Full access to all official Cambridge IELTS practice tests.",
+      "features": {
+        "official": "Official Tests",
+        "realExam": "Real Exam Experience",
+        "aiEval": "AI Evaluation",
+        "detailedFeedback": "Detailed Feedback"
+      }
+    },
+    "adaptive": {
+      "titlePart1": "Adaptive Learning.",
+      "titlePart2": "Built Just",
+      "titlePart3": "For You.",
+      "desc": "Our AI analyzes your performance in real-time, identifies strengths and weaknesses, and creates a learning path that evolves with you.",
+      "diagnose": {
+        "title": "Diagnose",
+        "desc": "AI analyzes 4 skills in depth"
+      },
+      "personalize": {
+        "title": "Personalize",
+        "desc": "Get a plan unique to your profile"
+      },
+      "improve": {
+        "title": "Improve",
+        "desc": "Focus on what matters, improve faster"
+      },
+      "cta": "See How It Works"
+    },
+    "dashboard": {
+      "sidebar": {
+        "overview": "Overview",
+        "practice": "Practice",
+        "mockTests": "Mock Tests",
+        "progress": "Progress",
+        "aiTutor": "AI Tutor",
+        "reports": "Reports"
+      },
+      "progress": {
+        "title": "Your Progress",
+        "subtitle": "Overall Band",
+        "message": "Good Progress! 🎉"
+      },
+      "breakdown": {
+        "title": "Skill Breakdown",
+        "listening": "Listening",
+        "reading": "Reading",
+        "writing": "Writing",
+        "speaking": "Speaking",
+        "levelAdvanced": "Advanced",
+        "levelGood": "Good"
+      },
+      "aiRec": {
+        "title": "AI Recommendation",
+        "desc": "Focus on Writing Task 2: Improve idea development",
+        "cta": "Start Practice →"
+      }
+    },
+    "features": {
+      "titlePrefix": "Why",
+      "titleHighlight": "Quali IELTS?",
+      "items": {
+        "aiLearning": {
+          "title": "100% AI Learning",
+          "desc": "No human tutors. AI handles everything."
+        },
+        "adaptive": {
+          "title": "Adaptive & Smart",
+          "desc": "Learning path that adapts to you."
+        },
+        "cambridge": {
+          "title": "Cambridge Standard",
+          "desc": "Official Cambridge materials 9 to 20."
+        },
+        "feedback": {
+          "title": "Real-Time Feedback",
+          "desc": "Instant AI feedback on everything."
+        },
+        "privacy": {
+          "title": "Privacy First",
+          "desc": "Your data is secure and always private."
+        }
+      }
+    },
+    "testimonials": {
+      "titlePrefix": "Loved by",
+      "titleHighlight": "Learners",
+      "titleSuffix": "Worldwide",
+      "items": {
+        "ananya": {
+          "name": "Ananya S.",
+          "band": "Band 8.0 Achiever",
+          "quote": "QualiCode's AI knows me better than I know myself. It helped me improve from 6.0 to 8.0 in 2 months!"
+        },
+        "minh": {
+          "name": "Minh T.",
+          "band": "Band 7.5 Achiever",
+          "quote": "The adaptive practice is insanely good. I only practice what I need, and I see real improvement."
+        },
+        "fatima": {
+          "name": "Fatima K.",
+          "band": "Band 8.5 Achiever",
+          "quote": "All Cambridge Cams, AI feedback, and mock tests – everything I need in one place!"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Achieve Your\nDream IELTS Score?",
+      "desc": "Start your AI-powered journey today. 100% AI. 100% For You.",
+      "button": "Start Free Now →",
+      "noCreditCard": "No credit card required"
+    }
+  },
+  "login": {
+    "title": "Welcome back!",
+    "subtitle": "Log in to continue your AI-powered IELTS journey.",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "submitBtn": "Log In",
+    "orWith": "Or log in with",
+    "googleBtn": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "signupLink": "Sign up free",
+    "error": {
+      "invalidCredentials": "Incorrect email or password.",
+      "emailNotConfirmed": "Your email is not confirmed. Please check your Gmail to activate your account before logging in.",
+      "accountLocked": "Your account has been locked by an Administrator. Please contact support.",
+      "googleFailed": "An error occurred while logging in with Google.",
+      "insufficientPermissions": "You do not have permission to access the admin panel."
+    },
+    "success": {
+      "loggedIn": "Login successful! Redirecting...",
+      "activated": "Your account has been successfully activated! Please log in below."
+    }
+  },
+  "register": {
+    "title": "Create a new account",
+    "subtitle": "Fill in the details below to experience effective AI-powered learning.",
+    "heroTag": "LEARN IELTS WITH AI",
+    "heroTitle": "Start your journey to your dream Band score",
+    "nameLabel": "Full Name",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password (Minimum 6 characters)",
+    "confirmPasswordLabel": "Confirm Password",
+    "submitBtn": "Create Account",
+    "error": {
+      "passwordMismatch": "Passwords do not match.",
+      "passwordTooShort": "Password must be at least 6 characters."
+    },
+    "verify": {
+      "title": "Verify your Email",
+      "desc": "Please check your email to verify your account.",
+      "resendBtn": "Resend confirmation email",
+      "resendSuccess": "A new confirmation email has been sent to your inbox!",
+      "rateLimited": "Too many requests. Please wait 1-2 minutes."
+    }
+  },
+  "profile": {
+    "editProfile": "Edit Profile",
+    "detailedInfo": "Detailed Information",
+    "joinDate": "Joined",
+    "phone": "Phone Number",
+    "status": "Status",
+    "statusActive": "Active",
+    "bio": "About Me",
+    "changePassword": "Change Password",
+    "uploadAvatar": "Upload Avatar"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "email": "Email",
+    "name": "Name",
+    "role": {
+      "admin": "Admin",
+      "student": "Student"
+    }
+  }
+}
