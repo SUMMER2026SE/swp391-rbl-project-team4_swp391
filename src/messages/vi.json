@@ -1,0 +1,237 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "speaking": "Speaking AI",
+    "review": "Review Đáp án",
+    "loggedInAs": "Đang đăng nhập",
+    "profile": "Hồ sơ cá nhân",
+    "adminPanel": "Trang Quản trị Admin",
+    "logout": "Đăng xuất",
+    "login": "Log in",
+    "getStarted": "Get Started",
+    "switchLang": "EN"
+  },
+  "home": {
+    "hero": {
+      "tagline": "Nền tảng",
+      "title": "Luyện thi IELTS",
+      "subtitle": "Đầy đủ tài liệu, bài luyện, phương pháp và từ vựng giúp bạn chinh phục IELTS dễ dàng hơn mỗi ngày.",
+      "ctaFree": "Khám phá tài liệu miễn phí",
+      "followUs": "Follow us on"
+    },
+    "blog": {
+      "link": "Bài viết của Quali IELTS →"
+    },
+    "skills": {
+      "listening": {
+        "title": "Listening",
+        "desc": "Luyện nghe mỗi ngày với 100+ đoạn hội thoại thực tế, hiểu tự nhiên như người bản xứ.",
+        "count": "100+ Đề"
+      },
+      "reading": {
+        "title": "Reading",
+        "desc": "Đọc hiểu đa dạng chủ đề với 100+ bài đọc chọn lọc, nâng cao vốn từ và tư duy.",
+        "count": "100+ Đề"
+      },
+      "speaking": {
+        "title": "Speaking",
+        "desc": "Nói tự tin, phản xạ nhanh với 100+ chủ đề giao tiếp gần gũi, dễ áp dụng.",
+        "count": "100+ Đề"
+      },
+      "writing": {
+        "title": "Writing",
+        "desc": "Viết chuẩn ngữ pháp, diễn đạt mạch lạc với 100+ đề luyện từ cơ bản đến nâng cao.",
+        "count": "100+ Đề"
+      },
+      "orientation": {
+        "title": "Định Hướng\nTự Học",
+        "desc": "Lộ trình học cá nhân hóa, tài liệu chọn lọc và mẹo học hiệu quả giúp bạn tiến bộ mỗi ngày.",
+        "count": "FREE"
+      },
+      "vocabGrammar": {
+        "title": "Vocab &\nGrammar",
+        "desc": "Mở rộng vốn từ theo chủ đề và củng cố cấu trúc ngữ pháp giao tiếp, học thuật.",
+        "count": "100+ Đề"
+      }
+    },
+    "cambridge": {
+      "title": "Complete Cambridge Cams",
+      "range": "9 → 20",
+      "desc": "Full access to all official Cambridge IELTS practice tests.",
+      "features": {
+        "official": "Official Tests",
+        "realExam": "Real Exam Experience",
+        "aiEval": "AI Evaluation",
+        "detailedFeedback": "Detailed Feedback"
+      }
+    },
+    "adaptive": {
+      "titlePart1": "Adaptive Learning.",
+      "titlePart2": "Built Just",
+      "titlePart3": "For You.",
+      "desc": "Our AI analyzes your performance in real-time, identifies strengths and weaknesses, and creates a learning path that evolves with you.",
+      "diagnose": {
+        "title": "Diagnose",
+        "desc": "AI analyzes 4 skills in depth"
+      },
+      "personalize": {
+        "title": "Personalize",
+        "desc": "Get a plan unique to your profile"
+      },
+      "improve": {
+        "title": "Improve",
+        "desc": "Focus on what matters, improve faster"
+      },
+      "cta": "See How It Works"
+    },
+    "dashboard": {
+      "sidebar": {
+        "overview": "Overview",
+        "practice": "Practice",
+        "mockTests": "Mock Tests",
+        "progress": "Progress",
+        "aiTutor": "AI Tutor",
+        "reports": "Reports"
+      },
+      "progress": {
+        "title": "Your Progress",
+        "subtitle": "Overall Band",
+        "message": "Good Progress! 🎉"
+      },
+      "breakdown": {
+        "title": "Skill Breakdown",
+        "listening": "Listening",
+        "reading": "Reading",
+        "writing": "Writing",
+        "speaking": "Speaking",
+        "levelAdvanced": "Advanced",
+        "levelGood": "Good"
+      },
+      "aiRec": {
+        "title": "AI Recommendation",
+        "desc": "Focus on Writing Task 2: Improve idea development",
+        "cta": "Start Practice →"
+      }
+    },
+    "features": {
+      "titlePrefix": "Why",
+      "titleHighlight": "Quali IELTS?",
+      "items": {
+        "aiLearning": {
+          "title": "100% AI Learning",
+          "desc": "No human tutors. AI handles everything."
+        },
+        "adaptive": {
+          "title": "Adaptive & Smart",
+          "desc": "Learning path that adapts to you."
+        },
+        "cambridge": {
+          "title": "Cambridge Standard",
+          "desc": "Official Cambridge materials 9 to 20."
+        },
+        "feedback": {
+          "title": "Real-Time Feedback",
+          "desc": "Instant AI feedback on everything."
+        },
+        "privacy": {
+          "title": "Privacy First",
+          "desc": "Your data is secure and always private."
+        }
+      }
+    },
+    "testimonials": {
+      "titlePrefix": "Loved by",
+      "titleHighlight": "Learners",
+      "titleSuffix": "Worldwide",
+      "items": {
+        "ananya": {
+          "name": "Ananya S.",
+          "band": "Band 8.0 Achiever",
+          "quote": "QualiCode's AI knows me better than I know myself. It helped me improve from 6.0 to 8.0 in 2 months!"
+        },
+        "minh": {
+          "name": "Minh T.",
+          "band": "Band 7.5 Achiever",
+          "quote": "The adaptive practice is insanely good. I only practice what I need, and I see real improvement."
+        },
+        "fatima": {
+          "name": "Fatima K.",
+          "band": "Band 8.5 Achiever",
+          "quote": "All Cambridge Cams, AI feedback, and mock tests – everything I need in one place!"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Achieve Your\nDream IELTS Score?",
+      "desc": "Start your AI-powered journey today. 100% AI. 100% For You.",
+      "button": "Start Free Now →",
+      "noCreditCard": "No credit card required"
+    }
+  },
+  "login": {
+    "title": "Chào mừng quay lại!",
+    "subtitle": "Đăng nhập để tiếp tục hành trình học IELTS đột phá bằng công nghệ AI.",
+    "emailLabel": "Địa chỉ Email",
+    "passwordLabel": "Mật khẩu",
+    "forgotPassword": "Quên mật khẩu?",
+    "submitBtn": "Đăng nhập ngay",
+    "orWith": "Hoặc đăng nhập bằng",
+    "googleBtn": "Tiếp tục với Google",
+    "noAccount": "Chưa có tài khoản?",
+    "signupLink": "Đăng ký miễn phí",
+    "error": {
+      "invalidCredentials": "Email hoặc mật khẩu không chính xác.",
+      "emailNotConfirmed": "Email của bạn chưa được xác nhận. Vui lòng kiểm tra Gmail để kích hoạt tài khoản trước khi đăng nhập.",
+      "accountLocked": "Tài khoản của bạn đã bị khóa bởi Quản trị viên. Vui lòng liên hệ hỗ trợ.",
+      "googleFailed": "Đã xảy ra lỗi khi đăng nhập bằng Google.",
+      "insufficientPermissions": "Quyền hạn của bạn không đủ để truy cập trang quản trị."
+    },
+    "success": {
+      "loggedIn": "Đăng nhập thành công! Đang chuyển hướng...",
+      "activated": "Tài khoản của bạn đã được kích hoạt thành công! Vui lòng đăng nhập bên dưới."
+    }
+  },
+  "register": {
+    "title": "Đăng ký tài khoản mới",
+    "subtitle": "Điền thông tin bên dưới để trải nghiệm phương pháp học tập AI hiệu quả.",
+    "heroTag": "HỌC IELTS BẰNG AI",
+    "heroTitle": "Bắt đầu hành trình chinh phục Band điểm mơ ước",
+    "nameLabel": "Họ và Tên",
+    "emailLabel": "Địa chỉ Email",
+    "passwordLabel": "Mật khẩu (Tối thiểu 6 ký tự)",
+    "confirmPasswordLabel": "Xác nhận Mật khẩu",
+    "submitBtn": "Đăng ký tài khoản",
+    "error": {
+      "passwordMismatch": "Mật khẩu xác nhận không trùng khớp.",
+      "passwordTooShort": "Mật khẩu phải chứa ít nhất 6 ký tự."
+    },
+    "verify": {
+      "title": "Xác nhận Email của bạn",
+      "desc": "Vui lòng kiểm tra email của bạn để xác nhận tài khoản.",
+      "resendBtn": "Gửi lại email xác nhận",
+      "resendSuccess": "Email xác nhận mới đã được gửi đến hòm thư của bạn!",
+      "rateLimited": "Tần suất gửi quá nhanh. Vui lòng đợi 1-2 phút."
+    }
+  },
+  "profile": {
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "detailedInfo": "Thông tin chi tiết",
+    "joinDate": "Ngày tham gia",
+    "phone": "Số điện thoại",
+    "status": "Trạng thái",
+    "statusActive": "Đang hoạt động",
+    "bio": "Giới thiệu bản thân",
+    "changePassword": "Đổi mật khẩu",
+    "uploadAvatar": "Tải lên ảnh đại diện"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "email": "Email",
+    "name": "Tên",
+    "role": {
+      "admin": "Admin",
+      "student": "Học viên"
+    }
+  }
+}
