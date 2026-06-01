@@ -34,6 +34,12 @@ export const metadata: Metadata = {
     ],
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quali IELTS | Nền tảng Luyện thi IELTS AI thế hệ mới",
+    description: "Quali IELTS - Nền tảng luyện thi IELTS AI thế hệ mới, đầy đủ tài liệu, bài luyện, phương pháp giúp bạn chinh phục IELTS dễ dàng hơn mỗi ngày.",
+    images: ["/opengraph-image.png"],
+  },
 };
 
 export default async function LocaleLayout({
