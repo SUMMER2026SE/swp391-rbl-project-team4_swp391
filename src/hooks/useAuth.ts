@@ -11,6 +11,9 @@ export interface AuthUser extends User {
     avatar_url?: string;
     bio?: string;
     phone?: string;
+    inAppReminders?: boolean;
+    emailReminders?: boolean;
+    streakWarning?: boolean;
   };
 }
 

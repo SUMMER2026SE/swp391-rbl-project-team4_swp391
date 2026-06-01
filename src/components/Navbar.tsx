@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase";
-import { User, LogOut, ShieldAlert, Sparkles } from "lucide-react";
+import { User, LogOut, ShieldAlert, Sparkles, Bell, Flame } from "lucide-react";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -11,9 +11,32 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const t = useTranslations("nav");
+
+  // Fetch notifications helper
+  const fetchNotifications = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/student/notifications", {
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount((data.notifications || []).filter((n: any) => n.status === "UNREAD").length);
+      }
+    } catch (err) {
+      console.error("Lỗi tải thông báo:", err);
+    }
+  };
 
   // Check current session
   useEffect(() => {
@@ -47,11 +70,21 @@ export default function Navbar() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Poll for notifications
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 20000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
   // Handle outside clicks to close the dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
+        setShowNotifications(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -77,6 +110,48 @@ export default function Navbar() {
     window.location.reload();
   };
 
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/student/notifications/read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ notificationId: id })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: "READ" } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (err) {
+      console.error("Lỗi đọc thông báo:", err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/student/notifications/read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ notificationId: "all" })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, status: "READ" })));
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error("Lỗi đọc tất cả thông báo:", err);
+    }
+  };
+
   return (
     <div className={`w-full fixed top-0 left-0 z-30 border-b transition-all duration-300 ease-in-out ${
       isScrolled 
@@ -98,9 +173,101 @@ export default function Navbar() {
             <div className="w-8 h-8 border-2 border-[#3B5C37]/30 border-t-[#3B5C37] rounded-full animate-spin" />
           ) : user ? (
             <>
+              {/* Notification Bell */}
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    setShowDropdown(false);
+                  }}
+                  className="p-2 text-slate-600 hover:text-[#3B5C37] hover:bg-[#3B5C37]/5 rounded-full transition-all cursor-pointer relative border-none bg-transparent outline-none flex items-center justify-center"
+                  aria-label="Thông báo"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
+                  )}
+                </button>
+
+                {/* Notifications Dropdown Panel */}
+                {showNotifications && (
+                  <div className="absolute right-[-80px] sm:right-0 top-12 w-80 rounded-2xl bg-white/95 border border-slate-100 shadow-[0_16px_48px_rgba(15,23,56,0.1)] backdrop-blur-md p-4 animate-scale-in z-50 text-left">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2.5">
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-xs font-black text-[#0d153a]">Thông báo</h4>
+                        {unreadCount > 0 && (
+                          <span className="text-[9px] font-bold text-white bg-orange-500 px-1.5 py-0.5 rounded-full">
+                            {unreadCount} mới
+                          </span>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllAsRead}
+                          className="text-[9px] font-bold text-[#3B5C37] hover:underline cursor-pointer bg-transparent border-none outline-none"
+                        >
+                          Đọc tất cả
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-slate-400 font-semibold text-[10px]">
+                          <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300 stroke-[1.5]" />
+                          Bạn không có thông báo nào.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            onClick={() => n.status === "UNREAD" && handleMarkAsRead(n.id)}
+                            className={`p-3 rounded-xl border transition-all relative overflow-hidden text-left ${
+                              n.status === "UNREAD"
+                                ? "bg-slate-50/80 border-[#3B5C37]/10 cursor-pointer hover:bg-slate-100"
+                                : "bg-white border-slate-100 opacity-75"
+                            }`}
+                          >
+                            {/* Color bar indicator based on type */}
+                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                              n.type === "STREAK_WARNING" ? "bg-orange-500" : "bg-[#3B5C37]"
+                            }`} />
+
+                            <div className="pl-2">
+                              <div className="flex items-start justify-between gap-1">
+                                <span className="font-extrabold text-[11px] text-[#0d153a] leading-tight flex items-center gap-1">
+                                  {n.type === "STREAK_WARNING" && "🔥"}
+                                  {n.type === "STUDY_REMINDER" && "📚"}
+                                  {n.title}
+                                </span>
+                                {n.status === "UNREAD" && (
+                                  <span className="w-1.5 h-1.5 bg-[#3B5C37] rounded-full shrink-0 mt-1" />
+                                )}
+                              </div>
+                              <p className="text-[10px] font-medium text-slate-600 mt-1 leading-relaxed">
+                                {n.content}
+                              </p>
+                              <span className="text-[8px] text-slate-400 font-bold mt-1.5 block">
+                                {new Date(n.createdAt).toLocaleDateString("vi-VN", {
+                                  hour: "2-digit",
+                                  minute: "2-digit"
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Premium User Avatar Bubble */}
               <button
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={() => {
+                  setShowDropdown(!showDropdown);
+                  setShowNotifications(false);
+                }}
                 className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#3B5C37] to-[#B38F4D] text-white font-extrabold text-sm flex items-center justify-center cursor-pointer shadow-[0_4px_16px_rgba(59, 92, 55,0.15)] hover:scale-105 hover:shadow-[0_6px_20px_rgba(59, 92, 55,0.25)] active:scale-95 transition-all outline-none border border-white/40 select-none relative group"
                 aria-label="User menu"
               >

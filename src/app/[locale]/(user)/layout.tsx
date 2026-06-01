@@ -1,15 +1,51 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
-import { User, Key, Camera, LogOut, ArrowLeft, ShieldAlert } from "lucide-react";
+import { User, Key, Camera, LogOut, ArrowLeft, ShieldAlert, Bell, Flame } from "lucide-react";
 
 export default function UserAreaLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+
+  // Notification and streak state
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [streakCount, setStreakCount] = useState(0);
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Fetch notifications and streak
+  const fetchProgressData = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      // 1. Fetch notifications
+      const notifyRes = await fetch("/api/student/notifications", {
+        headers: { "Authorization": `Bearer ${session.access_token}` }
+      });
+      if (notifyRes.ok) {
+        const data = await notifyRes.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount((data.notifications || []).filter((n: any) => n.status === "UNREAD").length);
+      }
+
+      // 2. Fetch streak
+      const streakRes = await fetch("/api/student/streak", {
+        headers: { "Authorization": `Bearer ${session.access_token}` }
+      });
+      if (streakRes.ok) {
+        const data = await streakRes.json();
+        setStreakCount(data.streak?.currentStreak || 0);
+      }
+    } catch (err) {
+      console.error("Lỗi tải thông tin tiến độ học viên:", err);
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -17,9 +53,70 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
     }
   }, [user, loading, pathname, router]);
 
+  useEffect(() => {
+    if (user) {
+      fetchProgressData();
+      const interval = setInterval(fetchProgressData, 20000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  // Click outside notification dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace("/login");
+  };
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/student/notifications/read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ notificationId: id })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: "READ" } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (err) {
+      console.error("Lỗi đọc thông báo:", err);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const res = await fetch("/api/student/notifications/read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ notificationId: "all" })
+      });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => ({ ...n, status: "READ" })));
+        setUnreadCount(0);
+      }
+    } catch (err) {
+      console.error("Lỗi đọc tất cả thông báo:", err);
+    }
   };
 
   if (loading || !user) {
@@ -56,10 +153,108 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
               <span className="text-[#0d153a]">{pathname.includes("/settings") ? "Cài đặt" : "Hồ sơ"}</span>
             </div>
           </div>
-          <Link href="/" className="text-xs font-bold text-[#3B5C37] hover:underline flex items-center gap-1">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Quay lại Trang chủ</span>
-          </Link>
+          <div className="flex items-center gap-4">
+            {/* Quick Streak Indicator */}
+            {streakCount > 0 && (
+              <div className="flex items-center gap-1 bg-orange-50 border border-orange-100 px-3 py-1.5 rounded-xl text-orange-600 text-[10px] font-black shadow-sm">
+                <span>{streakCount} ngày liên tục</span>
+                <Flame className="w-3.5 h-3.5 fill-orange-500 text-orange-500 animate-bounce" />
+              </div>
+            )}
+
+            {/* Notification Bell */}
+            <div className="relative" ref={notificationRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2 text-slate-600 hover:text-[#3B5C37] hover:bg-[#3B5C37]/5 rounded-full transition-all cursor-pointer relative border-none bg-transparent outline-none flex items-center justify-center"
+                aria-label="Thông báo"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white animate-pulse" />
+                )}
+              </button>
+
+              {/* Notifications Dropdown Panel */}
+              {showNotifications && (
+                <div className="absolute right-0 top-10 w-80 rounded-2xl bg-white/95 border border-slate-100 shadow-[0_16px_48px_rgba(15,23,56,0.1)] backdrop-blur-md p-4 animate-scale-in z-50 text-left">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-2.5">
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="text-xs font-black text-[#0d153a]">Thông báo</h4>
+                      {unreadCount > 0 && (
+                        <span className="text-[9px] font-bold text-white bg-orange-500 px-1.5 py-0.5 rounded-full">
+                          {unreadCount} mới
+                        </span>
+                      )}
+                    </div>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="text-[9px] font-bold text-[#3B5C37] hover:underline cursor-pointer bg-transparent border-none outline-none"
+                      >
+                        Đọc tất cả
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+                    {notifications.length === 0 ? (
+                      <div className="py-8 text-center text-slate-400 font-semibold text-[10px]">
+                        <Bell className="w-8 h-8 mx-auto mb-2 text-slate-300 stroke-[1.5]" />
+                        Bạn không có thông báo nào.
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => n.status === "UNREAD" && handleMarkAsRead(n.id)}
+                          className={`p-3 rounded-xl border transition-all relative overflow-hidden text-left ${
+                            n.status === "UNREAD"
+                              ? "bg-slate-50/80 border-[#3B5C37]/10 cursor-pointer hover:bg-slate-100"
+                              : "bg-white border-slate-100 opacity-75"
+                          }`}
+                        >
+                          {/* Color bar indicator based on type */}
+                          <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                            n.type === "STREAK_WARNING" ? "bg-orange-500" : "bg-[#3B5C37]"
+                          }`} />
+
+                          <div className="pl-2">
+                            <div className="flex items-start justify-between gap-1">
+                              <span className="font-extrabold text-[11px] text-[#0d153a] leading-tight flex items-center gap-1">
+                                {n.type === "STREAK_WARNING" && "🔥"}
+                                {n.type === "STUDY_REMINDER" && "📚"}
+                                {n.title}
+                              </span>
+                              {n.status === "UNREAD" && (
+                                <span className="w-1.5 h-1.5 bg-[#3B5C37] rounded-full shrink-0 mt-1" />
+                              )}
+                            </div>
+                            <p className="text-[10px] font-medium text-slate-600 mt-1 leading-relaxed">
+                              {n.content}
+                            </p>
+                            <span className="text-[8px] text-slate-400 font-bold mt-1.5 block">
+                              {new Date(n.createdAt).toLocaleDateString("vi-VN", {
+                                hour: "2-digit",
+                                minute: "2-digit"
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="h-4 w-px bg-slate-200" />
+
+            <Link href="/" className="text-xs font-bold text-[#3B5C37] hover:underline flex items-center gap-1">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Quay lại Trang chủ</span>
+            </Link>
+          </div>
         </div>
       </header>
 
