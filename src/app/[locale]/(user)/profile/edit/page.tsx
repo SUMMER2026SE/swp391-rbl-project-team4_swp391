@@ -9,6 +9,9 @@ function ProfileEditFormInner({ user, router }: { user: AuthUser; router: Return
   const [name, setName] = useState(user.user_metadata?.name || "");
   const [phone, setPhone] = useState(user.user_metadata?.phone || "");
   const [bio, setBio] = useState(user.user_metadata?.bio || "");
+  const [inAppReminders, setInAppReminders] = useState(user.user_metadata?.inAppReminders !== false);
+  const [emailReminders, setEmailReminders] = useState(user.user_metadata?.emailReminders !== false);
+  const [streakWarning, setStreakWarning] = useState(user.user_metadata?.streakWarning !== false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -27,7 +30,14 @@ function ProfileEditFormInner({ user, router }: { user: AuthUser; router: Return
 
     try {
       const { error } = await supabase.auth.updateUser({
-        data: { name: name.trim(), phone: phone.trim(), bio: bio.trim() },
+        data: { 
+          name: name.trim(), 
+          phone: phone.trim(), 
+          bio: bio.trim(),
+          inAppReminders,
+          emailReminders,
+          streakWarning
+        },
       });
 
       if (error) throw error;
@@ -129,6 +139,67 @@ function ProfileEditFormInner({ user, router }: { user: AuthUser; router: Return
           </div>
           <div className="flex justify-end text-[10px] font-bold text-slate-400 mt-1">
             {bio.length}/300 ký tự
+          </div>
+        </div>
+
+        {/* Cấu hình Nhận Thông báo */}
+        <div className="border-t border-slate-100 pt-6 space-y-4">
+          <div>
+            <h3 className="text-xs font-black text-[#0d153a] uppercase tracking-wider">Cấu hình thông báo & nhắc nhở</h3>
+            <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Lựa chọn cách bạn muốn nhận các nhắc nhở học tập và chuỗi streak.</p>
+          </div>
+
+          <div className="space-y-3">
+            {/* In-app notification */}
+            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-slate-100/80 rounded-2xl hover:border-[#3B5C37]/10 transition-colors">
+              <div>
+                <h4 className="font-extrabold text-xs text-[#0d153a]">Thông báo trong ứng dụng</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Nhận các nhắc nhở học tập và tin nhắn hệ thống trực tiếp khi truy cập trang web.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInAppReminders(!inAppReminders)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${inAppReminders ? "bg-[#3B5C37]" : "bg-slate-200"}`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${inAppReminders ? "translate-x-5" : "translate-x-0"}`}
+                />
+              </button>
+            </div>
+
+            {/* Email reminder */}
+            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-slate-100/80 rounded-2xl hover:border-[#3B5C37]/10 transition-colors">
+              <div>
+                <h4 className="font-extrabold text-xs text-[#0d153a]">Nhắc nhở học tập qua Email</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Nhận email động viên học tập hàng ngày nếu hôm đó bạn chưa rèn luyện kỹ năng nào.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEmailReminders(!emailReminders)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${emailReminders ? "bg-[#3B5C37]" : "bg-slate-200"}`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${emailReminders ? "translate-x-5" : "translate-x-0"}`}
+                />
+              </button>
+            </div>
+
+            {/* Streak loss warning */}
+            <div className="flex items-center justify-between p-4 bg-[#f8fafc] border border-slate-100/80 rounded-2xl hover:border-[#3B5C37]/10 transition-colors">
+              <div>
+                <h4 className="font-extrabold text-xs text-[#0d153a]">Cảnh báo sắp mất chuỗi học tập (Streak)</h4>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">Nhận cảnh báo khẩn cấp khi chuỗi học tập của bạn sắp bị đặt lại về 0.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setStreakWarning(!streakWarning)}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out outline-none ${streakWarning ? "bg-[#3B5C37]" : "bg-slate-200"}`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${streakWarning ? "translate-x-5" : "translate-x-0"}`}
+                />
+              </button>
+            </div>
           </div>
         </div>
 

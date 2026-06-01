@@ -1,14 +1,38 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
-import { Mail, Calendar, Phone, Heart, User, Key, Camera } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { Mail, Calendar, Phone, Heart, User, Key, Camera, Flame, Trophy } from "lucide-react";
 
 export default function ProfilePage() {
   const t = useTranslations("profile");
   const tc = useTranslations("common");
   const { user } = useAuth();
+  const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number; lastStudyDate: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    async function fetchStreak() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const res = await fetch("/api/student/streak", {
+          headers: {
+            "Authorization": `Bearer ${session?.access_token || ""}`
+          }
+        });
+        if (res.ok) {
+          const result = await res.json();
+          setStreak(result.streak);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải streak học tập:", err);
+      }
+    }
+    fetchStreak();
+  }, [user]);
+
   if (!user) return null;
 
   const initialsFallback = (user.user_metadata?.name || user.email || "U").charAt(0).toUpperCase();
@@ -51,6 +75,37 @@ export default function ProfilePage() {
           >
             {t("editProfile")}
           </Link>
+        </div>
+      </div>
+
+      {/* Streak Info Card */}
+      <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#ff8e26]/5 blur-2xl rounded-full pointer-events-none" />
+        <div className="flex items-center gap-4 z-10">
+          <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-500 animate-pulse">
+            <Flame className="w-8 h-8 text-orange-500 fill-orange-500" />
+          </div>
+          <div>
+            <h3 className="font-extrabold text-[#0d153a] text-sm">Chuỗi học tập (Streak)</h3>
+            <p className="text-xs text-slate-400 font-semibold mt-0.5">Duy trì luyện tập Speaking hàng ngày để tăng chuỗi ngày liên tiếp nhé!</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-6 z-10 bg-slate-50/50 px-6 py-3 rounded-2xl border border-slate-100">
+          <div className="text-center">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Hiện tại</span>
+            <div className="flex items-center justify-center gap-1 mt-0.5">
+              <span className="text-xl font-black text-[#0d153a]">{streak?.currentStreak || 0}</span>
+              <span className="text-lg">🔥</span>
+            </div>
+          </div>
+          <div className="w-px h-8 bg-slate-200" />
+          <div className="text-center">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Kỷ lục</span>
+            <div className="flex items-center justify-center gap-1 mt-0.5">
+              <span className="text-xl font-black text-yellow-600">{streak?.longestStreak || 0}</span>
+              <span className="text-lg">👑</span>
+            </div>
+          </div>
         </div>
       </div>
 
