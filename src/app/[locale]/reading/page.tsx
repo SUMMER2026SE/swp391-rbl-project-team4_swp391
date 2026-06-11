@@ -187,24 +187,26 @@ export default function ReadingLobbyPage() {
         </div>
 
         {/* Hero banner */}
-        <section className="relative rounded-3xl overflow-hidden mb-10 bg-gradient-to-r from-[#1b3d1e] via-[#2d5727] to-[#3B5C37] text-white p-8 md:p-12 shadow-[0_16px_40px_rgba(27,61,30,0.2)] border border-white/5">
-          <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#568140]/20 blur-3xl" />
-
+        <section 
+          className="relative rounded-3xl overflow-hidden mb-10 bg-[#e5ebd8] bg-cover bg-center text-[#1b3d1e] p-8 md:p-12 shadow-[0_16px_40px_rgba(27,61,30,0.1)] border border-[#d8e0cc]"
+          style={{
+            backgroundImage: "url('/assets/hero-background-new.jpeg')",
+          }}
+        >
           <div className="relative z-10 max-w-[700px]">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 text-green-200 text-xs font-bold uppercase tracking-wider mb-5 border border-white/15">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/70 backdrop-blur-sm text-[#3B5C37] text-xs font-bold uppercase tracking-wider mb-5 border border-[#c7d1b8]/60">
               <BookOpen className="w-3.5 h-3.5" />
               IELTS Academic Reading
             </span>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight mb-4 text-white">
+            <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tight mb-4 text-[#1b3d1e]">
               Phòng Thi Reading{" "}
-              <span className="bg-gradient-to-r from-green-300 to-emerald-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#1b3d1e] to-[#3B5C37] bg-clip-text text-transparent">
                 Thực Chiến
               </span>
             </h1>
 
-            <p className="text-sm md:text-base text-green-100/80 leading-relaxed mb-8 max-w-[560px]">
+            <p className="text-sm md:text-base text-[#4e5c4c] font-medium leading-relaxed mb-8 max-w-[560px]">
               Mô phỏng bài thi IELTS Academic Reading chuẩn Cambridge — 3 passage, 40 câu hỏi, đồng hồ đếm ngược 60 phút và đánh giá chi tiết sau khi nộp bài.
             </p>
 
@@ -214,8 +216,8 @@ export default function ReadingLobbyPage() {
                 { icon: BookOpen, label: "3 Passages" },
                 { icon: CheckCircle2, label: `${totalQuestions} câu hỏi` },
               ].map((item) => (
-                <div key={item.label} className="flex items-center gap-1.5 text-xs font-semibold text-green-100 bg-white/8 px-3 py-1.5 rounded-lg border border-white/10">
-                  <item.icon className="w-3.5 h-3.5 text-green-300" />
+                <div key={item.label} className="flex items-center gap-1.5 text-xs font-bold text-[#4e5c4c] bg-white/75 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-[#c7d1b8]/50">
+                  <item.icon className="w-3.5 h-3.5 text-[#3B5C37]" />
                   {item.label}
                 </div>
               ))}
