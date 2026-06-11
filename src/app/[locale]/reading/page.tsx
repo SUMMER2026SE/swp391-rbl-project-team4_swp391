@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { fetchReadingPassages } from "@/services/readingService";
 import { READING_TEST_META } from "@/lib/readingMockData"; // fallback/meta title
 import type { UserRole } from "@/types/reading";
+import Navbar from "@/components/Navbar";
 
 export default function ReadingLobbyPage() {
   const [userRole, setUserRole] = useState<UserRole>("UNKNOWN");
@@ -110,36 +111,9 @@ export default function ReadingLobbyPage() {
   if (view === "select") {
     return (
       <div className="min-h-screen bg-[#f4f5f9] text-[#0f1738] font-sans flex flex-col">
-        {/* Header */}
-        <header className="border-b border-gray-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
-          <div className="mx-auto flex max-w-[1160px] items-center justify-between px-6 py-4">
-            <Link href="/" className="flex items-center gap-1.5 text-lg font-extrabold text-[#11193f]">
-              <span className="text-[#3B5C37]">*</span> QualiCode
-            </Link>
-            <nav className="hidden items-center gap-8 text-sm font-medium text-[#404965] md:flex">
-              <Link href="/" className="hover:text-[#3B5C37] transition-colors">Trang chủ</Link>
-              <Link href="/reading" className="text-[#3B5C37] font-bold">Luyện Reading</Link>
-              <Link href="/speaking" className="hover:text-[#3B5C37] transition-colors">Luyện Speaking</Link>
-            </nav>
-            <div className="flex items-center gap-3">
-              {!loading && userRole === "GUEST" && (
-                <Link
-                  href="/auth"
-                  className="rounded-xl border border-[#e7e9f1] px-5 py-2 text-sm font-semibold hover:bg-slate-100 transition-colors text-[#0f1738]"
-                >
-                  Đăng nhập
-                </Link>
-              )}
-              {!loading && userRole !== "UNKNOWN" && userRole !== "GUEST" && (
-                <span className="text-sm font-semibold text-[#3B5C37]">
-                  Xin chào, {userName || userRole}
-                </span>
-              )}
-            </div>
-          </div>
-        </header>
+        <Navbar />
 
-        <main className="flex-1 flex flex-col items-center justify-center px-6 pt-20 pb-20">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 pt-28 pb-20">
           <div className="text-center mb-12">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#c7d1b8] bg-[#ebefe0]/85 px-4 py-1.5 text-[11px] font-black uppercase tracking-wider text-[#3B5C37] mb-6">
               <BookOpen className="h-4 w-4" />
@@ -203,36 +177,9 @@ export default function ReadingLobbyPage() {
 
   return (
     <div className="min-h-screen bg-[#f4f5f9] text-[#0f1738] font-sans">
-      {/* Header */}
-      <header className="border-b border-gray-200/80 bg-white/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="mx-auto flex max-w-[1160px] items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-1.5 text-lg font-extrabold text-[#11193f]">
-            <span className="text-[#3B5C37]">*</span> QualiCode
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-[#404965] md:flex">
-            <Link href="/" className="hover:text-[#3B5C37] transition-colors">Trang chủ</Link>
-            <Link href="/reading" className="text-[#3B5C37] font-bold">Luyện Reading</Link>
-            <Link href="/speaking" className="hover:text-[#3B5C37] transition-colors">Luyện Speaking</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            {!loading && userRole === "GUEST" && (
-              <Link
-                href="/auth"
-                className="rounded-xl border border-[#e7e9f1] px-5 py-2 text-sm font-semibold hover:bg-slate-100 transition-colors text-[#0f1738]"
-              >
-                Đăng nhập
-              </Link>
-            )}
-            {!loading && userRole !== "UNKNOWN" && userRole !== "GUEST" && (
-              <span className="text-sm font-semibold text-[#3B5C37]">
-                Xin chào, {userName || userRole}
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
-      <main className="mx-auto max-w-[1160px] px-6 pb-16 pt-10">
+      <main className="mx-auto max-w-[1160px] px-6 pb-16 pt-28">
         <div className="mb-6 flex">
           <button onClick={() => setView("select")} className="text-sm font-bold text-[#3B5C37] hover:underline flex items-center gap-1">
             <ChevronRight className="w-4 h-4 rotate-180" /> Quay lại

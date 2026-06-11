@@ -15,6 +15,7 @@ import { fetchWritingTasks } from "@/services/writingService";
 import { WRITING_TASKS, WRITING_TEST_META } from "@/lib/writingMockData";
 import { getWritingAttempts } from "@/lib/writingStorage";
 import type { WritingAttemptPayload } from "@/types/writing";
+import Navbar from "@/components/Navbar";
 
 export default function WritingLobbyPage() {
   const [attempts, setAttempts] = useState<WritingAttemptPayload[]>([]);
@@ -47,26 +48,9 @@ export default function WritingLobbyPage() {
 
   return (
     <div className="min-h-dvh bg-[#f4f5f9] text-[#0f1738]">
-      <header className="border-b border-[#e5e8f0] bg-white">
-        <div className="mx-auto flex max-w-[1160px] items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 text-lg font-black text-[#1b3d1e]">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3B5C37] text-white">
-              Q
-            </span>
-            Quali IELTS
-          </Link>
-          <div className="flex items-center gap-4 text-sm font-bold text-[#4e5c4c]">
-            <Link href="/reading" className="hover:text-[#3B5C37]">
-              Reading
-            </Link>
-            <Link href="/speaking" className="hover:text-[#3B5C37]">
-              Speaking
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
-      <main className="mx-auto max-w-[1160px] px-6 py-8 md:py-10">
+      <main className="mx-auto max-w-[1160px] px-6 pb-8 pt-28 md:pb-10 md:pt-32">
         <section className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:items-stretch">
           <div className="rounded-2xl border border-[#e2e7da] bg-[#e8ede6] p-7 md:p-9">
             <span className="inline-flex items-center gap-2 rounded-full border border-[#c9d6bf] bg-white/70 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-[#3B5C37]">
