@@ -11,6 +11,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { fetchReadingPassages } from "@/services/readingService";
 import {
   ALL_PASSAGES,
   READING_TEST_META,
@@ -82,19 +83,18 @@ function resolveRole(metadata: Record<string, unknown> | undefined): UserRole {
 
 export function ReadingTestProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const passages = ALL_PASSAGES;
-
+  const [passages, setPassages] = useState<any[]>([]);
   const [activePassageIndex, setActivePassageIndexState] = useState(0);
-  const passage = passages[activePassageIndex];
+  const passage = passages[activePassageIndex] || { title: "", sectionLabel: "", paragraphs: [], questions: [] };
 
   const allQuestionIds = useMemo(
-    () => passages.flatMap((p) => p.questions.map((q) => q.id)),
+    () => passages.flatMap((p) => p.questions?.map((q: any) => q.id) || []),
     [passages]
   );
 
   const questionIds = useMemo(
-    () => passage.questions.map((q) => q.id),
-    [passage.questions]
+    () => passage?.questions?.map((q: any) => q.id) || [],
+    [passage]
   );
 
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -113,8 +113,7 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
 
   const setActivePassageIndex = useCallback((index: number) => {
     setActivePassageIndexState(index);
-    // Set currentQuestionId to first question of the new passage
-    const firstQId = passages[index]?.questions[0]?.id;
+    const firstQId = passages[index]?.questions?.[0]?.id;
     if (firstQId !== undefined) {
       setCurrentQuestionId(firstQId);
     }
@@ -132,7 +131,82 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
       }
     }
 
-    const skeletonTimer = setTimeout(() => setIsLoading(false), 700);
+    fetchReadingPassages().then(data => {
+      const validData = data ? data.filter(p => p.questions && p.questions.length > 0) : [];
+      if (validData.length > 0) {
+        let runningQId = 1;
+        const mappedPassages = validData.map((p, pIdx) => {
+          const sectionLabel = p.sectionLabel || `Reading Passage ${pIdx + 1}`;
+          const paragraphs = p.paragraphs || (p.content_html ? [{ id: `p-${pIdx}-1`, label: "", text: p.content_html.replace(/<[^>]*>/g, '') }] : []);
+          
+          const questions = (p.questions || []).map((q: any) => {
+            const rawType = q.type || "";
+            let type = "tfng";
+            let defaultInstruction = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE, or NOT GIVEN.";
+            
+            if (rawType === "true_false_not_given" || rawType === "tfng") {
+              type = "tfng";
+              defaultInstruction = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE, or NOT GIVEN.";
+            } else if (rawType === "multiple_choice" || rawType === "mcq") {
+              type = "mcq";
+              defaultInstruction = "Choose the correct letter, A, B, C or D.";
+            } else if (rawType === "short_answer" || rawType === "fill") {
+              type = "fill";
+              defaultInstruction = "Answer the question with NO MORE THAN TWO WORDS.";
+            } else if (rawType === "matching") {
+              type = "matching";
+              defaultInstruction = "Choose the correct heading for each section.";
+            }
+
+            const prompt = q.statement || q.text || q.prompt || q.question_text || "";
+            
+            let options = q.options || [];
+            if (type === "mcq") {
+              options = (q.options || []).map((opt: any) => {
+                if (typeof opt === "string") {
+                  const dotIndex = opt.indexOf(".");
+                  if (dotIndex !== -1) {
+                    const key = opt.substring(0, dotIndex).trim();
+                    const text = opt.substring(dotIndex + 1).trim();
+                    return { key, text };
+                  }
+                  return { key: opt.trim().charAt(0), text: opt };
+                }
+                return opt;
+              });
+            }
+
+            return {
+              id: runningQId++,
+              type,
+              instruction: q.instruction || defaultInstruction,
+              prompt,
+              options,
+              placeholder: q.placeholder || "Type your answer...",
+              maxWords: q.maxWords || 2,
+              headings: q.headings || []
+            };
+          });
+
+          return {
+            id: p.id,
+            sectionLabel,
+            title: p.title,
+            subtitle: p.subtitle || `You should spend about 20 minutes on Questions, which are based on Reading Passage ${pIdx + 1} below.`,
+            paragraphs,
+            questions
+          };
+        });
+        setPassages(mappedPassages);
+      } else {
+        setPassages(ALL_PASSAGES);
+      }
+      setIsLoading(false);
+    }).catch(err => {
+      console.error("Error loading passages from database:", err);
+      setPassages(ALL_PASSAGES);
+      setIsLoading(false);
+    });
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -147,8 +221,6 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
         setUserName(null);
       }
     });
-
-    return () => clearTimeout(skeletonTimer);
   }, []);
 
   useEffect(() => {
@@ -171,7 +243,6 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
       timeRemaining,
       savedAt: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }, [answers, flagged, currentQuestionId, timeRemaining, isLoading]);
 
   const setAnswer = useCallback((questionId: number, value: string) => {
@@ -244,9 +315,9 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
   const passageProgress = useMemo(
     () =>
       passages.map((p) => {
-        const ids = p.questions.map((q) => q.id);
+        const ids = (p.questions || []).map((q: any) => q.id);
         return {
-          answered: ids.filter((id) => Boolean(answers[String(id)]?.trim())).length,
+          answered: ids.filter((id: any) => Boolean(answers[String(id)]?.trim())).length,
           total: ids.length,
         };
       }),

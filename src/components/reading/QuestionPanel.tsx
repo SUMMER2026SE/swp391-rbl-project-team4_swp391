@@ -13,7 +13,7 @@ export default function QuestionPanel() {
       <div className="shrink-0 border-b border-gray-200 bg-white px-5 py-3 md:px-6">
         <h2 className="text-sm font-bold text-gray-900">Questions</h2>
         <p className="text-xs text-gray-500">
-          Questions 1–{passage.questions.length} — select or type your answers
+          Questions {passage.questions[0]?.id || 1}–{passage.questions[passage.questions.length - 1]?.id || passage.questions.length} — select or type your answers
         </p>
       </div>
 
