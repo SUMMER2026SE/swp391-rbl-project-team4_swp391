@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase";
-import { User, LogOut, ShieldAlert, Sparkles, Bell, Flame, BookOpen, Headphones } from "lucide-react";
+import { User, LogOut, ShieldAlert, Bell } from "lucide-react";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -167,25 +167,6 @@ export default function Navbar() {
           <span className="tracking-tight">Quali IELTS</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 text-sm font-bold text-[#4e5c4c] md:flex">
-          <Link href="/" className="hover:text-[#3B5C37] transition-colors">Home</Link>
-          <Link href="/speaking" className="text-[#3B5C37] font-black flex items-center gap-1 transition-all hover:scale-105">
-            <Sparkles className="w-3.5 h-3.5 animate-pulse text-[#3B5C37]" />
-            <span>Speaking AI</span>
-          </Link>
-          <Link href="/reading" className="text-[#3B5C37] font-black flex items-center gap-1 transition-all hover:scale-105">
-            <BookOpen className="w-3.5 h-3.5 text-[#3B5C37]" />
-            <span>Reading CBT</span>
-          </Link>
-          <Link href="/listening" className="text-[#3B5C37] font-black flex items-center gap-1 transition-all hover:scale-105">
-            <Headphones className="w-3.5 h-3.5 text-[#3B5C37]" />
-            <span>Listening CBT</span>
-          </Link>
-          <Link href="/exam/review" className="hover:text-[#3B5C37] transition-colors">Review Đáp án</Link>
-          <a href="#" className="hover:text-[#3B5C37] transition-colors">Cambridge Cams</a>
-          <a href="#" className="hover:text-[#3B5C37] transition-colors">Pricing</a>
-          <a href="#" className="hover:text-[#3B5C37] transition-colors">About Us</a>
-        </nav>
         {/* Dynamic Auth Header section */}
         <div className="flex items-center gap-3 relative" ref={dropdownRef}>
           <LanguageSwitcher />
