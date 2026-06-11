@@ -7,6 +7,8 @@ import { BookOpen, Headphones, Disc, ChevronRight, Award, History, Info, Play } 
 import { supabase } from "@/lib/supabaseClient";
 import { ListeningTestProvider, useListeningTest } from "@/context/ListeningTestContext";
 
+import Navbar from "@/components/Navbar";
+
 function ListeningTestListContent() {
   const router = useRouter();
   const params = useParams();
@@ -71,36 +73,10 @@ function ListeningTestListContent() {
 
   return (
     <div className="min-h-screen bg-[#f4f5f9] text-[#0f1738] font-sans pb-16">
-      {/* Premium Header */}
-      <header className="border-b border-gray-200/80 bg-white/95 sticky top-0 z-30 shadow-sm backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1160px] items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-1.5 text-lg font-extrabold text-[#11193f]">
-            <span className="text-[#3B5C37]">*</span> QualiCode <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-900/10 text-slate-600 font-bold ml-1.5 align-middle">IELTS</span>
-          </Link>
-          <nav className="hidden items-center gap-8 text-sm font-semibold text-[#404965] md:flex">
-            <Link href="/" className="hover:text-[#3B5C37] transition-colors">Trang chủ</Link>
-            <Link href={`/${locale}/listening`} className="text-[#3B5C37] font-black">Luyện Listening</Link>
-            <Link href={`/${locale}/speaking`} className="hover:text-[#3B5C37] transition-colors">Luyện Speaking</Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            {sessionUser ? (
-              <span className="text-xs font-black text-[#3B5C37]">
-                Chào, {sessionUser.email?.split("@")[0]}
-              </span>
-            ) : (
-              <Link
-                href={`/${locale}/auth`}
-                className="rounded-xl border border-[#e7e9f1] bg-white/80 px-4.5 py-2 text-xs font-bold hover:bg-slate-50 transition-all text-[#0f1738]"
-              >
-                Đăng nhập
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero section */}
-      <main className="mx-auto max-w-[1160px] px-6 pt-10">
+      <main className="mx-auto max-w-[1160px] px-6 pt-28">
         <section className="relative rounded-3xl overflow-hidden mb-10 bg-gradient-to-r from-[#1c3519] via-[#2d5027] to-[#3B5C37] text-white p-8 md:p-12 shadow-[0_16px_40px_rgba(59,92,55,0.15)] border border-white/5">
           <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-white/5 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-[#568140]/20 blur-3xl" />
