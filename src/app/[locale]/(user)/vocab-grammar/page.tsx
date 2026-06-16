@@ -36,16 +36,12 @@ export default function VocabGrammarPage() {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
 
   // Get authenticated headers
-  const getAuthHeaders = async () => {
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
     const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token || "";
-    const headers: any = {};
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    } else {
-      headers["x-mock-user-id"] = "usr_2"; // Fallback for local testing
-    }
-    return headers;
+    const token = session?.access_token || '';
+    return token
+      ? { Authorization: `Bearer ${token}` }
+      : { 'x-mock-user-id': 'usr_2' };
   };
 
   // Fetch initial data

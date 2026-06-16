@@ -23,7 +23,7 @@ export default function AddToNotebookButton({ word, definition, example, pos, so
     if (variant === 'dropdown' && openDropdown && folders.length === 0) {
       supabase.auth.getSession().then(({ data: { session } }) => {
         const token = session?.access_token || "";
-        const headers: any = {};
+        const headers: Record<string, string> = {};
         if (token) {
           headers["Authorization"] = `Bearer ${token}`;
         } else {
@@ -44,7 +44,7 @@ export default function AddToNotebookButton({ word, definition, example, pos, so
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || "";
-      const headers: any = { 'Content-Type': 'application/json' };
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
       } else {
