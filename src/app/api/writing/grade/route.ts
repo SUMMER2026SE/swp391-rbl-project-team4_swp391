@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { WRITING_TASKS } from "@/lib/writingMockData";
-import { countWords, buildWritingFeedback } from "@/lib/writingStorage";
+import { countWords } from "@/lib/writingStorage";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const DEEPSEEK_MODEL = "deepseek-chat";
-const DEEPSEEK_URL = "https://api.deepseek.com/chat/completions";
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 async function getAuthenticatedUser(request: NextRequest) {
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
@@ -19,26 +19,49 @@ async function getAuthenticatedUser(request: NextRequest) {
   }
 }
 
-function parseDeepSeekJson(text: string) {
-  const trimmed = text.trim();
+function cleanAndParseJSON(text: string): any {
+  let cleaned = text.trim();
+  
+  // Remove markdown code blocks if present
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "").trim();
+  }
+  
+  // Find first '{' and last '}'
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+  
+  return JSON.parse(cleaned);
+}
+
+async function gradeWithGemini(prompt: string): Promise<any> {
+  // Use gemini-flash-latest which resolves to stable 1.5-flash in the SDK
+  const model = genAI.getGenerativeModel({
+    model: "gemini-flash-latest",
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+
   try {
-    return JSON.parse(trimmed);
+    return cleanAndParseJSON(text);
   } catch {
-    const match = trimmed.match(/\{[\s\S]*\}/);
-    if (!match) return null;
-    try {
-      return JSON.parse(match[0]);
-    } catch {
-      return null;
-    }
+    throw new Error("Gemini trả về JSON không hợp lệ: " + text.slice(0, 200));
   }
 }
 
+
 export async function POST(request: NextRequest) {
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "DEEPSEEK_API_KEY chưa được cấu hình trên server." },
+      { error: "GEMINI_API_KEY chưa được cấu hình trên server." },
       { status: 500 }
     );
   }
@@ -58,7 +81,6 @@ export async function POST(request: NextRequest) {
 
     const user = await getAuthenticatedUser(request);
 
-    // Call DeepSeek to evaluate
     const prompt = `Bạn là một giám khảo chấm thi IELTS chuyên nghiệp. Hãy đánh giá chi tiết bài thi viết IELTS sau đây.
 Bài thi bao gồm 2 phần: Task 1 và Task 2.
 
@@ -171,43 +193,15 @@ Bạn PHẢI trả về ĐÚNG 1 JSON object (không chứa định dạng markd
       "modelAnswer": "Bài luận mẫu nâng cấp band 8.5+ dựa trên cấu trúc bài làm của học viên..."
     }
   ]
-}`;
+}
 
-    const deepseekRes = await fetch(DEEPSEEK_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: DEEPSEEK_MODEL,
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert IELTS Writing examiner. You output strictly valid raw JSON without any markdown formatting or wrapper.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.3,
-        response_format: { type: "json_object" },
-      }),
-    });
+QUAN TRỌNG: Chỉ trả về JSON thuần túy.
+Không được bọc trong \`\`\`json hay bất kỳ text nào bên ngoài JSON.`;
 
-    if (!deepseekRes.ok) {
-      const errText = await deepseekRes.text();
-      console.error("[DeepSeek Writing API Error]", deepseekRes.status, errText);
-      throw new Error(`DeepSeek API returned status ${deepseekRes.status}`);
-    }
-
-    const deepseekData = await deepseekRes.json();
-    const rawText = deepseekData.choices?.[0]?.message?.content ?? "";
-    const parsed = parseDeepSeekJson(rawText);
+    const parsed = await gradeWithGemini(prompt);
 
     if (!parsed || typeof parsed.estimatedBand !== "number") {
-      throw new Error("Không thể parse kết quả JSON hợp lệ từ DeepSeek");
+      throw new Error("Không thể nhận được kết quả chấm bài từ Gemini.");
     }
 
     const feedbackResult = {
@@ -222,7 +216,7 @@ Bạn PHẢI trả về ĐÚNG 1 JSON object (không chứa định dạng markd
     if (user) {
       const { error: dbError } = await supabaseAdmin.from("user_submissions").insert({
         user_id: user.id,
-        exam_id: null, // lobby practice test has no persistent exam UUID in database yet
+        exam_id: null,
         score: feedbackResult.estimatedBand,
         answers: {
           answers,
@@ -240,62 +234,12 @@ Bạn PHẢI trả về ĐÚNG 1 JSON object (không chứa định dạng markd
       }
     }
 
-    return NextResponse.json({ grade: feedbackResult, source: "deepseek" });
+    return NextResponse.json({ grade: feedbackResult, source: "gemini" });
   } catch (error) {
-    console.error("[DeepSeek Writing Exception]", error);
-    
-    // Fallback to local heuristic grading
-    try {
-      const body = await request.json().catch(() => ({}));
-      const { id: attemptId, answers } = body;
-      
-      const localFeedback = buildWritingFeedback(attemptId || `writing_${Date.now()}`, answers || { task1: "", task2: "" });
-      
-      // Inject standard criteria and placeholders for UI fallback compliance
-      const formattedFeedback = {
-        attemptId: localFeedback.attemptId,
-        estimatedBand: localFeedback.estimatedBand,
-        overallFeedbackVi: localFeedback.overallFeedbackVi + " (Lưu ý: Do trục trặc kết nối AI DeepSeek, hệ thống đang hiển thị kết quả đánh giá sơ bộ tự động bằng thuật toán.)",
-        gradedAt: localFeedback.gradedAt,
-        taskFeedback: localFeedback.taskFeedback.map((tf) => ({
-          taskId: tf.taskId,
-          wordCount: tf.wordCount,
-          estimatedBand: tf.estimatedBand,
-          criteria: {
-            ta_tr: { score: tf.estimatedBand, explanationVi: "Đánh giá sơ bộ dựa trên từ vựng và câu cú." },
-            cc: { score: tf.estimatedBand, explanationVi: "Đánh giá cấu trúc đoạn văn sơ bộ." },
-            lr: { score: tf.estimatedBand, explanationVi: "Độ đa dạng từ vựng ước tính." },
-            gra: { score: tf.estimatedBand, explanationVi: "Độ chính xác ngữ pháp ước tính." }
-          },
-          strengths: tf.strengths,
-          improvements: tf.improvements,
-          grammarCorrections: [],
-          modelAnswer: tf.taskId === "task1" ? "Vui lòng kết nối DeepSeek AI để nhận bài mẫu viết lại." : "Vui lòng kết nối DeepSeek AI để nhận bài luận mẫu hoàn chỉnh."
-        }))
-      };
-
-      const user = await getAuthenticatedUser(request);
-      if (user && attemptId && answers) {
-        await supabaseAdmin.from("user_submissions").insert({
-          user_id: user.id,
-          exam_id: null,
-          score: formattedFeedback.estimatedBand,
-          answers: {
-            answers,
-            wordCounts: {
-              task1: countWords(answers.task1 || ""),
-              task2: countWords(answers.task2 || ""),
-            },
-            feedback: formattedFeedback,
-          },
-          started_at: new Date().toISOString(),
-          completed_at: new Date().toISOString(),
-        });
-      }
-
-      return NextResponse.json({ grade: formattedFeedback, source: "fallback" });
-    } catch {
-      return NextResponse.json({ error: "Lỗi hệ thống khi chấm bài viết." }, { status: 500 });
-    }
+    console.error("[Gemini Writing Exception]", error);
+    return NextResponse.json(
+      { error: "Không thể chấm bài lúc này, vui lòng thử lại sau." },
+      { status: 503 }
+    );
   }
 }

@@ -139,7 +139,10 @@ export default function WritingTestPage() {
   useEffect(() => {
     fetchWritingTasks().then(data => {
       if (data && data.length > 0) {
-        const mapped = data.map((t: any) => ({
+        const task1 = data.find((t: any) => t.task_type === 'task1');
+        const task2 = data.find((t: any) => t.task_type === 'task2');
+        const selected = [task1, task2].filter(Boolean);
+        const mapped = selected.map((t: any) => ({
           id: t.task_type === 'task1' ? 'task1' : 'task2',
           label: t.task_type === 'task1' ? 'Writing Task 1' : 'Writing Task 2',
           title: t.title,
