@@ -25,17 +25,14 @@ export default function MockAudioPlayer() {
   };
 
   return (
-    <div className="rounded-2xl border border-amber-200/80 bg-gradient-to-r from-amber-50/70 to-orange-50/50 p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-2">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
-          <span className="text-[10px] font-black tracking-widest text-amber-700 uppercase flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3 text-amber-600" /> TRANSCRIPT MODE
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black tracking-widest text-[#3B5C37] uppercase flex items-center gap-1">
+            <Disc className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '3s' }} /> IELTS AUDIO PLAYER
           </span>
         </div>
-        <span className="text-[9px] font-bold text-amber-600 bg-amber-100/60 px-2 py-0.5 rounded-md">
-          Mock Audio Player
-        </span>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-4">

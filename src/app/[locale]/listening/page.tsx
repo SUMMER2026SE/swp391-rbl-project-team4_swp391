@@ -90,12 +90,12 @@ function ListeningTestListContent() {
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight tracking-tight mb-4 text-white">
               Phòng Thi Listening{" "}
               <span className="bg-gradient-to-r from-green-300 to-emerald-200 bg-clip-text text-transparent">
-                Đọc Transcript
+                Phát Audio Thực Tế
               </span>
             </h1>
 
             <p className="text-sm md:text-base text-green-100/80 leading-relaxed mb-8 max-w-[560px]">
-              Luyện kỹ năng Nghe hiểu qua chế độ Transcript Mode đặc biệt — Đọc văn bản theo nhịp thời gian giả lập để trả lời câu hỏi trắc nghiệm và điền từ.
+              Luyện kỹ năng Nghe hiểu với audio thực tế từ đề thi Cambridge IELTS, giúp bạn làm quen trực tiếp với môi trường thi thật.
             </p>
           </div>
         </section>
@@ -125,8 +125,8 @@ function ListeningTestListContent() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#3B5C37] bg-[#3B5C37]/10 px-3 py-1.5 rounded-xl">
                       Cambridge {test.volume}
                     </span>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-100 px-2 py-1 rounded-md flex items-center gap-1">
-                      <Info className="w-3 h-3 text-amber-600" /> TRANSCRIPT MODE
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-md flex items-center gap-1">
+                      <Headphones className="w-3 h-3 text-emerald-600" /> AUDIO MODE
                     </span>
                   </div>
 
