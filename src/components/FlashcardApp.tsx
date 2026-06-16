@@ -1,5 +1,5 @@
-"use client";
 // @ts-nocheck
+"use client";
 
 import * as React from 'react';
 import ScoutTemplate from './ScoutTemplate';
@@ -31,7 +31,17 @@ const SET_VISUAL = [
 ];
 
 class Component extends React.Component<any, any> {
-  constructor(props){
+  deck: any;
+  wordSets: any;
+  setLabels: any;
+  cardPatterns: any;
+  dashClouds: any;
+  cardStars: any;
+  stats: any;
+  _kh: any;
+  _wrongTimer: any;
+
+  constructor(props: any){
     super(props);
     this.deck = this._buildDeck(0);
     this.wordSets = [
@@ -41,7 +51,7 @@ class Component extends React.Component<any, any> {
         return {id:String(i), kicker:'IELTS', label:vs.topic, count:vs.words.length, icon:v.icon, color:v.color, deep:v.deep, desc:v.desc, rating:'—', mastery:0, personal:false};
       })
     ];
-    this.setLabels = this.wordSets.reduce((a,w)=>{a[w.id]=w.label;return a;},{});
+    this.setLabels = this.wordSets.reduce((a: any, w: any)=>{a[w.id]=w.label;return a;},{});
     this.cardPatterns = [
       'radial-gradient(rgba(255,255,255,.16) 2px, transparent 2.3px) 0 0/22px 22px',
       'repeating-linear-gradient(45deg, rgba(255,255,255,.10) 0 9px, transparent 9px 22px)',

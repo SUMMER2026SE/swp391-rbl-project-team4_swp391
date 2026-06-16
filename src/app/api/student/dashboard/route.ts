@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     .eq('user_id', user.id)
     .eq('category', 'vocabulary');
 
-  const vocabStats: Record<string, { avgScore: number, maxScore: number, attempts: number }> = {};
+  const vocabStats: Record<string, { avgScore?: number, sumScore?: number, maxScore: number, attempts: number }> = {};
   if (vocabHistory) {
     vocabHistory.forEach(row => {
       const setIdx = row.metadata?.setIdx;
@@ -88,13 +88,14 @@ export async function GET(request: NextRequest) {
         if (!vocabStats[setIdx]) vocabStats[setIdx] = { sumScore: 0, attempts: 0, maxScore: 0 };
         // Giả sử score là số câu đúng, rating trên thang 5.0 => (score/total)*5.0
         const rating = row.total ? (row.score / row.total) * 5.0 : 0;
-        vocabStats[setIdx].sumScore += rating;
+        vocabStats[setIdx].sumScore = (vocabStats[setIdx].sumScore || 0) + rating;
         vocabStats[setIdx].attempts += 1;
         vocabStats[setIdx].maxScore = Math.max(vocabStats[setIdx].maxScore, rating);
       }
     });
     for (const key in vocabStats) {
-      (vocabStats[key] as any).avgScore = (vocabStats[key] as any).sumScore / vocabStats[key].attempts;
+      const stats = vocabStats[key];
+      stats.avgScore = (stats.sumScore || 0) / stats.attempts;
     }
   }
 

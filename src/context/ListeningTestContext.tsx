@@ -123,7 +123,7 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // Mock audio state
+  // Real audio state (mapped to mock UI variables for backward compatibility)
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [mockProgress, setMockProgress] = useState<number>(0);
   const [mockDuration, setMockDuration] = useState<number>(0);
@@ -136,33 +136,104 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
   const [result, setResult] = useState<ListeningResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const startedAtRef = useRef<Date>(new Date());
 
   const currentSection = sections[currentSectionIndex] || null;
 
-  // Load list of tests
+  const initAudio = (src: string) => {
+    if (typeof window === "undefined") return;
+    
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = "";
+      audioRef.current = null;
+    }
+
+    let fullSrc = src;
+    if (src.startsWith("/audio/tasks/")) {
+      const projectRef = "kaoybbpezkkmufzbhxru";
+      fullSrc = `https://${projectRef}.supabase.co/storage/v1/object/public/audio/tasks/${src.replace("/audio/tasks/", "")}`;
+    }
+
+    const audio = new Audio(fullSrc);
+    audioRef.current = audio;
+
+    setIsPlaying(false);
+    setMockProgress(0);
+    setMockCurrentTime(0);
+
+    audio.addEventListener("loadedmetadata", () => {
+      setMockDuration(audio.duration || 0);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      setMockCurrentTime(audio.currentTime);
+      if (audio.duration) {
+        setMockProgress((audio.currentTime / audio.duration) * 100);
+      }
+    });
+
+    audio.addEventListener("ended", () => {
+      setIsPlaying(false);
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  // Load list of tests from listening_tasks
   const loadTestList = async () => {
     setIsLoading(true);
     setError(null);
     try {
       const { data, error: fetchErr } = await supabase
-        .from("listening_cam_tests")
-        .select("id, test_id, test_name, volume, test_number, has_audio, is_visible, sections")
-        .eq("is_visible", true)
-        .order("volume", { ascending: true })
-        .order("test_number", { ascending: true });
+        .from("listening_tasks")
+        .select("*")
+        .order("lesson_id", { ascending: true });
 
       if (fetchErr) throw fetchErr;
 
-      const validTests = (data || []).filter((t: any) =>
-        t.sections &&
-        Array.isArray(t.sections) &&
-        t.sections.length > 0 &&
-        t.sections.some((s: any) => s.questions?.length > 0)
-      );
+      if (data && data.length > 0) {
+        const sectionsData = data.map((row: any) => {
+          const questions = (row.challenges || []).map((q: any, i: number) => ({
+            id: q.id || `lq_${row.lesson_id}_${i}`,
+            type: q.type || "fill",
+            text: q.text || "",
+            options: q.options || [],
+            correct_answer: q.answer || "",
+            answers: q.answers || (q.answer ? [q.answer] : []),
+          }));
 
-      setTestList(validTests);
+          return {
+            section: row.lesson_id,
+            title: row.lesson_name,
+            audio_src: row.audio_src,
+            audio_description: row.metadata?.topic || "",
+            questions: questions
+          };
+        });
+
+        const singleTest = {
+          id: "listening_practice_test",
+          test_id: "listening_practice_test",
+          test_name: "IELTS Listening Practice Test",
+          volume: "Standard",
+          test_number: 1,
+          has_audio: true,
+          is_visible: true,
+          sections: sectionsData
+        };
+
+        setTestList([singleTest]);
+      } else {
+        setTestList([]);
+      }
     } catch (err: any) {
       console.error("Error loading test list:", err);
       setError(err.message || "Failed to load test list");
@@ -185,21 +256,52 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
     
     try {
       const { data, error: fetchErr } = await supabase
-        .from("listening_cam_tests")
+        .from("listening_tasks")
         .select("*")
-        .eq("id", testId)
-        .single();
+        .order("lesson_id", { ascending: true });
 
       if (fetchErr) throw fetchErr;
 
-      setSelectedTest(data);
-      const normalized = normalizeListeningTest(data);
-      setSections(normalized);
-      setCurrentSectionIndex(0);
+      if (data && data.length > 0) {
+        const sectionsData = data.map((row: any) => {
+          const questions = (row.challenges || []).map((q: any, i: number) => ({
+            id: q.id || `lq_${row.lesson_id}_${i}`,
+            type: q.type || "fill",
+            text: q.text || "",
+            options: q.options || [],
+            correct_answer: q.answer || "",
+            answers: q.answers || (q.answer ? [q.answer] : []),
+          }));
 
-      // Duration is 15 seconds per question
-      const totalQs = normalized.reduce((sum, s) => sum + s.questions.length, 0);
-      setMockDuration(totalQs * 15);
+          return {
+            section: row.lesson_id,
+            title: row.lesson_name,
+            audio_src: row.audio_src,
+            audio_description: row.metadata?.topic || "",
+            questions: questions
+          };
+        });
+
+        const singleTest = {
+          id: "listening_practice_test",
+          test_id: "listening_practice_test",
+          test_name: "IELTS Listening Practice Test",
+          volume: "Standard",
+          test_number: 1,
+          has_audio: true,
+          is_visible: true,
+          sections: sectionsData
+        };
+
+        setSelectedTest(singleTest);
+        const normalized = normalizeListeningTest(singleTest);
+        setSections(normalized);
+        setCurrentSectionIndex(0);
+
+        if (sectionsData[0]?.audio_src) {
+          initAudio(sectionsData[0].audio_src);
+        }
+      }
     } catch (err: any) {
       console.error("Error selecting listening test:", err);
       setError(err.message || "Failed to load test data");
@@ -210,7 +312,9 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
 
   // Seek
   const seekTo = (percent: number): number => {
-    const time = Math.round((percent / 100) * mockDuration);
+    if (!audioRef.current || !audioRef.current.duration) return 0;
+    const time = (percent / 100) * audioRef.current.duration;
+    audioRef.current.currentTime = time;
     setMockCurrentTime(time);
     setMockProgress(percent);
     return time;
@@ -218,49 +322,49 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
 
   // Audio Play controls
   const togglePlay = () => {
-    setIsPlaying(prev => !prev);
-  };
-
-  // Auto Timer Effect for Mock Audio
-  useEffect(() => {
+    if (!audioRef.current) return;
     if (isPlaying) {
-      timerRef.current = setInterval(() => {
-        setMockCurrentTime((prev) => {
-          const next = prev + 1;
-          if (next >= mockDuration) {
-            setIsPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-            return mockDuration;
-          }
-          setMockProgress((next / mockDuration) * 100);
-          return next;
-        });
-      }, 1000);
+      audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      if (timerRef.current) clearInterval(timerRef.current);
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(err => {
+        console.error("Audio playback failed:", err);
+      });
     }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPlaying, mockDuration]);
+  };
 
   // Section Navigation
   const goToSection = (index: number) => {
     if (index >= 0 && index < sections.length) {
       setCurrentSectionIndex(index);
+      const targetSection = selectedTest?.sections?.[index];
+      if (targetSection && targetSection.audio_src) {
+        initAudio(targetSection.audio_src);
+      }
     }
   };
 
   const goToNextSection = () => {
     if (currentSectionIndex < sections.length - 1) {
-      setCurrentSectionIndex(prev => prev + 1);
+      const nextIdx = currentSectionIndex + 1;
+      setCurrentSectionIndex(nextIdx);
+      const targetSection = selectedTest?.sections?.[nextIdx];
+      if (targetSection && targetSection.audio_src) {
+        initAudio(targetSection.audio_src);
+      }
     }
   };
 
   const goToPrevSection = () => {
     if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(prev => prev - 1);
+      const prevIdx = currentSectionIndex - 1;
+      setCurrentSectionIndex(prevIdx);
+      const targetSection = selectedTest?.sections?.[prevIdx];
+      if (targetSection && targetSection.audio_src) {
+        initAudio(targetSection.audio_src);
+      }
     }
   };
 
@@ -277,6 +381,9 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
     if (!selectedTest) return;
     setIsSubmitting(true);
     setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
     
     try {
       const graded = gradeListeningTest(sections, answers);
@@ -340,7 +447,12 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
     setIsPlaying(false);
     setCurrentSectionIndex(0);
     startedAtRef.current = new Date();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   };
+
 
   return (
     <ListeningTestContext.Provider
