@@ -11,7 +11,7 @@ export interface NormalizedListeningQuestion {
 
 export const parseOptions = (options: any): { key: string; text: string }[] => {
   if (!options || !Array.isArray(options)) return [];
-  return options.map((opt: any) => {
+  return options.map((opt: any, index: number) => {
     if (typeof opt === "string") {
       const dotIndex = opt.indexOf(".");
       if (dotIndex !== -1) {
@@ -19,7 +19,8 @@ export const parseOptions = (options: any): { key: string; text: string }[] => {
         const text = opt.substring(dotIndex + 1).trim();
         return { key, text };
       }
-      return { key: opt.trim().charAt(0), text: opt };
+      const key = String.fromCharCode(65 + index); // A, B, C...
+      return { key, text: opt };
     }
     return opt;
   });
