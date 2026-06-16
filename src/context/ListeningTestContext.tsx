@@ -151,9 +151,11 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
     }
 
     let fullSrc = src;
-    if (src.startsWith("/audio/tasks/")) {
+    const lowerSrc = src.toLowerCase();
+    if (lowerSrc.startsWith("/audio/tasks/") || lowerSrc.startsWith("/audio/tasks/")) {
       const projectRef = "kaoybbpezkkmufzbhxru";
-      fullSrc = `https://${projectRef}.supabase.co/storage/v1/object/public/audio/tasks/${src.replace("/audio/tasks/", "")}`;
+      const fileName = src.substring("/audio/tasks/".length);
+      fullSrc = `https://${projectRef}.supabase.co/storage/v1/object/public/audio/Tasks/${fileName}`;
     }
 
     const audio = new Audio(fullSrc);
