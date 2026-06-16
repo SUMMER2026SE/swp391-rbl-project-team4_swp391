@@ -149,6 +149,18 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
 
   const initialsFallback = (user.user_metadata?.name || user.email || "U").charAt(0).toUpperCase();
 
+  const isFlashcardAppPage = pathname.endsWith("/profile") || pathname.endsWith("/profile/");
+
+  if (isFlashcardAppPage) {
+    return (
+      <div className="min-h-screen w-full flex flex-col">
+        <main className="flex-1 w-full">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f4f5f9] flex flex-col">
       {/* Header */}
