@@ -395,11 +395,15 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
       
       if (session?.user) {
         const userId = session.user.id;
+        const submissionId = typeof window !== "undefined" && window.crypto?.randomUUID 
+          ? window.crypto.randomUUID() 
+          : "00000000-0000-0000-0000-" + Math.random().toString(16).substring(2, 14).padEnd(12, '0');
 
         // 1. Save to user_submissions
-        const { data: submission, error: subErr } = await supabase
+        const { error: subErr } = await supabase
           .from("user_submissions")
           .insert({
+            id: submissionId,
             user_id: userId,
             exam_id: selectedTest.id,
             score: graded.bandScore,
@@ -412,12 +416,15 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
             },
             started_at: startedAtRef.current.toISOString(),
             completed_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
+          });
 
         if (subErr) {
-          console.error("Error saving user submission:", subErr);
+          console.error("Error saving user submission:", {
+            message: subErr.message,
+            code: subErr.code,
+            details: subErr.details,
+            hint: subErr.hint
+          });
         } else {
           // 2. Also save to practice_history for dashboard display
           const { error: histErr } = await supabase.from("practice_history").insert({
@@ -430,12 +437,17 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
             metadata: {
               raw_score: graded.score,
               section_results: graded.sectionResults,
-              submission_id: submission?.id || null,
+              submission_id: submissionId,
             },
           });
 
           if (histErr) {
-            console.error("Error saving practice history:", histErr);
+            console.error("Error saving practice history:", {
+              message: histErr.message,
+              code: histErr.code,
+              details: histErr.details,
+              hint: histErr.hint
+            });
           }
         }
       } else {
