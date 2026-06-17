@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { authFetch } from "@/lib/authFetch";
 import { useParams } from "next/navigation";
 import ExamForm from "../../_components/ExamForm";
 import { Loader2, AlertTriangle } from "lucide-react";
@@ -18,7 +19,7 @@ export default function EditExamPage() {
     if (!id) return;
     async function fetchExam() {
       try {
-        const res = await fetch(`/api/admin/exams/${id}`);
+        const res = await authFetch(`/api/admin/exams/${id}`);
         const data = await res.json();
         if (res.ok) {
           const exam = data.exam;

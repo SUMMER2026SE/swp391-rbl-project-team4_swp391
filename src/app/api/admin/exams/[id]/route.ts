@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest } from "next/server";
+import { requireRole, ADMIN_OR_INSTRUCTOR } from "@/lib/roles";
 
 // GET /api/admin/exams/[id] — Get exam detail with sections
 export async function GET(

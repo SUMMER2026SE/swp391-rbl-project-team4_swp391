@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import { supabase } from "@/lib/supabase";
 import {
   Search,
@@ -28,7 +29,7 @@ interface UserType {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "STUDENT" | "GUEST";
+  role: "ADMIN" | "INSTRUCTOR" | "STUDENT" | "GUEST";
   isLocked: boolean;
   createdAt: string;
   updatedAt: string;
@@ -56,6 +57,7 @@ export default function AdminUsersPage() {
     active: 0,
     locked: 0,
     adminCount: 0,
+    instructorCount: 0,
     studentCount: 0,
     guestCount: 0,
   });
@@ -78,7 +80,7 @@ export default function AdminUsersPage() {
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formPassword, setFormPassword] = useState("");
-  const [formRole, setFormRole] = useState<"ADMIN" | "STUDENT" | "GUEST">("STUDENT");
+  const [formRole, setFormRole] = useState<"ADMIN" | "INSTRUCTOR" | "STUDENT" | "GUEST">("STUDENT");
   const [formIsLocked, setFormIsLocked] = useState(false);
   const [formError, setFormError] = useState("");
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
@@ -106,7 +108,7 @@ export default function AdminUsersPage() {
         limit: pagination.limit.toString(),
       });
 
-      const response = await fetch(`/api/admin/users?${queryParams}`);
+      const response = await authFetch(`/api/admin/users?${queryParams}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -126,7 +128,7 @@ export default function AdminUsersPage() {
   // Lấy toàn bộ người dùng để tính toán KPI (Thống kê)
   const fetchKpis = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/users?limit=1000");
+      const response = await authFetch("/api/admin/users?limit=1000");
       const data = await response.json();
       if (response.ok && data.users) {
         const list: UserType[] = data.users;
@@ -134,10 +136,11 @@ export default function AdminUsersPage() {
         const active = list.filter((u) => !u.isLocked).length;
         const locked = list.filter((u) => u.isLocked).length;
         const adminCount = list.filter((u) => u.role === "ADMIN").length;
+        const instructorCount = list.filter((u) => u.role === "INSTRUCTOR").length;
         const studentCount = list.filter((u) => u.role === "STUDENT").length;
         const guestCount = list.filter((u) => u.role === "GUEST").length;
 
-        setKpis({ total, active, locked, adminCount, studentCount, guestCount });
+        setKpis({ total, active, locked, adminCount, instructorCount, studentCount, guestCount });
       }
     } catch (err) {
       console.error("Lỗi khi tải KPIs:", err);
@@ -178,7 +181,7 @@ export default function AdminUsersPage() {
       const adminName = metadata.name || "Admin";
       const adminEmail = session?.user.email || "admin@qualicode.com";
 
-      const response = await fetch("/api/admin/users", {
+      const response = await authFetch("/api/admin/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -235,7 +238,7 @@ export default function AdminUsersPage() {
       const adminName = metadata.name || "Admin";
       const adminEmail = session?.user.email || "admin@qualicode.com";
 
-      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+      const response = await authFetch(`/api/admin/users/${selectedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -280,7 +283,7 @@ export default function AdminUsersPage() {
       const adminName = metadata.name || "Admin";
       const adminEmail = session?.user.email || "admin@qualicode.com";
 
-      const response = await fetch(`/api/admin/users/${selectedUser.id}/toggle-lock`, {
+      const response = await authFetch(`/api/admin/users/${selectedUser.id}/toggle-lock`, {
         method: "PATCH",
         headers: {
           "x-admin-name": encodeURIComponent(adminName),
@@ -321,7 +324,7 @@ export default function AdminUsersPage() {
       const adminName = metadata.name || "Admin";
       const adminEmail = session?.user.email || "admin@qualicode.com";
 
-      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+      const response = await authFetch(`/api/admin/users/${selectedUser.id}`, {
         method: "DELETE",
         headers: {
           "x-admin-name": encodeURIComponent(adminName),
@@ -358,7 +361,7 @@ export default function AdminUsersPage() {
       const adminName = metadata.name || "Admin";
       const adminEmail = session?.user.email || "admin@qualicode.com";
 
-      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
+      const response = await authFetch(`/api/admin/users/${selectedUser.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -462,6 +465,11 @@ export default function AdminUsersPage() {
             </div>
             <div className="h-6 w-px bg-slate-100" />
             <div>
+              <span className="text-[10px] font-bold text-slate-400">Instructor</span>
+              <div className="font-extrabold text-sm text-purple-600">{kpis.instructorCount}</div>
+            </div>
+            <div className="h-6 w-px bg-slate-100" />
+            <div>
               <span className="text-[10px] font-bold text-slate-400">Student</span>
               <div className="font-extrabold text-sm text-emerald-600">{kpis.studentCount}</div>
             </div>
@@ -511,6 +519,7 @@ export default function AdminUsersPage() {
             >
               <option value="ALL">Tất cả vai trò</option>
               <option value="ADMIN">ADMIN</option>
+              <option value="INSTRUCTOR">INSTRUCTOR</option>
               <option value="STUDENT">STUDENT</option>
               <option value="GUEST">GUEST</option>
             </select>
@@ -604,6 +613,8 @@ export default function AdminUsersPage() {
                           className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm ${
                             user.role === "ADMIN"
                               ? "bg-rose-500"
+                              : user.role === "INSTRUCTOR"
+                              ? "bg-purple-500"
                               : user.role === "STUDENT"
                               ? "bg-emerald-500"
                               : "bg-slate-400"
@@ -627,12 +638,15 @@ export default function AdminUsersPage() {
                         className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold border ${
                           user.role === "ADMIN"
                             ? "bg-rose-50 border-rose-200 text-rose-700"
+                            : user.role === "INSTRUCTOR"
+                            ? "bg-purple-50 border-purple-200 text-purple-700"
                             : user.role === "STUDENT"
                             ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                             : "bg-slate-50 border-slate-200 text-slate-600"
                         }`}
                       >
                         {user.role === "ADMIN" && <Shield className="w-3 h-3" />}
+                        {user.role === "INSTRUCTOR" && <Sparkles className="w-3 h-3" />}
                         {user.role === "STUDENT" && <User className="w-3 h-3" />}
                         <span>{user.role}</span>
                       </span>
@@ -825,6 +839,7 @@ export default function AdminUsersPage() {
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#3B5C37] text-slate-700 font-semibold"
                 >
                   <option value="STUDENT">STUDENT (Học viên)</option>
+                  <option value="INSTRUCTOR">INSTRUCTOR (Giảng viên)</option>
                   <option value="GUEST">GUEST (Khách hàng vãng lai)</option>
                   <option value="ADMIN">ADMIN (Quản trị viên)</option>
                 </select>
@@ -908,6 +923,7 @@ export default function AdminUsersPage() {
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#3B5C37] text-slate-700 font-semibold"
                 >
                   <option value="STUDENT">STUDENT (Học viên)</option>
+                  <option value="INSTRUCTOR">INSTRUCTOR (Giảng viên)</option>
                   <option value="GUEST">GUEST (Khách hàng vãng lai)</option>
                   <option value="ADMIN">ADMIN (Quản trị viên)</option>
                 </select>

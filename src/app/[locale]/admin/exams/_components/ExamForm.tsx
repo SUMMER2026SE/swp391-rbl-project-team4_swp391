@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -103,7 +104,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/admin/exams/upload-audio", { method: "POST", body: fd });
+      const res = await authFetch("/api/admin/exams/upload-audio", { method: "POST", body: fd });
       const data = await res.json();
       if (res.ok) {
         setForm((prev) => ({ ...prev, audio_url: data.url }));

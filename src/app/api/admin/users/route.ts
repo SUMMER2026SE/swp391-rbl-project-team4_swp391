@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 
 // GET: Lấy danh sách users từ Supabase Auth DB kèm tìm kiếm, lọc và phân trang
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const role = searchParams.get("role") || "";
@@ -82,6 +88,11 @@ export async function GET(request: NextRequest) {
 
 // POST: Tạo mới một người dùng (Admin tạo trực tiếp trong Supabase)
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) {
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const { name, email, password, role } = body;
@@ -93,10 +104,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validRoles = ["ADMIN", "STUDENT", "GUEST"];
+    const validRoles = ["ADMIN", "INSTRUCTOR", "STUDENT", "GUEST"];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { message: "Vai trò không hợp lệ. Phải là ADMIN, STUDENT hoặc GUEST." },
+        { message: "Vai trò không hợp lệ. Phải là ADMIN, INSTRUCTOR, STUDENT hoặc GUEST." },
         { status: 400 }
       );
     }
@@ -119,6 +130,15 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       throw new Error("Không thể khởi tạo đối tượng người dùng.");
+    }
+
+    // Create the profiles row with the role (source of truth for access control;
+    // there is no DB signup trigger, so admin-created users need it set here).
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: user.id, role }, { onConflict: "id" });
+    if (profileError) {
+      console.error("⚠️ [Supabase DB] Không thể tạo profiles.role:", profileError.message);
     }
 
     const formattedUser = {

@@ -1,8 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextRequest } from "next/server";
+import { requireRole, ADMIN_OR_INSTRUCTOR } from "@/lib/roles";
 
 // GET /api/admin/exams — List all exams
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_OR_INSTRUCTOR);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get("status");
@@ -36,6 +40,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/exams — Create a new exam
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_OR_INSTRUCTOR);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const body = await request.json();
     const { title, description, audio_url, cambridge_no, test_no, status, sections } = body;

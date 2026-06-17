@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import {
   Settings,
   Mail,
@@ -80,7 +81,7 @@ export default function AdminSettingsPage() {
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/admin/settings");
+      const response = await authFetch("/api/admin/settings");
       const data = await response.json();
 
       if (response.ok && data.settings) {
@@ -177,7 +178,7 @@ export default function AdminSettingsPage() {
         }
       }
 
-      const response = await fetch("/api/admin/settings", {
+      const response = await authFetch("/api/admin/settings", {
         method: "POST",
         headers,
         body: JSON.stringify(payload),

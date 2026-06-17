@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import {
   Clock,
   Search,
@@ -82,7 +83,7 @@ export default function AdminActivityLogsPage() {
         limit: "10",
       });
 
-      const response = await fetch(`/api/admin/activity-logs?${queryParams}`);
+      const response = await authFetch(`/api/admin/activity-logs?${queryParams}`);
       const data = await response.json();
 
       if (response.ok) {
@@ -102,7 +103,7 @@ export default function AdminActivityLogsPage() {
   // Fetch all logs to compute absolute KPIs
   const fetchKpis = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/activity-logs?limit=5000");
+      const response = await authFetch("/api/admin/activity-logs?limit=5000");
       const data = await response.json();
       if (response.ok && data.logs) {
         const allLogs: ActivityLog[] = data.logs;
@@ -130,7 +131,7 @@ export default function AdminActivityLogsPage() {
   const handleClearLogs = async () => {
     setIsClearing(true);
     try {
-      const response = await fetch("/api/admin/activity-logs", {
+      const response = await authFetch("/api/admin/activity-logs", {
         method: "DELETE",
       });
       const data = await response.json();
