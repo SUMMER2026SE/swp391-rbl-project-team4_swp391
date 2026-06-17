@@ -1287,7 +1287,7 @@ class Component extends React.Component<any, any> {
       isAdmin: this.state.isAdminLive || this.props.role === 'ADMIN' || this.props.role === 'INSTRUCTOR',
       goAdmin:          () => { const seg=window.location.pathname.split('/')[1]; const lc=(seg==='en'||seg==='vi')?`/${seg}`:''; window.location.href=`${lc}/admin`; },
       goVocabNotebook:  () => { window.location.href = this._getLocaleUrl('/practice/vocabulary/notebook'); },
-      goDiagnostic:     () => { window.location.href = this._getLocaleUrl('/roadmap/diagnostic-test'); },
+      goDiagnostic:     () => { window.location.href = this._getLocaleUrl('/orientation'); },
       goRoadmap:        () => { window.location.href = this._getLocaleUrl('/roadmap'); },
       openProfilePanel:  () => this.setState({ activePanel: 'profile',   panelError: '', panelSuccess: '' }),
       openAvatarPanel:   () => this.setState({ activePanel: 'avatar',    panelError: '', panelSuccess: '' }),

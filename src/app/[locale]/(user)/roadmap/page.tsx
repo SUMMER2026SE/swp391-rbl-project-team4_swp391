@@ -453,7 +453,7 @@ export default function RoadmapPage() {
               </p>
             </div>
             <Link
-              href={`/${locale}/roadmap/diagnostic-test`}
+              href={`/${locale}/orientation`}
               className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] hover:opacity-95 text-white font-extrabold text-xs shadow-md transition-all text-center flex items-center justify-center gap-1.5 shrink-0 self-start md:self-center cursor-pointer"
             >
               <span>Làm Test Đầu Vào Ngay</span>

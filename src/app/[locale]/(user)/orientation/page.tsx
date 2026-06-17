@@ -28,7 +28,7 @@ import {
   Award
 } from "lucide-react";
 
-export default function DiagnosticTestPage() {
+export default function OrientationPage() {
   const params = useParams();
   const router = useRouter();
   const locale = params?.locale || "vi";
