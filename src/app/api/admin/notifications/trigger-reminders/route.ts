@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { Resend } from "resend";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getStudentStreak, addNotification, getLocalDateString } from "@/lib/studentProgressDb";
@@ -6,6 +7,9 @@ import { getStudentStreak, addNotification, getLocalDateString } from "@/lib/stu
 const resend = new Resend(process.env.RESEND_API_KEY || "re_mock_key");
 
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     console.log("⚡ [Notification Trigger] Bắt đầu quét tiến trình học viên...");
     

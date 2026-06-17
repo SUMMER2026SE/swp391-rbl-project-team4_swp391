@@ -76,8 +76,10 @@ function loadPersisted(): Partial<ReadingPersistedState> | null {
 }
 
 function resolveRole(metadata: Record<string, unknown> | undefined): UserRole {
-  const role = metadata?.role;
-  if (role === "ADMIN" || role === "STUDENT" || role === "GUEST") return role;
+  const role = metadata?.role as string;
+  if (role === "ADMIN" || role === "INSTRUCTOR" || role === "STUDENT" || role === "GUEST") {
+    return role as UserRole;
+  }
   return "GUEST";
 }
 

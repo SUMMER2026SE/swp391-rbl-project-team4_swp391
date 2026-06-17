@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { getPackages, createPackage } from "@/lib/paymentDb";
 import { logActivity } from "@/lib/activityLogger";
 
@@ -18,6 +19,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const body = await request.json();
     const { name, price, durationMonths, description, features, isActive } = body;

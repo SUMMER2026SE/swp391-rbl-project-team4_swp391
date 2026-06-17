@@ -63,7 +63,7 @@ export interface ReadingTestMeta {
   durationMinutes: number;
 }
 
-export type UserRole = "GUEST" | "STUDENT" | "ADMIN" | "UNKNOWN";
+export type { UserRole } from "@/lib/roles";
 
 export type MobileTab = "passage" | "questions";
 

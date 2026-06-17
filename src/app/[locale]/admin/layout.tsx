@@ -25,9 +25,10 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [adminUser, setAdminUser] = useState<{ name: string; email: string } | null>({
+  const [adminUser, setAdminUser] = useState<{ name: string; email: string; role?: string } | null>({
     name: "Quản trị viên",
     email: "admin@qualicode.com",
+    role: "ADMIN"
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,38 +37,46 @@ export default function AdminLayout({
     // Attempt to load current user name if logged in, but don't block or redirect if not
     async function loadUserInfo() {
       try {
-        // Check for mock session fallback first
-        const mockSessionStr = typeof window !== "undefined" ? localStorage.getItem("mock_session") : null;
-        if (mockSessionStr) {
-          try {
-            const mockUser = JSON.parse(mockSessionStr);
-            if (mockUser) {
-              setAdminUser({
-                name: mockUser.name || "Admin QualiCode (Bypass)",
-                email: mockUser.email || "admin@qualicode.com",
-              });
-              return;
-            }
-          } catch (e) {
-            console.error("Lỗi parse mock_session:", e);
-          }
+        const { data: { user } } = await supabase.auth.getUser();
+
+        // Not logged in -> bounce to login.
+        if (!user) {
+          window.location.href = "/login?error=insufficient_permissions";
+          return;
         }
 
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const metadata = user.user_metadata || {};
-          setAdminUser({
-            name: metadata.name || "Quản trị viên",
-            email: user.email || "admin@qualicode.com",
-          });
+        const metadata = user.user_metadata || {};
+
+        // Fetch from profiles as single source of truth.
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+        const finalRole = profile?.role || metadata.role || "STUDENT";
+
+        // Role enforcement: only ADMIN and INSTRUCTOR may enter the admin panel.
+        if (finalRole !== "ADMIN" && finalRole !== "INSTRUCTOR") {
+          window.location.href = "/";
+          return;
         }
+
+        // INSTRUCTOR is restricted from ADMIN-only sub-areas.
+        const ADMIN_ONLY = ["/admin/users", "/admin/payments", "/admin/settings", "/admin/leads"];
+        const pathNoLocale = pathname.replace(/^\/(en|vi)/, "");
+        if (finalRole === "INSTRUCTOR" && ADMIN_ONLY.some((p) => pathNoLocale === p || pathNoLocale.startsWith(p + "/"))) {
+          window.location.href = "/admin";
+          return;
+        }
+
+        setAdminUser({
+          name: metadata.name || "Quản trị viên",
+          email: user.email || "admin@qualicode.com",
+          role: finalRole
+        });
       } catch (err) {
         console.warn("Could not fetch logged-in user metadata, using defaults:", err);
       }
     }
     loadUserInfo();
     setIsLoading(false);
-  }, []);
+  }, [pathname]);
 
   const handleSignOut = async () => {
     if (typeof window !== "undefined") {
@@ -119,7 +128,12 @@ export default function AdminLayout({
       icon: Settings,
       active: pathname === "/admin/settings",
     },
-  ];
+  ].filter(item => {
+    if (adminUser?.role === "INSTRUCTOR") {
+      return ["Tổng quan", "Quản lý Đề Thi"].includes(item.label);
+    }
+    return true; // ADMIN sees all
+  });
 
   if (isLoading) {
     return (
@@ -136,7 +150,7 @@ export default function AdminLayout({
       <header className="md:hidden flex items-center justify-between bg-[#0d153a] text-white px-5 py-4 shadow-md sticky top-0 z-40">
         <div className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
           <span className="text-[#3B5C37] font-serif text-2xl leading-none">*</span>
-          <span>QualiCode Admin</span>
+          <span>Quali IELTS Admin</span>
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -157,7 +171,7 @@ export default function AdminLayout({
           <div className="hidden md:flex items-center gap-2 px-6 py-6 border-b border-white/5">
             <span className="text-[#3B5C37] font-serif text-3xl leading-none">*</span>
             <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
-              QualiCode Admin
+              Quali IELTS Admin
             </span>
           </div>
 
@@ -168,7 +182,7 @@ export default function AdminLayout({
             </div>
             <div className="flex-1 overflow-hidden">
               <div className="font-bold text-sm truncate text-white">{adminUser?.name}</div>
-              <div className="text-xs text-[#a0a5c0] truncate">{adminUser?.email}</div>
+              <div className="text-xs text-[#a0a5c0] truncate">{adminUser?.role === "INSTRUCTOR" ? "Giảng viên" : "Quản trị viên"}</div>
             </div>
           </div>
 

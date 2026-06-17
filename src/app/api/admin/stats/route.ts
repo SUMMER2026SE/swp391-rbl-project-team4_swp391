@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { getInvoices } from "@/lib/paymentDb";
 import { supabaseAdmin } from "@/lib/supabase";
 import { mockDb } from "@/lib/mockDb";
 
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     // 1. Lấy dữ liệu hóa đơn
     const invoices = await getInvoices();
@@ -14,21 +18,25 @@ export async function GET(request: NextRequest) {
     let totalUsersCount = 0;
     let activeUsersCount = 0;
     let lockedUsersCount = 0;
-    const roleCounts = { ADMIN: 0, STUDENT: 0, GUEST: 0 };
+    const roleCounts = { ADMIN: 0, INSTRUCTOR: 0, STUDENT: 0, GUEST: 0 };
 
     try {
       console.log("⚡ [Supabase Auth] Đang tải danh sách người dùng cho thống kê...");
       const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers();
-      
+
       if (error) {
         throw new Error(error.message);
       }
 
       if (users && users.length > 0) {
+        // profiles.role is the source of truth for access control; build an id -> role map.
+        const { data: profileRows } = await supabaseAdmin.from("profiles").select("id, role");
+        const roleById = new Map<string, string>((profileRows || []).map((p: any) => [p.id, p.role]));
+
         const list = users.map((user) => {
           const metadata = user.user_metadata || {};
           const isLocked = metadata.isLocked === true || !!user.banned_until;
-          const role = metadata.role || "GUEST";
+          const role = roleById.get(user.id) || metadata.role || "GUEST";
           return {
             role: role,
             isLocked: isLocked,
@@ -42,7 +50,7 @@ export async function GET(request: NextRequest) {
         lockedUsersCount = list.filter(u => u.isLocked).length;
 
         list.forEach(u => {
-          const role = u.role as "ADMIN" | "STUDENT" | "GUEST";
+          const role = u.role as keyof typeof roleCounts;
           if (roleCounts[role] !== undefined) {
             roleCounts[role]++;
           }
@@ -58,7 +66,7 @@ export async function GET(request: NextRequest) {
       lockedUsersCount = users.filter(u => u.isLocked).length;
 
       users.forEach(u => {
-        const role = u.role as "ADMIN" | "STUDENT" | "GUEST";
+        const role = u.role as keyof typeof roleCounts;
         if (roleCounts[role] !== undefined) {
           roleCounts[role]++;
         }

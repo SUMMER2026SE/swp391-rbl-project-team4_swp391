@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_OR_INSTRUCTOR } from "@/lib/roles";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -8,6 +9,9 @@ cloudinary.config({
 });
 
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_OR_INSTRUCTOR);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
