@@ -139,8 +139,8 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
 
   const menuItems = [
     { label: "Hồ sơ cá nhân", href: "/profile", icon: User },
-    { label: "Chỉnh sửa hồ sơ", href: "/profile/edit", icon: User },
-    { label: "Sổ từ vựng", href: "/vocab-grammar", icon: BookOpen },
+    { label: "Chỉnh sửa hồ sơ", href: "/profile?edit=true", icon: User },
+    { label: "Sổ từ vựng", href: "/profile", icon: BookOpen },
     { label: "Kiểm tra năng lực", href: "/roadmap/diagnostic-test", icon: ClipboardCheck },
     { label: "Lộ trình học AI", href: "/roadmap", icon: Sparkles },
     { label: "Đổi ảnh đại diện", href: "/settings/avatar", icon: Camera },
@@ -149,7 +149,7 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
 
   const initialsFallback = (user.user_metadata?.name || user.email || "U").charAt(0).toUpperCase();
 
-  const isFlashcardAppPage = pathname.endsWith("/profile") || pathname.endsWith("/profile/");
+  const isFlashcardAppPage = pathname.includes("/profile");
 
   if (isFlashcardAppPage) {
     return (

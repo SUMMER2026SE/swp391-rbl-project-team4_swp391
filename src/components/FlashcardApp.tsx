@@ -62,7 +62,7 @@ class Component extends React.Component<any, any> {
       autoPlay:false, showStats:false, dark:false, navOpen:true,
       confetti:false,
       practice:null, mistakes:{},
-      view:'dashboard', targetBand:'7.0', bandMenuOpen:false, examDateStr:'2027-06-28',
+      view:this.props.initialView || 'dashboard', targetBand:'7.0', bandMenuOpen:false, examDateStr:'2027-06-28',
       datePickerOpen:false, pickerYM:null,
       known:[], unknown:[], reviewList:[], focus:null, focusPos:0, knownTab:null, setMenuOpen:false, currentSet:'0', listKind:'known',
       srsData:{}, personalFolders:[], importModalOpen: false, dashData: null as any, statsData: null as any,
@@ -75,7 +75,10 @@ class Component extends React.Component<any, any> {
       tidiansActive: false,
       tidiansSourceIdx: [] as number[],
       tidiansSelectionOpen: false,
-      tidiansCandidates: [] as number[]
+      tidiansCandidates: [] as number[],
+      profileName: '', profilePhone: '', profileBio: '',
+      profileInAppReminders: true, profileEmailReminders: true, profileStreakWarning: true,
+      profileLoading: false, profileError: '', profileSuccess: ''
     };
     // Mây 3D trôi quanh dashboard
     this.dashClouds = [
@@ -191,8 +194,10 @@ class Component extends React.Component<any, any> {
     this._fetchPersonalFolders();
     this._fetchDashboard();
     this._fetchStats();
-    // SRS hydration happens inside _fetchVocabSets once the deck is built (deck must
-    // exist before words can be mapped to indices), so it is not started here.
+    this._fetchUserProfile();
+    if (typeof window !== 'undefined' && window.location.search.includes('edit=true')) {
+      this.setState({ view: 'editProfile' });
+    }
     this._kh = (e: any)=>{
       const p=this.state.practice;
       if(p){
@@ -573,6 +578,62 @@ class Component extends React.Component<any, any> {
       this.setState({view:'personal', activeFolderId:null, activeFolderName:'', folderWords:[]});
       await this._fetchPersonalFolders();
     }catch(e){console.error(e);}
+  }
+
+  async _fetchUserProfile() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        this.setState({
+          profileName: user.user_metadata?.name || user.email?.split('@')[0] || '',
+          profilePhone: user.user_metadata?.phone || '',
+          profileBio: user.user_metadata?.bio || '',
+          profileInAppReminders: user.user_metadata?.inAppReminders !== false,
+          profileEmailReminders: user.user_metadata?.emailReminders !== false,
+          profileStreakWarning: user.user_metadata?.streakWarning !== false,
+        });
+      }
+    } catch (e) {
+      console.error("Lỗi khi tải thông tin cá nhân:", e);
+    }
+  }
+
+  async _saveProfile(e: React.FormEvent) {
+    if (e) e.preventDefault();
+    this.setState({ profileLoading: true, profileError: '', profileSuccess: '' });
+    
+    if (!this.state.profileName.trim()) {
+      this.setState({ profileError: 'Họ và tên không được bỏ trống.', profileLoading: false });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { 
+          name: this.state.profileName.trim(), 
+          phone: this.state.profilePhone.trim(), 
+          bio: this.state.profileBio.trim(),
+          inAppReminders: this.state.profileInAppReminders,
+          emailReminders: this.state.profileEmailReminders,
+          streakWarning: this.state.profileStreakWarning
+        },
+      });
+
+      if (error) throw error;
+
+      this.setState({ profileSuccess: 'Cập nhật thông tin hồ sơ thành công!', profileLoading: false });
+      setTimeout(() => {
+        this.setState({ view: 'dashboard', profileSuccess: '' });
+      }, 1500);
+    } catch (err: any) {
+      this.setState({ profileError: err.message || 'Đã xảy ra lỗi khi cập nhật.', profileLoading: false });
+    }
+  }
+
+  _getLocaleUrl(path: string) {
+    const match = window.location.pathname.match(/^\/(en|vi)\b/);
+    const prefix = match ? `/${match[1]}` : '';
+    return `${prefix}${path}`;
   }
 
   _studyFolderWords(){
@@ -1221,12 +1282,13 @@ class Component extends React.Component<any, any> {
       navAvatarUrl: this.state.avatarUrlOverride || this.props.avatarUrl || '',
       openImportModal: () => this.setState({ importModalOpen: true }),
       createNewFolder: () => this.setState({ createFolderOpen: true, createFolderName: '', createFolderError: '' }),
-      goEditProfile:    () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/profile/edit`; },
+      goEditProfile:    () => { this.setState({ view: 'editProfile' }); },
+      cancelEditProfile: () => { this.setState({ view: 'dashboard', profileError: '', profileSuccess: '' }); },
       isAdmin: this.state.isAdminLive || this.props.role === 'ADMIN' || this.props.role === 'INSTRUCTOR',
       goAdmin:          () => { const seg=window.location.pathname.split('/')[1]; const lc=(seg==='en'||seg==='vi')?`/${seg}`:''; window.location.href=`${lc}/admin`; },
-      goVocabNotebook:  () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/practice/vocabulary/notebook`; },
-      goDiagnostic:     () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/roadmap/diagnostic-test`; },
-      goRoadmap:        () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/roadmap`; },
+      goVocabNotebook:  () => { window.location.href = this._getLocaleUrl('/practice/vocabulary/notebook'); },
+      goDiagnostic:     () => { window.location.href = this._getLocaleUrl('/roadmap/diagnostic-test'); },
+      goRoadmap:        () => { window.location.href = this._getLocaleUrl('/roadmap'); },
       openProfilePanel:  () => this.setState({ activePanel: 'profile',   panelError: '', panelSuccess: '' }),
       openAvatarPanel:   () => this.setState({ activePanel: 'avatar',    panelError: '', panelSuccess: '' }),
       openPasswordPanel: () => this.setState({ activePanel: 'password',  panelError: '', panelSuccess: '' }),
@@ -1275,6 +1337,23 @@ class Component extends React.Component<any, any> {
         ink: ws.id===this.state.currentSet?'#5D6B2D':'#3E4A1B',
         weight: ws.id===this.state.currentSet?'800':'600' })),
       reviewMistakes:this.reviewMistakes,
+      isEditProfile: this.state.view==='editProfile',
+      profileName: this.state.profileName,
+      profilePhone: this.state.profilePhone,
+      profileBio: this.state.profileBio,
+      profileInAppReminders: this.state.profileInAppReminders,
+      profileEmailReminders: this.state.profileEmailReminders,
+      profileStreakWarning: this.state.profileStreakWarning,
+      profileLoading: this.state.profileLoading,
+      profileError: this.state.profileError,
+      profileSuccess: this.state.profileSuccess,
+      setProfileName: (v)=>this.setState({profileName:v}),
+      setProfilePhone: (v)=>this.setState({profilePhone:v}),
+      setProfileBio: (v)=>this.setState({profileBio:v}),
+      toggleProfileInAppReminders: ()=>this.setState(s=>({profileInAppReminders:!s.profileInAppReminders})),
+      toggleProfileEmailReminders: ()=>this.setState(s=>({profileEmailReminders:!s.profileEmailReminders})),
+      toggleProfileStreakWarning: ()=>this.setState(s=>({profileStreakWarning:!s.profileStreakWarning})),
+      saveProfile: (e)=>this._saveProfile(e),
       ...P
     };
   }

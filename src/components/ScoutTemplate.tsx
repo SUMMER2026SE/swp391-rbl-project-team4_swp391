@@ -21,6 +21,7 @@ export default function ScoutTemplate(props: any) {
     goEditProfile, goVocabNotebook, goDiagnostic, goRoadmap, openProfilePanel, openAvatarPanel, openPasswordPanel, closePanel,
     isAdmin, goAdmin,
     appBg, sidebarBg, sidebarGrad, sidebarColor, navSectionColor, navUnselColor, headerBg, headerBorder, searchBg, searchInk, searchKBtn, searchKBorder, searchKColor, panelBorder, panelHover, contentBg, nightCardBg, nightCardBorder, nightCardShadow, titleColor, manifestSub, streakSub, dividerColor, monthCellBg, listHeaderBg, listBorder, listHover, listBtnBg, listBtnInk,
+    isEditProfile, profileName, profilePhone, profileBio, profileInAppReminders, profileEmailReminders, profileStreakWarning, profileLoading, profileError, profileSuccess, setProfileName, setProfilePhone, setProfileBio, toggleProfileInAppReminders, toggleProfileEmailReminders, toggleProfileStreakWarning, saveProfile, cancelEditProfile,
     ...rest
   } = new Proxy(props || {}, { get: (target, prop) => prop in target ? target[prop] : '' });
   const navInitials = (userName || 'HV').split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0,2).join('');
@@ -111,7 +112,7 @@ export default function ScoutTemplate(props: any) {
         </button>
 
         <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.14em', color: `${navSectionColor}`, padding: '18px 12px 6px', display: `${navSectionDisp}` }}>TÀI KHOẢN</div>
-        <button onClick={goEditProfile} title="Chỉnh sửa hồ sơ" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: `${navItemJustify}`, gap: '12px', padding: '11px 13px', borderRadius: '13px', color: `${navUnselColor}`, fontWeight: '600', fontSize: '14.5px', textAlign: 'left', border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit' }} data-hover="filter:brightness(1.04);">
+        <button onClick={goEditProfile} title="Chỉnh sửa hồ sơ" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: `${navItemJustify}`, gap: '12px', padding: '11px 13px', borderRadius: '13px', color: isEditProfile ? '#2A3114' : `${navUnselColor}`, fontWeight: isEditProfile ? '800' : '600', fontSize: '14.5px', textAlign: 'left', border: 'none', background: isEditProfile ? '#F6C453' : 'transparent', boxShadow: isEditProfile ? '0 4px 0 rgba(0,0,0,.14)' : 'none', cursor: 'pointer', fontFamily: 'inherit' }} data-hover="filter:brightness(1.04);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: '0' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span style={{ display: `${navLabelDisp}`, whiteSpace: 'nowrap' }}>Chỉnh sửa hồ sơ</span>
         </button>
@@ -421,6 +422,142 @@ export default function ScoutTemplate(props: any) {
           </div>
           </div>
         </div>
+        </React.Fragment>) : null }
+        { (isEditProfile) ? (<React.Fragment>
+          <div style={{ position: 'relative', zIndex: '1', display: 'flex', flexDirection: 'column', gap: '20px', animation: 'tidRise .4s ease both', maxWidth: '680px' }}>
+            <div>
+              <div style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '.12em', color: `${titleColor}` }}>TÀI KHOẢN</div>
+              <h2 data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', margin: '5px 0 0', color: `${inkColor}` }}>Chỉnh sửa hồ sơ cá nhân</h2>
+            </div>
+
+            <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div data-sk="nightcard" style={{ background: `${nightCardBg}`, border: `1px solid ${nightCardBorder}`, borderRadius: '24px', padding: '24px', boxShadow: `${nightCardShadow}`, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {profileError && (
+                  <div style={{ padding: '12px 16px', borderRadius: '14px', background: '#F7E7DE', border: '1px solid #D8A78C', color: '#b9694a', fontSize: '13px', fontWeight: '700' }}>
+                    ⚠️ {profileError}
+                  </div>
+                )}
+                {profileSuccess && (
+                  <div style={{ padding: '12px 16px', borderRadius: '14px', background: '#E7F0DD', border: '1px solid #9DB87E', color: '#5D6B2D', fontSize: '13px', fontWeight: '700' }}>
+                    ✓ {profileSuccess}
+                  </div>
+                )}
+
+                {/* Name */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.08em', color: `${titleColor}`, textTransform: 'uppercase' }}>Họ và Tên</label>
+                  <input
+                    type="text"
+                    required
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    style={{ width: '100%', padding: '12px 16px', background: `${searchBg}`, border: `1px solid ${nightCardBorder}`, borderRadius: '14px', color: `${inkColor}`, fontSize: '14px', fontFamily: 'inherit', outline: 'none' }}
+                  />
+                </div>
+
+                {/* Phone */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.08em', color: `${titleColor}`, textTransform: 'uppercase' }}>Số điện thoại</label>
+                  <input
+                    type="text"
+                    value={profilePhone}
+                    onChange={(e) => setProfilePhone(e.target.value)}
+                    placeholder="0912345678"
+                    style={{ width: '100%', padding: '12px 16px', background: `${searchBg}`, border: `1px solid ${nightCardBorder}`, borderRadius: '14px', color: `${inkColor}`, fontSize: '14px', fontFamily: 'inherit', outline: 'none' }}
+                  />
+                </div>
+
+                {/* Bio */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.08em', color: `${titleColor}`, textTransform: 'uppercase' }}>Giới thiệu bản thân (Tối đa 300 ký tự)</label>
+                  <textarea
+                    value={profileBio}
+                    onChange={(e) => setProfileBio(e.target.value.slice(0, 300))}
+                    placeholder="Chia sẻ một chút thông tin về bạn..."
+                    rows={4}
+                    style={{ width: '100%', padding: '12px 16px', background: `${searchBg}`, border: `1px solid ${nightCardBorder}`, borderRadius: '14px', color: `${inkColor}`, fontSize: '14px', fontFamily: 'inherit', outline: 'none', resize: 'none' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '10.5px', fontWeight: '700', color: `${titleColor}` }}>
+                    {profileBio.length}/300 ký tự
+                  </div>
+                </div>
+
+                {/* Reminders section */}
+                <div style={{ borderTop: `1px solid ${dividerColor}`, paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div>
+                    <h3 style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '15px', color: `${inkColor}`, margin: '0' }}>Cấu hình thông báo & nhắc nhở</h3>
+                    <p style={{ fontSize: '11.5px', color: `${titleColor}`, fontWeight: '600', margin: '3px 0 0' }}>Lựa chọn cách bạn muốn nhận các nhắc nhở học tập và chuỗi streak.</p>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {/* In-app reminder */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: `${searchBg}`, borderRadius: '16px', border: `1px solid ${nightCardBorder}` }}>
+                      <div>
+                        <h4 style={{ fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: `${inkColor}`, margin: '0' }}>Thông báo trong ứng dụng</h4>
+                        <p style={{ fontSize: '11px', color: `${titleColor}`, fontWeight: '600', margin: '2px 0 0', maxWidth: '380px' }}>Nhận các nhắc nhở học tập và tin nhắn hệ thống trực tiếp khi truy cập trang web.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleProfileInAppReminders}
+                        style={{ position: 'relative', width: '42px', height: '24px', borderRadius: '999px', background: profileInAppReminders ? '#5D6B2D' : '#D8D2BE', border: 'none', cursor: 'pointer', transition: 'background .25s', flexShrink: 0 }}
+                      >
+                        <span style={{ position: 'absolute', top: '3px', left: profileInAppReminders ? '21px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: `${headerBg}`, boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'left .25s cubic-bezier(.3,.8,.4,1)' }}></span>
+                      </button>
+                    </div>
+
+                    {/* Email reminder */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: `${searchBg}`, borderRadius: '16px', border: `1px solid ${nightCardBorder}` }}>
+                      <div>
+                        <h4 style={{ fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: `${inkColor}`, margin: '0' }}>Nhắc nhở học tập qua Email</h4>
+                        <p style={{ fontSize: '11px', color: `${titleColor}`, fontWeight: '600', margin: '2px 0 0', maxWidth: '380px' }}>Nhận email động viên học tập hàng ngày nếu hôm đó bạn chưa rèn luyện kỹ năng nào.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleProfileEmailReminders}
+                        style={{ position: 'relative', width: '42px', height: '24px', borderRadius: '999px', background: profileEmailReminders ? '#5D6B2D' : '#D8D2BE', border: 'none', cursor: 'pointer', transition: 'background .25s', flexShrink: 0 }}
+                      >
+                        <span style={{ position: 'absolute', top: '3px', left: profileEmailReminders ? '21px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: `${headerBg}`, boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'left .25s cubic-bezier(.3,.8,.4,1)' }}></span>
+                      </button>
+                    </div>
+
+                    {/* Streak Warning */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: `${searchBg}`, borderRadius: '16px', border: `1px solid ${nightCardBorder}` }}>
+                      <div>
+                        <h4 style={{ fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: `${inkColor}`, margin: '0' }}>Cảnh báo sắp mất chuỗi học tập (Streak)</h4>
+                        <p style={{ fontSize: '11px', color: `${titleColor}`, fontWeight: '600', margin: '2px 0 0', maxWidth: '380px' }}>Nhận cảnh báo khẩn cấp khi chuỗi học tập của bạn sắp bị đặt lại về 0.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleProfileStreakWarning}
+                        style={{ position: 'relative', width: '42px', height: '24px', borderRadius: '999px', background: profileStreakWarning ? '#5D6B2D' : '#D8D2BE', border: 'none', cursor: 'pointer', transition: 'background .25s', flexShrink: 0 }}
+                      >
+                        <span style={{ position: 'absolute', top: '3px', left: profileStreakWarning ? '21px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: `${headerBg}`, boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'left .25s cubic-bezier(.3,.8,.4,1)' }}></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <button
+                  type="submit"
+                  disabled={profileLoading}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: '#5D6B2D', border: 'none', borderRadius: '16px', padding: '14px 28px', fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '15px', color: '#FFF8EB', cursor: profileLoading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 0 #3E4A1B', opacity: profileLoading ? 0.6 : 1 }}
+                >
+                  {profileLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEditProfile}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${nightCardBorder}`, borderRadius: '16px', padding: '14px 24px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '15px', color: `${inkColor}`, cursor: 'pointer' }}
+                >
+                  Hủy bỏ
+                </button>
+              </div>
+            </form>
+          </div>
         </React.Fragment>) : null }
         { (isStudy) ? (<React.Fragment>
         <div aria-hidden="true" style={{ position: 'absolute', inset: '0', pointerEvents: 'none', zIndex: '0', opacity: `${cloudOpacity}`, transition: 'opacity .4s ease' }}>
