@@ -153,7 +153,8 @@ export default function WritingTestPage() {
           assessmentFocus: t.assessment_focus || ["Range of vocabulary and grammar", "Cohesion and coherence", "Task response"],
           visualTitle: t.visual_title || t.title,
           visualDescription: t.visual_description || "",
-          dataPoints: t.data_points || []
+          dataPoints: t.data_points || [],
+          imageUrl: t.cloudinary_url || t.thumbnail_url || null
         }));
         setTasks(mapped);
       } else {
@@ -365,6 +366,16 @@ export default function WritingTestPage() {
                 </li>
               ))}
             </ul>
+          )}
+
+          {activeTask.imageUrl && (
+            <div className="mt-5 overflow-hidden rounded-xl border border-[#e6eadf] bg-white p-2">
+              <img
+                src={activeTask.imageUrl}
+                alt={activeTask.title}
+                className="w-full h-auto object-contain rounded-lg"
+              />
+            </div>
           )}
 
           <TaskChart task={activeTask} />

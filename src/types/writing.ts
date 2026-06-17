@@ -22,6 +22,7 @@ export interface WritingTask {
     }[];
   }[];
   assessmentFocus: string[];
+  imageUrl?: string | null;
 }
 
 export interface WritingTestMeta {
