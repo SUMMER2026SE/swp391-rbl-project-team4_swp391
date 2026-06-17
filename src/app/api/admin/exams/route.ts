@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireRole, ADMIN_OR_INSTRUCTOR } from "@/lib/roles";
 
 // GET /api/admin/exams — List all exams

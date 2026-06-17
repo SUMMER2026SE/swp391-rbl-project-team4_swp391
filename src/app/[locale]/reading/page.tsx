@@ -24,6 +24,7 @@ export default function ReadingLobbyPage() {
   const [loading, setLoading] = useState(true);
   const [passages, setPassages] = useState<any[]>([]);
   const [view, setView] = useState<"select" | "dashboard">("select");
+  const [comingSoonTest, setComingSoonTest] = useState<string>("");
 
   useEffect(() => {
     fetchReadingPassages()
@@ -179,6 +180,37 @@ export default function ReadingLobbyPage() {
     <div className="min-h-screen bg-[#f4f5f9] text-[#0f1738] font-sans">
       <Navbar />
 
+      {/* Modal Coming Soon */}
+      {comingSoonTest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-all">
+          <div className="w-full max-w-md rounded-[32px] bg-white p-8 border border-gray-100 shadow-2xl text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-600 border border-amber-100">
+              <span className="text-xl font-bold">!</span>
+            </div>
+            <h3 className="text-xl font-extrabold text-[#1b3d1e] mb-2">Đề thi chưa khả dụng</h3>
+            <p className="text-sm font-medium text-gray-500 mb-6 leading-relaxed">
+              Nội dung chi tiết của <strong>{comingSoonTest}</strong> đang được cập nhật và sẽ sớm ra mắt. 
+              Bạn có muốn luyện tập đề <strong>Cambridge 18 — Test 1</strong> có sẵn không?
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => setComingSoonTest("")}
+                className="px-5 py-2.5 rounded-2xl border border-gray-300 text-gray-700 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all"
+              >
+                Hủy
+              </button>
+              <Link
+                href="/reading/test"
+                onClick={() => setComingSoonTest("")}
+                className="px-5 py-2.5 rounded-2xl bg-[#008060] text-white font-bold text-sm hover:bg-[#006b50] active:scale-95 transition-all"
+              >
+                Thi Ngay (Cam 18)
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="mx-auto max-w-[1160px] px-6 pb-16 pt-28">
         <div className="mb-6 flex">
           <button onClick={() => setView("select")} className="text-sm font-bold text-[#3B5C37] hover:underline flex items-center gap-1">
@@ -245,103 +277,335 @@ export default function ReadingLobbyPage() {
           </div>
         )}
 
-        {/* Test info card */}
-        <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-[0_8px_40px_rgba(20,28,60,0.08)] mb-8">
-          <div className="border-b border-gray-100 bg-gradient-to-r from-[#1b3d1e] to-[#3B5C37] px-6 py-5 text-white">
-            <p className="text-xs font-bold uppercase tracking-widest text-green-200">
-              {READING_TEST_META.cambridge}
-            </p>
-            <h2 className="mt-1 text-xl font-bold">{READING_TEST_META.testTitle}</h2>
-          </div>
-
-          <div className="grid gap-4 p-6 sm:grid-cols-3">
-            {[
-              { label: "Thời gian", value: "60 phút", icon: Clock },
-              { label: "Passage", value: "3 đoạn văn", icon: BookOpen },
-              { label: "Câu hỏi", value: `${totalQuestions} câu`, icon: CheckCircle2 },
-            ].map((item) => (
-              <div
-                key={item.label}
-                className="flex items-center gap-3 rounded-xl border border-gray-100 bg-[#f4f5f9] p-4"
-              >
-                <item.icon className="h-5 w-5 text-[#3B5C37] shrink-0" />
-                <div>
-                  <p className="text-[10px] font-bold uppercase text-gray-400">{item.label}</p>
-                  <p className="text-sm font-bold text-gray-900">{item.value}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Redesigned Test Cards List */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-black text-[#1b3d1e] tracking-tight">Đề thi Cambridge Academic Reading</h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">Chọn đề thi và bắt đầu thử thách bản thân dưới áp lực thời gian thực tế.</p>
         </div>
 
-        {/* 3 Passages preview */}
-        <h2 className="text-xl font-black text-[#1b3d1e] mb-4">Nội dung 3 Passages</h2>
-        <div className="grid gap-4 sm:grid-cols-3 mb-10">
-          {passages.length === 0 ? (
-            <div className="col-span-3 py-10 text-center font-bold text-gray-500 bg-white rounded-3xl border border-gray-200 shadow-sm">
-              Chưa có đề thi
-            </div>
-          ) : (
-            passages.map((passage, idx) => {
-              const pc = passageColors[idx % passageColors.length];
-              const qCount = passage.questions?.length || 0;
-              const types = passage.question_types || (passage.questions ? [...new Set(passage.questions.map((q: any) => q.type))] : []);
-              const typeLabels: Record<string, string> = {
-                tfng: "T/F/NG",
-                true_false: "T/F/NG",
-                mcq: "Multiple Choice",
-                multiple_choice: "Multiple Choice",
-                matching: "Matching",
-                fill: "Fill in Blank",
-              };
-              return (
-                <div
-                  key={passage.id}
-                  className={`relative overflow-hidden rounded-3xl border-[3px] ${pc.border} border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] bg-white hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 group`}
-                >
-                  {/* Color top strip */}
-                  <div className={`h-2 bg-gradient-to-r ${pc.bg}`} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Card 1: Cambridge 18 - Test 1 (PLAYABLE) */}
+          <div className="bg-white rounded-[32px] border border-gray-150 p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-gray-200 transition-all duration-300">
+            <div>
+              {/* Header section with book cover & metadata */}
+              <div className="flex gap-6 items-start relative">
+                {/* Cambridge tag pill */}
+                <div className="absolute top-0 right-0 bg-[#fefdf0] border border-[#f5e0aa] text-[#b07d0a] text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                  CAM 18
+                </div>
 
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${pc.badge}`}>
-                        {pc.label}
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${pc.diffColor}`}>
-                        {passage.band_level ? `Band ${passage.band_level}` : pc.diff}
-                      </span>
-                    </div>
+                <div className="relative w-[100px] h-[138px] sm:w-[120px] sm:h-[166px] shrink-0 rounded-2xl overflow-hidden shadow-md">
+                  <img 
+                    src="/assets/cambridge/cam-12.jpeg" 
+                    alt="Cambridge 18 Academic Reading" 
+                    className="object-cover w-full h-full"
+                  />
+                </div>
 
-                    <h3 className="font-extrabold text-[#1b3d1e] text-base leading-tight mb-2">
-                      {passage.title}
-                    </h3>
+                <div className="flex flex-col gap-2.5 pt-1">
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0f1738] leading-tight">
+                    Cambridge 18 - Test 1
+                  </h3>
+                  
+                  <div className="inline-flex w-fit items-center gap-1 bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                    <span className="text-xs">★</span> BAND 6.0-9.0
+                  </div>
 
-                    <p className="text-[11px] text-gray-500 leading-relaxed mb-3 line-clamp-2">
-                      {passage.subtitle || (passage.content_html ? passage.content_html.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : "")}
-                    </p>
-
-                    <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
-                      <span className="text-[11px] font-bold text-gray-600">
-                        {qCount} câu hỏi
-                      </span>
-                      <div className="flex flex-wrap gap-1">
-                        {types.slice(0, 3).map((t: string) => (
-                          <span key={t} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
-                            {typeLabels[t] || t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="inline-flex w-fit items-center gap-1.5 bg-[#008060] text-white px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wide">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Giao diện chuẩn thi thật 100%
                   </div>
                 </div>
-              );
-            })
-          )}
+              </div>
+
+              {/* Passages List */}
+              <div className="flex flex-col gap-3.5 my-8">
+                {/* Passage 1 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      1
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      Urban Farming: The Future of Food Production
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 shrink-0">
+                    ENVIRONMENT
+                  </span>
+                </div>
+
+                {/* Passage 2 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      2
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      The Psychology of Decision-Making
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 shrink-0">
+                    PSYCHOLOGY
+                  </span>
+                </div>
+
+                {/* Passage 3 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      3
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      The Deep Ocean: Earth's Final Frontier
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 shrink-0">
+                    NATURAL SCIENCE
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <Link
+                href="/reading/test"
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#008060] bg-white px-5 py-3.5 text-sm font-extrabold text-[#008060] hover:bg-[#edf7f4] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                LUYỆN TẬP
+              </Link>
+              <Link
+                href="/reading/test"
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#008060] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_6px_16px_rgba(0,128,96,0.15)] hover:bg-[#006b50] hover:shadow-[0_8px_20px_rgba(0,128,96,0.25)] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <Clock className="w-4 h-4 shrink-0" />
+                ĐI THI
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Cambridge 20 - Test 1 (DEMO) */}
+          <div className="bg-white rounded-[32px] border border-gray-150 p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-gray-200 transition-all duration-300">
+            <div>
+              {/* Header section with book cover & metadata */}
+              <div className="flex gap-6 items-start relative">
+                {/* Cambridge tag pill */}
+                <div className="absolute top-0 right-0 bg-[#fefdf0] border border-[#f5e0aa] text-[#b07d0a] text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                  CAM 20
+                </div>
+
+                <div className="relative w-[100px] h-[138px] sm:w-[120px] sm:h-[166px] shrink-0 rounded-2xl overflow-hidden shadow-md">
+                  <img 
+                    src="/assets/cambridge/cam-20.jpeg" 
+                    alt="Cambridge 20 Academic Reading" 
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2.5 pt-1">
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0f1738] leading-tight">
+                    Cambridge 20 - Test 1
+                  </h3>
+                  
+                  <div className="inline-flex w-fit items-center gap-1 bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                    <span className="text-xs">★</span> BAND 6.0-9.0
+                  </div>
+
+                  <div className="inline-flex w-fit items-center gap-1.5 bg-[#008060] text-white px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wide">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Giao diện chuẩn thi thật 100%
+                  </div>
+                </div>
+              </div>
+
+              {/* Passages List */}
+              <div className="flex flex-col gap-3.5 my-8">
+                {/* Passage 1 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      1
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      The kākāpō
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 shrink-0">
+                    NATURAL SCIENCE
+                  </span>
+                </div>
+
+                {/* Passage 2 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      2
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      Reintroducing elms to Britain
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 shrink-0">
+                    ENVIRONMENT
+                  </span>
+                </div>
+
+                {/* Passage 3 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      3
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      How stress affects our judgement
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 shrink-0">
+                    PSYCHOLOGY
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setComingSoonTest("Cambridge 20 - Test 1")}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#008060] bg-white px-5 py-3.5 text-sm font-extrabold text-[#008060] hover:bg-[#edf7f4] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                LUYỆN TẬP
+              </button>
+              <button
+                onClick={() => setComingSoonTest("Cambridge 20 - Test 1")}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#008060] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_6px_16px_rgba(0,128,96,0.15)] hover:bg-[#006b50] hover:shadow-[0_8px_20px_rgba(0,128,96,0.25)] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <Clock className="w-4 h-4 shrink-0" />
+                ĐI THI
+              </button>
+            </div>
+          </div>
+
+          {/* Card 3: Cambridge 20 - Test 2 (DEMO) */}
+          <div className="bg-white rounded-[32px] border border-gray-150 p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-gray-200 transition-all duration-300">
+            <div>
+              {/* Header section with book cover & metadata */}
+              <div className="flex gap-6 items-start relative">
+                {/* Cambridge tag pill */}
+                <div className="absolute top-0 right-0 bg-[#fefdf0] border border-[#f5e0aa] text-[#b07d0a] text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                  CAM 20
+                </div>
+
+                <div className="relative w-[100px] h-[138px] sm:w-[120px] sm:h-[166px] shrink-0 rounded-2xl overflow-hidden shadow-md">
+                  <img 
+                    src="/assets/cambridge/cam-20.jpeg" 
+                    alt="Cambridge 20 Academic Reading" 
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2.5 pt-1">
+                  <h3 className="text-xl sm:text-2xl font-black text-[#0f1738] leading-tight">
+                    Cambridge 20 - Test 2
+                  </h3>
+                  
+                  <div className="inline-flex w-fit items-center gap-1 bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                    <span className="text-xs">★</span> BAND 6.0-9.0
+                  </div>
+
+                  <div className="inline-flex w-fit items-center gap-1.5 bg-[#008060] text-white px-2.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wide">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    Giao diện chuẩn thi thật 100%
+                  </div>
+                </div>
+              </div>
+
+              {/* Passages List */}
+              <div className="flex flex-col gap-3.5 my-8">
+                {/* Passage 1 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      1
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      Manatees
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 shrink-0">
+                    NATURAL SCIENCE
+                  </span>
+                </div>
+
+                {/* Passage 2 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      2
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      Procrastination
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 shrink-0">
+                    PSYCHOLOGY
+                  </span>
+                </div>
+
+                {/* Passage 3 */}
+                <div className="flex items-center justify-between py-2.5 px-4 bg-[#f8f9fa] rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-7 h-7 rounded-full bg-white border-2 border-emerald-500 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0">
+                      3
+                    </div>
+                    <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
+                      Invasion of the Robot Umpires
+                    </span>
+                  </div>
+                  <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 shrink-0">
+                    TECHNOLOGY
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setComingSoonTest("Cambridge 20 - Test 2")}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-[#008060] bg-white px-5 py-3.5 text-sm font-extrabold text-[#008060] hover:bg-[#edf7f4] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                LUYỆN TẬP
+              </button>
+              <button
+                onClick={() => setComingSoonTest("Cambridge 20 - Test 2")}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#008060] px-5 py-3.5 text-sm font-extrabold text-white shadow-[0_6px_16px_rgba(0,128,96,0.15)] hover:bg-[#006b50] hover:shadow-[0_8px_20px_rgba(0,128,96,0.25)] active:scale-[0.98] transition-all cursor-pointer select-none"
+              >
+                <Clock className="w-4 h-4 shrink-0" />
+                ĐI THI
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Question types */}
         <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_32px_rgba(20,28,60,0.04)] p-6 mb-8">
-          <h3 className="text-sm font-black text-[#1b3d1e] uppercase tracking-wider mb-4">Dạng câu hỏi trong bài</h3>
+          <h3 className="text-sm font-black text-[#1b3d1e] uppercase tracking-wider mb-4">Dạng câu hỏi trong phòng thi</h3>
           <div className="flex flex-wrap gap-3">
             {[
               { label: "True / False / Not Given", color: "bg-emerald-50 border-emerald-200 text-emerald-700" },
@@ -356,24 +620,6 @@ export default function ReadingLobbyPage() {
               </span>
             ))}
           </div>
-        </div>
-
-        {/* CTA */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
-            href="/reading/test"
-            className="inline-flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#2c4728] to-[#3B5C37] px-8 py-4 text-base font-extrabold text-white shadow-[0_12px_28px_rgba(44,71,40,0.3)] hover:shadow-[0_16px_36px_rgba(44,71,40,0.4)] active:scale-95 transition-all select-none cursor-pointer"
-          >
-            {cfg.cta}
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-8 py-4 text-base font-semibold text-[#3B5C37] hover:border-[#3B5C37] hover:bg-[#f0f4ee] transition-all"
-          >
-            <ChevronRight className="w-4 h-4 rotate-180" />
-            Quay lại trang chủ
-          </Link>
         </div>
       </main>
     </div>

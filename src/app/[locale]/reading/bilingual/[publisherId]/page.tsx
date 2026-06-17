@@ -851,8 +851,8 @@ function SongNguBaoPageInner({ defaultPublisherId }: { defaultPublisherId: strin
 
   const getArticles = (sourceId: string): Article[] => {
     const fromDb = dbArticles.filter(a => a.sourceId === sourceId);
-    if (fromDb.length > 0) return fromDb;
-    return MOCK_ARTICLES[sourceId] || DEFAULT_MOCK_ARTICLES;
+    const mocks = MOCK_ARTICLES[sourceId] || DEFAULT_MOCK_ARTICLES;
+    return [...fromDb, ...mocks];
   };
 
   const doInsertVocab = async (word: string, definition: string, folderId: string | null, currentUser: any, example?: string) => {

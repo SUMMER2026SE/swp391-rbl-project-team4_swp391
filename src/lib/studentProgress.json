@@ -54,12 +54,14 @@
       "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
       "currentStreak": 0,
       "longestStreak": 0,
-      "lastStudyDate": null,
-      "lastStudyTimestamp": null,
+      "lastStudyDate": "2026-06-16",
+      "lastStudyTimestamp": "2026-06-16T15:09:34.330Z",
       "dailyGoalMinutes": 30,
-      "todayMinutes": 0,
+      "todayMinutes": 10,
       "lastGoalMetDate": null,
-      "history": {}
+      "history": {
+        "2026-06-16": 10
+      }
     }
   },
   "studyLogs": [
@@ -76,6 +78,13 @@
       "date": "2026-06-16",
       "timestamp": "2026-06-16T07:03:53.908Z",
       "activity": "Luyện tập IELTS Speaking Room"
+    },
+    {
+      "id": "log_mvxpm8j",
+      "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
+      "date": "2026-06-16",
+      "timestamp": "2026-06-16T15:09:34.330Z",
+      "activity": "Hoàn thành bài Luyện nói IELTS Speaking - Chủ đề: Study & Hometown (Đạt điểm AI: 6.0)"
     }
   ],
   "notifications": [
