@@ -38,23 +38,23 @@ export function useSaveVocab() {
         };
 
         const [vocabRes, collectionsRes] = await Promise.all([
-          fetch('/api/student/vocabulary', { headers }),
-          fetch('/api/student/vocabulary/collections', { headers })
+          fetch('/api/notebook', { headers }),
+          fetch('/api/notebook/folders', { headers })
         ]);
 
         if (mounted) {
           if (vocabRes.ok) {
             const vocabData = await vocabRes.json();
-            if (vocabData.vocabularies) {
-              const words = vocabData.vocabularies.map((v: any) => v.word.toLowerCase());
+            if (vocabData.data) {
+              const words = vocabData.data.map((v: any) => v.word.toLowerCase());
               setSavedWords(new Set(words));
             }
           }
 
           if (collectionsRes.ok) {
             const collectionsData = await collectionsRes.json();
-            if (collectionsData.collections) {
-              setCollections(collectionsData.collections);
+            if (collectionsData.data) {
+              setCollections(collectionsData.data);
             }
           }
           setIsLoading(false);
@@ -88,15 +88,19 @@ export function useSaveVocab() {
       }
 
       const token = session.access_token;
-      const res = await fetch('/api/student/vocabulary', {
+      const res = await fetch('/api/notebook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          ...payload,
-          collectionId: collectionId || null
+          word: payload.word,
+          definition: payload.translation || payload.definition,
+          example: payload.exampleSentence,
+          pos: payload.partOfSpeech,
+          folder_id: collectionId || null,
+          source: 'bilingual-reader'
         })
       });
 

@@ -8,18 +8,19 @@ export default function ScoutTemplate(props: any) {
     navLabelDisp, currentSetLabel, setMenuRot, toggleSetMenu, setMenuOpen, setOptions,
     goStudy, navItemJustify, navFlashInk, navFlashWeight, navFlashBg, navFlashShadow,
     isFlashcard, cardFrontBg, cardBorder, cardShadow, toggleAutoPlay, autoPlay, autoTrackBg,
-    autoKnobLeft, closeConfetti, showConfetti, confettiPieces, flip, cardTransform, meaningTransform,
+    autoKnobLeft, closeConfetti, showConfetti, confettiPieces, miniConfettiPieces, flip, cardTransform, meaningTransform,
     progressPct, progressW, human, total, prev, next, jumpTo, isDashboard, isStats, isLists, isSets, isPersonal,
-    accuracy, bandMenuOpen, bandOptions, bandTarget, bars, cardChipBg, cardChipInk, cardHint, cardInk, cardStars, cardSub, cloudColor, cloudHi, cloudLo, cloudLo2, cloudOpacity, cloudShadow, dashClouds, dashStreak, datePickerOpen, examDate, examDays, examDotColor, examDots, examDotsExtra, examMonthsText, exampleEn, exampleVi, flameDays, goKnownTab, goReviewTab, goSets, goUnknownTab, heatLegend, ink2Color, inkColor, ipa, isStudy, knownCount, listDesc, listEmpty, listHasRows, listIsReview, listRows, listTitle, markKnown, markUnknown, calendarMonths, monthCells, monthLabel, monthWeekdays, moonDisp, moonDisplay, nightLayerDisp, personalFolderCount, personalFolders, personalTotal, pickerCells, pickerNext, pickerPrev, pickerTitle, pickerWeekdays, posVi, recentHistory, reviewBadge, reviewMistakes, setCards, setsSummary, skills, speakBtn, starBtn, starFieldBgA, starFieldBgB, starFill2, starStroke2, starsDisp, startBlank, startListening, startMixed, startQuiz, sunBlobDisp, sunDisplay, sunFaceDisp, syn, tabKnownBg, tabKnownInk, tabReviewBg, tabReviewInk, tabUnknownBg, tabUnknownInk, tag, toggleBandMenu, toggleDark, toggleDatePicker, totalAdded, totalLearned, totalReview, totalTests, unknownCount, vi, word, userName, sidebarCol, navHeaderJustify, navBrandFlex, navTogRot, toggleNav,
+    accuracy, bandMenuOpen, bandOptions, bandTarget, bars, cardChipBg, cardChipInk, cardHint, cardInk, cardStars, cardSub, cloudColor, cloudHi, cloudLo, cloudLo2, cloudOpacity, cloudShadow, dashClouds, dashStreak, datePickerOpen, examDate, examDays, examDotColor, examDots, examDotsExtra, examMonthsText, exampleEn, exampleVi, flameDays, goKnownTab, goReviewTab, goSets, goUnknownTab, heatLegend, ink2Color, inkColor, ipa, isStudy, knownCount, listAccent, listDesc, listEmpty, listHasRows, listIsReview, listRows, listTitle, studyListAgain, listStudyFlashcard, listStudyQuiz, listStudyListening, listStudyBlank, listStudyMixed, markKnown, markUnknown, calendarMonths, monthCells, monthLabel, monthWeekdays, moonDisp, moonDisplay, nightLayerDisp, personalFolderCount, personalFolders, personalTotal, pickerCells, pickerNext, pickerPrev, pickerTitle, pickerWeekdays, posVi, recentHistory, reviewBadge, reviewMistakes, setCards, setsSummary, skills, speakBtn, starBtn, starFieldBgA, starFieldBgB, starFill2, starStroke2, starsDisp, startBlank, startListening, startMixed, startQuiz, startTidians, sunBlobDisp, sunDisplay, sunFaceDisp, syn, tabKnownBg, tabKnownInk, tabReviewBg, tabReviewInk, tabUnknownBg, tabUnknownInk, tag, toggleBandMenu, toggleDark, toggleDatePicker, totalAdded, totalLearned, totalReview, totalTests, unknownCount, vi, word, userName, sidebarCol, navHeaderJustify, navBrandFlex, navTogRot, toggleNav,
     navSectionDisp, goDashboard, navOverviewBg, navOverviewShadow, navOverviewInk, navOverviewWeight,
     navSetsBg, navSetsShadow, navSetsInk, navSetsWeight, navStatsBg, navStatsShadow, navStatsInk, navStatsWeight,
     navBarsDisp,
-    checkType, closePractice, goReview, goStats, hasMistakes, listeningHint, listeningSay, mHearts, mLeft, mMatched, mProgressW, mRight, mScore, mTotal, navBadgeDisp, navKnownBg, navKnownInk, navKnownShadow, navKnownWeight, navReviewBg, navReviewInk, navReviewShadow, navReviewWeight, navUnknownBg, navUnknownInk, navUnknownShadow, navUnknownWeight, pAccent, pAnswerWord, pAnswered, pChecked, pCorrect, pExample, pHintHidden, pHuman, pInputBorder, pIpa, pIsContext, pIsMatching, pIsMeaning, pIsQuizOrListen, pLabel, pLen, pLetterSlots, pNextLabel, pOptions, pPosEn, pProgressW, pPromptContext, pPromptMeaning, pResultEmoji, pResultSub, pResultTitle, pShowCheck, pShowListenBody, pShowMatching, pShowNext, pShowQuizBody, pShowQuizToggle, pShowResult, pTitle, pTypedFbColor, pTypedFeedback, pVi, practiceActive, practiceNext, qmContextBg, qmContextInk, qmMeaningBg, qmMeaningInk, rStatA, rStatALabel, rStatB, rStatBLabel, rStatC, rStatCLabel, restartPractice, setContext, setMeaning, showKnownTabKnown, showKnownTabUnknown,
+    checkType, closePractice, goReview, goStats, hasMistakes, listeningHint, listeningSay, listeningInput, mHearts, mLeft, mMatched, mProgressW, mRight, mScore, mTotal, navBadgeDisp, navKnownBg, navKnownInk, navKnownShadow, navKnownWeight, navReviewBg, navReviewInk, navReviewShadow, navReviewWeight, navUnknownBg, navUnknownInk, navUnknownShadow, navUnknownWeight, pAccent, pAnswerWord, pAnswered, pChecked, pCorrect, pExample, pHintHidden, pHuman, pInput, pInputBorder, pInputPlaceholder, pIpa, pIsContext, pIsListening, pIsMatching, pIsMeaning, pIsQuizOrListen, pLabel, pLen, pLetterSlots, pNextLabel, pOptions, pPosEn, pProgressW, pPromptContext, pPromptBefore, pPromptAfter, pInputSize, pPromptMeaning, pResultEmoji, pResultSub, pResultTitle, pShowCheck, pShowListenBody, pShowMatching, pShowNext, pShowQuizBody, pShowQuizToggle, pShowResult, pTitle, pTypedFbColor, pTypedFeedback, pVi, practiceActive, practiceNext, qmContextBg, qmContextInk, qmMeaningBg, qmMeaningInk, rStatA, rStatALabel, rStatB, rStatBLabel, rStatC, rStatCLabel, restartPractice, setContext, setMeaning, showKnownTabKnown, showKnownTabUnknown,
     openImportModal, createNewFolder, navAvatarUrl,
     isFolderDetail, folderDetailName, folderDetailWords, folderDetailLoading, folderDetailColor, folderDetailDeep,
     goBackToPersonal, openFolderAddWordModal, deleteFolderWord, startRenameFolderDetail, deleteFolderDetail, studyFolderWords,
     goEditProfile, goVocabNotebook, goDiagnostic, goRoadmap, openProfilePanel, openAvatarPanel, openPasswordPanel, closePanel,
-    appBg, sidebarBg, sidebarGrad, sidebarColor, navSectionColor, navUnselColor, headerBg, headerBorder, searchBg, searchInk, searchKBtn, searchKBorder, searchKColor, panelBorder, panelHover, contentBg, nightCardBg, nightCardBorder, nightCardShadow, titleColor, manifestSub, streakSub, dividerColor, monthCellBg,
+    isAdmin, goAdmin,
+    appBg, sidebarBg, sidebarGrad, sidebarColor, navSectionColor, navUnselColor, headerBg, headerBorder, searchBg, searchInk, searchKBtn, searchKBorder, searchKColor, panelBorder, panelHover, contentBg, nightCardBg, nightCardBorder, nightCardShadow, titleColor, manifestSub, streakSub, dividerColor, monthCellBg, listHeaderBg, listBorder, listHover, listBtnBg, listBtnInk,
     ...rest
   } = new Proxy(props || {}, { get: (target, prop) => prop in target ? target[prop] : '' });
   const navInitials = (userName || 'HV').split(' ').filter(Boolean).map(w => w[0].toUpperCase()).slice(0,2).join('');
@@ -114,6 +115,13 @@ export default function ScoutTemplate(props: any) {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: '0' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span style={{ display: `${navLabelDisp}`, whiteSpace: 'nowrap' }}>Chỉnh sửa hồ sơ</span>
         </button>
+
+        {isAdmin && (
+          <button onClick={goAdmin} title="Trang quản trị" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: `${navItemJustify}`, gap: '12px', padding: '11px 13px', borderRadius: '13px', color: '#F6C453', fontWeight: '800', fontSize: '14.5px', textAlign: 'left', border: '1px solid rgba(246,196,83,.35)', background: 'rgba(246,196,83,.12)', cursor: 'pointer', fontFamily: 'inherit' }} data-hover="filter:brightness(1.08);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: '0' }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span style={{ display: `${navLabelDisp}`, whiteSpace: 'nowrap' }}>Trang quản trị</span>
+          </button>
+        )}
       </nav>
 
       <div title="Chuỗi học 7 ngày" style={{ marginTop: 'auto', background: 'rgba(0,0,0,.16)', borderRadius: '18px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
@@ -377,7 +385,7 @@ export default function ScoutTemplate(props: any) {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '200px', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#FFF3D6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '26px', boxShadow: '0 4px 12px rgba(0,0,0,.15)' }}>🔥</div>
-                    <span style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '52px', color: `${inkColor}`, lineHeight: '1' }}>{ dashStreak || '5' }</span>
+                    <span style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '52px', color: `${inkColor}`, lineHeight: '1' }}>{ dashStreak || 0 }</span>
                   </div>
                   <span style={{ fontSize: '14px', fontWeight: '700', color: `${titleColor}`, letterSpacing: '.02em' }}>ngày streak liên tiếp</span>
                 </div>
@@ -430,12 +438,12 @@ export default function ScoutTemplate(props: any) {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button data-sk="panel" style={{ display: 'flex', alignItems: 'center', gap: '7px', background: `${headerBg}`, border: '1px solid #E4DEC9', borderRadius: '12px', padding: '9px 14px', fontWeight: '700', fontSize: '13.5px', color: '#5D6B2D', cursor: 'pointer' }} data-hover={`${panelHover}`}>
+            <button data-sk="panel" style={{ display: 'flex', alignItems: 'center', gap: '7px', background: `${searchBg}`, border: 'none', borderRadius: '12px', padding: '9px 14px', fontWeight: '700', fontSize: '13.5px', color: `${inkColor}`, cursor: 'pointer', transition: 'all .2s' }} data-hover={`${panelHover}`}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v6h6M21 21v-6h-6"></path><path d="M3 9a9 9 0 0 1 15-3l3 3M21 15a9 9 0 0 1-15 3l-3-3"></path></svg>
               Trộn thẻ
             </button>
-            <button onClick={toggleAutoPlay} data-sk="panel" style={{ display: 'flex', alignItems: 'center', gap: '11px', background: `${headerBg}`, border: '1px solid #E4DEC9', borderRadius: '12px', padding: '8px 14px', fontWeight: '700', fontSize: '13.5px', color: '#2A3114', cursor: 'pointer' }} data-hover={`${panelHover}`}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5D6B2D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
+            <button onClick={toggleAutoPlay} data-sk="panel" style={{ display: 'flex', alignItems: 'center', gap: '11px', background: `${searchBg}`, border: 'none', borderRadius: '12px', padding: '8px 14px', fontWeight: '700', fontSize: '13.5px', color: `${inkColor}`, cursor: 'pointer', transition: 'all .2s' }} data-hover={`${panelHover}`}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
               <span data-sk="ink" style={{ color: `${inkColor}` }}>Tự động phát âm</span>
               <span style={{ position: 'relative', width: '42px', height: '24px', borderRadius: '999px', background: `${autoTrackBg}`, transition: 'background .25s', flexShrink: '0' }}>
                 <span style={{ position: 'absolute', top: '3px', left: `${autoKnobLeft}`, width: '18px', height: '18px', borderRadius: '50%', background: `${headerBg}`, boxShadow: '0 1px 3px rgba(0,0,0,.25)', transition: 'left .25s cubic-bezier(.3,.8,.4,1)' }}></span>
@@ -469,11 +477,8 @@ export default function ScoutTemplate(props: any) {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', background: '#2A3114', color: '#F6C453', fontWeight: '800', fontSize: '13px', padding: '6px 14px', borderRadius: '999px' }}>{ posVi }</span>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={speakBtn} style={{ width: '42px', height: '42px', borderRadius: '13px', border: 'none', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 3px 0 #d6a531' }} data-hover="background:#FFF8EB;">
+                      <button onClick={speakBtn} style={{ width: '42px', height: '42px', borderRadius: '13px', border: 'none', background: '#F6C453', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 3px 0 #d6a531' }} data-hover="filter:brightness(1.05);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A3114" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
-                      </button>
-                      <button onClick={starBtn} style={{ width: '42px', height: '42px', borderRadius: '13px', border: 'none', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 3px 0 #d6a531' }} data-hover="background:#FFF8EB;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill={starFill2} stroke={starStroke2} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="m12 2 3 6.5 7 .8-5.2 4.8 1.5 7L12 18l-6.8 4 1.5-7L1.5 9.3l7-.8L12 2Z"></path></svg>
                       </button>
                     </div>
                   </div>
@@ -481,7 +486,7 @@ export default function ScoutTemplate(props: any) {
                     <h3 style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '62px', lineHeight: '1', letterSpacing: '-.02em', margin: '0', color: `${cardInk}` }}>{ word }</h3>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontFamily: '\'Space Mono\',monospace', fontSize: '18px', color: `${cardSub}` }}>{ ipa }</span>
-                      <button onClick={speakBtn} style={{ width: '30px', height: '30px', borderRadius: '9px', border: 'none', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 0 #d6a531' }} data-hover="background:#FFF8EB;">
+                      <button onClick={speakBtn} style={{ width: '30px', height: '30px', borderRadius: '9px', border: 'none', background: '#F6C453', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 0 #d6a531' }} data-hover="filter:brightness(1.05);">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2A3114" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
                       </button>
                     </div>
@@ -499,8 +504,8 @@ export default function ScoutTemplate(props: any) {
                   <div style={{ position: 'absolute', bottom: '-50px', right: '-30px', width: '190px', height: '190px', borderRadius: '50%', background: 'radial-gradient(circle,rgba(246,196,83,.22),transparent 70%)' }}></div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                     <span style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '.14em', color: '#CBD3A6' }}>NGHĨA TIẾNG VIỆT</span>
-                    <button onClick={speakBtn} style={{ width: '40px', height: '40px', borderRadius: '12px', border: '1px solid rgba(255,255,255,.2)', background: 'rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} data-hover="background:#F6C453;">
-                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FFF8EB" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
+                    <button onClick={speakBtn} style={{ width: '40px', height: '40px', borderRadius: '12px', border: 'none', background: '#F6C453', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 3px 0 #d6a531' }} data-hover="filter:brightness(1.05);">
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#2A3114" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
                     </button>
                   </div>
                   <div style={{ flex: '1', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '18px', position: 'relative' }}>
@@ -526,6 +531,7 @@ export default function ScoutTemplate(props: any) {
               <button onClick={markUnknown} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', height: '60px', borderRadius: '20px', border: '1.5px solid #E6CFC1', background: '#F7E7DE', color: '#A8482A', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 5px 0 #E6CFC1' }} data-hover="background:#F4DCCE;" style-active="transform:translateY(2px);box-shadow:0 3px 0 #E6CFC1;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M9.2 9a2.8 2.8 0 0 1 5.4 1c0 1.9-2.8 2.8-2.8 2.8"></path><path d="M12 17h.01"></path></svg>
                 Chưa nhớ
+                <span style={{ fontSize: '12px', fontWeight: '800', lineHeight: '1', background: 'rgba(168,72,42,.14)', borderRadius: '7px', padding: '2px 7px' }}>1</span>
               </button>
               <button onClick={flip} style={{ display: 'flex', alignItems: 'center', gap: '10px', height: '60px', padding: '0 28px', borderRadius: '20px', border: 'none', background: '#5D6B2D', color: '#FFF8EB', fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '17px', cursor: 'pointer', boxShadow: '0 5px 0 #3E4A1B', flexShrink: '0' }} data-hover="background:#697A35;" style-active="transform:translateY(2px);box-shadow:0 3px 0 #3E4A1B;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6a2 2 0 0 0 2 2h11l4 4V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2Z"></path><path d="M8 9h8M8 12h5"></path></svg>
@@ -535,6 +541,7 @@ export default function ScoutTemplate(props: any) {
               <button onClick={markKnown} style={{ flex: '1', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', height: '60px', borderRadius: '20px', border: '1.5px solid #CBD79F', background: '#EEF1E2', color: '#46591F', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '16px', cursor: 'pointer', boxShadow: '0 5px 0 #CBD79F' }} data-hover="background:#E5EBCF;" style-active="transform:translateY(2px);box-shadow:0 3px 0 #CBD79F;">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
                 Đã nhớ
+                <span style={{ fontSize: '12px', fontWeight: '800', lineHeight: '1', background: 'rgba(70,89,31,.14)', borderRadius: '7px', padding: '2px 7px' }}>2</span>
               </button>
             </div>
             <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -636,8 +643,7 @@ export default function ScoutTemplate(props: any) {
               <span style={{ fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '15px', color: '#FFFFFF' }}>Điền vào chỗ trống</span>
               <span style={{ fontSize: '12px', fontWeight: '600', color: 'rgba(255,255,255,.82)' }}>Chọn từ điền câu</span>
             </button>
-            <button data-sk="pm-tidians" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start', textAlign: 'left', background: '#8C5CB8', border: '1px solid #6E429A', borderRadius: '18px', padding: '16px', cursor: 'not-allowed', position: 'relative', overflow: 'hidden', isolation: 'isolate', opacity: '.72' }}>
-              <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,.22)', color: '#FFFFFF', fontSize: '9.5px', fontWeight: '800', letterSpacing: '.06em', padding: '3px 7px', borderRadius: '999px', zIndex: '1' }}>SẮP RA MẮT</span>
+            <button onClick={startTidians} data-sk="pm-tidians" style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start', textAlign: 'left', background: '#8C5CB8', border: '1px solid #6E429A', borderRadius: '18px', padding: '16px', cursor: 'pointer', position: 'relative', overflow: 'hidden', isolation: 'isolate' }} data-hover="transform:translateY(-3px);box-shadow:0 12px 22px -12px rgba(140,92,184,.7);">
               <div style={{ position: 'absolute', right: '-24px', bottom: '-28px', width: '96px', height: '96px', borderRadius: '50%', background: 'rgba(255,255,255,.14)', zIndex: '-1' }}></div>
               <div style={{ position: 'absolute', right: '-42px', bottom: '8px', width: '130px', height: '36px', borderRadius: '50%', border: '5px solid rgba(255,255,255,.18)', transform: 'rotate(-22deg)', zIndex: '-1' }}></div>
               <span style={{ width: '42px', height: '42px', borderRadius: '13px', background: '#FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 0 rgba(0,0,0,.14)' }}>
@@ -668,7 +674,7 @@ export default function ScoutTemplate(props: any) {
             </div>
             <div data-sk="panel" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '14px', padding: '8px 14px' }}>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="#EE9A23"><path d="M12 2c1 3-1 4-1 6 2-1 3 1 4 2 2 2 2 5 0 7a6 6 0 0 1-9-1c-1-2 0-4 1-5 0 2 1 3 2 3-1-2 0-4 1-5 1 2 2 1 2-1 1-2 0-4-2-6Z"></path></svg>
-              <span data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '15px', color: `${inkColor}` }}>Chuỗi 7 ngày</span>
+              <span data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '15px', color: `${inkColor}` }}>Chuỗi { dashStreak || 0 } ngày</span>
             </div>
           </div>
 
@@ -737,13 +743,34 @@ export default function ScoutTemplate(props: any) {
               <h2 data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', margin: '5px 0 0', color: `${inkColor}` }}>{ listTitle }</h2>
               <p data-sk="ink2" style={{ margin: '4px 0 0', fontSize: '14px', fontWeight: '500', color: `${manifestSub}` }}>{ listDesc }</p>
             </div>
-            { (listIsReview) ? (<React.Fragment>
-              <button onClick={reviewMistakes} style={{ display: 'flex', alignItems: 'center', gap: '9px', background: '#EE9A23', border: 'none', borderRadius: '14px', padding: '12px 18px', fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '14.5px', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 0 #c2761a' }} data-hover="filter:brightness(1.04);">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l14 9-14 9V3Z"></path></svg>
-                Luyện tập ngay
-              </button>
-            </React.Fragment>) : null }
           </div>
+          { (listHasRows) ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '11px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '.1em', color: `${titleColor}` }}>HỌC LẠI VỚI CHẾ ĐỘ</div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button onClick={listStudyFlashcard} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: `${listAccent}`, border: 'none', borderRadius: '13px', padding: '11px 17px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: '#fff', cursor: 'pointer', boxShadow: '0 3px 0 rgba(0,0,0,.18)' }} data-hover="filter:brightness(1.06);">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6a2 2 0 0 0 2 2h11l4 4V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2Z"></path><path d="M8 9h8M8 12h5"></path></svg>
+                  Flashcard
+                </button>
+                <button onClick={listStudyQuiz} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#E08A2C', border: 'none', borderRadius: '13px', padding: '11px 17px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: '#fff', cursor: 'pointer', boxShadow: '0 3px 0 rgba(0,0,0,.18)' }} data-hover="filter:brightness(1.06);">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"></rect><path d="M5 5h2M17 5h2v16H5V5h2"></path><path d="M9 13l2 2 4-4"></path></svg>
+                  Quiz
+                </button>
+                <button onClick={listStudyListening} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#2E9D7E', border: 'none', borderRadius: '13px', padding: '11px 17px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: '#fff', cursor: 'pointer', boxShadow: '0 3px 0 rgba(0,0,0,.18)' }} data-hover="filter:brightness(1.06);">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"></path><path d="M4 14h3v6H5a1 1 0 0 1-1-1v-5zM20 14h-3v6h2a1 1 0 0 0 1-1v-5z"></path></svg>
+                  Listening
+                </button>
+                <button onClick={listStudyBlank} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#C95F50', border: 'none', borderRadius: '13px', padding: '11px 17px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: '#fff', cursor: 'pointer', boxShadow: '0 3px 0 rgba(0,0,0,.18)' }} data-hover="filter:brightness(1.06);">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V5h16v2M9 5v14M7 19h4"></path></svg>
+                  Điền vào chỗ trống
+                </button>
+                <button onClick={listStudyMixed} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#B0457F', border: 'none', borderRadius: '13px', padding: '11px 17px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', color: '#fff', cursor: 'pointer', boxShadow: '0 3px 0 rgba(0,0,0,.18)' }} data-hover="filter:brightness(1.06);">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                  Tổng hợp
+                </button>
+              </div>
+            </div>
+          ) : null }
 
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button onClick={goKnownTab} data-sk="seg" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: `${tabKnownBg}`, color: `${tabKnownInk}`, border: '1px solid ${nightCardBorder}', borderRadius: '13px', padding: '10px 16px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }} data-hover="filter:brightness(1.03);">
@@ -760,7 +787,7 @@ export default function ScoutTemplate(props: any) {
             </button>
           </div>
 
-          <div data-sk="panel" style={{ background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '24px', boxShadow: '0 10px 30px -20px rgba(46,53,20,.4)', overflow: 'hidden' }}>
+          <div data-sk="panel" style={{ background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '24px', boxShadow: `${nightCardShadow}`, overflow: 'hidden' }}>
             { (listEmpty) ? (<React.Fragment>
               <div style={{ textAlign: 'center', padding: '64px 20px', color: `${titleColor}` }}>
                 <div style={{ fontSize: '42px', marginBottom: '12px' }}>🗂️</div>
@@ -769,24 +796,24 @@ export default function ScoutTemplate(props: any) {
               </div>
             </React.Fragment>) : null }
             { (listHasRows) ? (<React.Fragment>
-              <div data-sk="seg" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.4fr auto', gap: '0', padding: '15px 28px', background: '#FBF8EF', borderBottom: '1px solid #EFE7D2' }}>
+              <div data-sk="seg" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.4fr auto', gap: '0', padding: '15px 28px', background: `${listHeaderBg}`, borderBottom: `1px solid ${listBorder}` }}>
                 <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.12em', color: `${titleColor}` }}>TỪ VỰNG</span>
                 <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.12em', color: `${titleColor}` }}>NGHĨA</span>
                 <span style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '.12em', color: `${titleColor}`, textAlign: 'right' }}>LOẠI TỪ</span>
               </div>
               { (listRows)?.map?.((kt, _index) => (<React.Fragment key={_index}>
-                <button onClick={kt.go} data-sk="listrow" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.4fr auto', alignItems: 'center', gap: '0', background: 'transparent', border: 'none', borderBottom: `1px solid ${dividerColor}`, padding: '16px 28px', cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'inherit' }} data-hover="background:#FBF8EF;">
+                <button onClick={kt.go} data-sk="listrow" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.4fr auto', alignItems: 'center', gap: '0', background: 'transparent', border: 'none', borderBottom: `1px solid ${dividerColor}`, padding: '16px 28px', cursor: 'pointer', textAlign: 'left', width: '100%', fontFamily: 'inherit' }} data-hover={`${listHover}`}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: '0' }}>
-                    <span onClick={kt.speak} style={{ width: '32px', height: '32px', borderRadius: '10px', background: '#EEF1E2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' }} data-hover="background:#F6C453;">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5D6B2D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+                    <span onClick={kt.speak} style={{ width: '32px', height: '32px', borderRadius: '10px', background: `${listBtnBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' }} data-hover="background:#F6C453;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={`${listBtnInk}`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
                     </span>
                     <div style={{ minWidth: '0' }}>
                       <div data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '17px', color: `${inkColor}` }}>{ kt.word }</div>
                       <div style={{ fontFamily: '\'Space Mono\',monospace', fontSize: '12px', color: `${titleColor}` }}>{ kt.ipa }</div>
                     </div>
                   </div>
-                  <span data-sk="ink2" style={{ fontSize: '14.5px', fontWeight: '600', color: '#46531F' }}>{ kt.vi }</span>
-                  <span style={{ justifySelf: 'end', minWidth: '42px', textAlign: 'center', background: '#EEF1E2', color: '#5D6B2D', fontFamily: '\'Nunito\'', fontSize: '11.5px', fontWeight: '900', padding: '6px 10px', borderRadius: '9px' }}>{ kt.pos }</span>
+                  <span data-sk="ink2" style={{ fontSize: '14.5px', fontWeight: '600', color: `${ink2Color}` }}>{ kt.vi }</span>
+                  <span style={{ justifySelf: 'end', minWidth: '42px', textAlign: 'center', background: `${listBtnBg}`, color: `${listBtnInk}`, fontFamily: '\'Nunito\'', fontSize: '11.5px', fontWeight: '900', padding: '6px 10px', borderRadius: '9px' }}>{ kt.pos }</span>
                 </button>
               </React.Fragment>)) }
             </React.Fragment>) : null }
@@ -921,9 +948,11 @@ export default function ScoutTemplate(props: any) {
                   <div style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '.12em', color: `${titleColor}` }}>BỘ TỪ CỦA BẢN THÂN</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
                     <h2 data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', margin: '0', color: `${inkColor}` }}>{ folderDetailName }</h2>
-                    <button onClick={startRenameFolderDetail} title="Đổi tên" style={{ background: 'rgba(255,255,255,.08)', border: 'none', borderRadius: '8px', padding: '5px 7px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: `${ink2Color}` }} data-hover="background:rgba(255,255,255,.15);">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
+                    {startRenameFolderDetail && (
+                      <button onClick={startRenameFolderDetail} title="Đổi tên" style={{ background: 'rgba(255,255,255,.08)', border: 'none', borderRadius: '8px', padding: '5px 7px', cursor: 'pointer', display: 'flex', alignItems: 'center', color: `${ink2Color}` }} data-hover="background:rgba(255,255,255,.15);">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -976,6 +1005,9 @@ export default function ScoutTemplate(props: any) {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '5px' }}>
                       <span data-sk="ink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '17px', color: `${inkColor}` }}>{ w.word }</span>
                       { w.pos && <span style={{ fontSize: '10px', fontWeight: '800', background: 'rgba(93,107,45,.25)', color: '#a8c45a', borderRadius: '6px', padding: '2px 7px', textTransform: 'uppercase', letterSpacing: '.05em' }}>{ w.pos }</span> }
+                      <button onClick={w.speak} title="Nghe phát âm" style={{ background: 'rgba(93,107,45,.15)', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#88a23f' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                      </button>
                     </div>
                     <div style={{ fontSize: '13.5px', fontWeight: '700', color: `${ink2Color}`, lineHeight: '1.45' }}>{ w.definition }</div>
                     { w.example && <div style={{ fontSize: '12.5px', fontWeight: '600', color: `${titleColor}`, marginTop: '6px', fontStyle: 'italic', lineHeight: '1.4' }}>"{w.example}"</div> }
@@ -989,7 +1021,7 @@ export default function ScoutTemplate(props: any) {
           )}
 
           {/* Danger zone */}
-          { !folderDetailLoading && (
+          { !folderDetailLoading && deleteFolderDetail && (
             <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: `1px solid ${panelBorder}` }}>
               <div style={{ fontSize: '11px', fontWeight: '800', color: `${titleColor}`, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '.1em' }}>Vùng nguy hiểm</div>
               <button onClick={deleteFolderDetail} style={{ background: 'rgba(255,80,80,.08)', border: '1px solid rgba(255,80,80,.2)', borderRadius: '12px', color: '#FF8080', padding: '9px 16px', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '13px', cursor: 'pointer' }} data-hover="background:rgba(255,80,80,.16);">
@@ -1076,14 +1108,11 @@ export default function ScoutTemplate(props: any) {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
                 <span style={{ background: '#2A3114', color: '#F6C453', fontWeight: '800', fontSize: '12px', padding: '5px 11px', borderRadius: '999px' }}>{ posVi }</span>
-                <button onClick={starBtn} style={{ width: '36px', height: '36px', borderRadius: '11px', border: 'none', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 0 #d6a531' }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={starFill2} stroke={starStroke2} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 2 3 6.5 7 .8-5.2 4.8 1.5 7L12 18l-6.8 4 1.5-7L1.5 9.3l7-.8L12 2Z"></path></svg>
-                </button>
               </div>
               <div style={{ flex: '1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', textAlign: 'center', position: 'relative' }}>
                 <h3 style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '34px', lineHeight: '1.05', margin: '0', color: `${cardInk}`, wordBreak: 'break-word' }}>{ word }</h3>
                 <span style={{ fontFamily: '\'Space Mono\',monospace', fontSize: '14px', color: `${cardSub}` }}>{ ipa }</span>
-                <button onClick={speakBtn} style={{ width: '46px', height: '46px', borderRadius: '50%', border: 'none', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 0 #d6a531', marginTop: '6px' }}>
+                <button onClick={speakBtn} style={{ width: '46px', height: '46px', borderRadius: '50%', border: 'none', background: '#F6C453', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 0 #d6a531', marginTop: '6px' }} data-hover="filter:brightness(1.05);">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2A3114" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
                 </button>
               </div>
@@ -1159,15 +1188,15 @@ export default function ScoutTemplate(props: any) {
   </div>
   { (practiceActive) ? (<React.Fragment>
     <div data-sk="overlay" style={{ position: 'fixed', inset: '0', zIndex: '70', background: 'rgba(31,32,20,.55)', backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: '\'Plus Jakarta Sans\',system-ui,sans-serif' }}>
-      <div data-sk="sheet" style={{ width: '100%', maxWidth: '680px', maxHeight: '92vh', overflow: 'auto', background: '#FFF8EB', borderRadius: '30px', boxShadow: '0 40px 90px -28px rgba(20,24,8,.7)', border: '1px solid rgba(46,53,20,.08)', position: 'relative' }}>
+      <div data-sk="sheet" style={{ width: '100%', maxWidth: '680px', maxHeight: '92vh', overflow: 'auto', background: `${contentBg}`, borderRadius: '30px', boxShadow: '0 40px 90px -28px rgba(20,24,8,.7)', border: `1px solid ${listBorder}`, position: 'relative' }}>
 
-        <div data-sk="phead" style={{ position: 'sticky', top: '0', zIndex: '3', background: '#FFF8EB', padding: '22px 26px 14px', borderBottom: '1px solid #EFE7D2' }}>
+        <div data-sk="phead" style={{ position: 'sticky', top: '0', zIndex: '3', background: `${contentBg}`, padding: '22px 26px 14px', borderBottom: `1px solid ${listBorder}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ width: '38px', height: '38px', borderRadius: '12px', background: `${pAccent}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: '0' }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFF8EB" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5Z"></path><path d="M2 13l10 5 10-5"></path></svg>
             </span>
             <div style={{ lineHeight: '1.15' }}>
-              <div data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '18px', color: '#2A3114' }}>{ pTitle }</div>
+              <div data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '18px', color: `${inkColor}` }}>{ pTitle }</div>
               <div data-sk="pink2" style={{ fontSize: '12.5px', fontWeight: '700', color: `${titleColor}` }}>Chủ đề Môi trường · IELTS</div>
             </div>
             <button onClick={closePractice} style={{ marginLeft: 'auto', width: '38px', height: '38px', borderRadius: '12px', border: '1px solid ${nightCardBorder}', background: `${headerBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} data-hover={`${panelHover}`}>
@@ -1184,7 +1213,7 @@ export default function ScoutTemplate(props: any) {
               <div data-sk="m-track" style={{ flex: '1', height: '10px', borderRadius: '6px', background: '${nightCardBorder}', overflow: 'hidden' }}>
                 <div style={{ height: '100%', width: `${mProgressW}`, borderRadius: '6px', background: 'linear-gradient(90deg,#5D6B2D,#8AA04A)', transition: 'width .4s cubic-bezier(.2,.8,.3,1)' }}></div>
               </div>
-              <span data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '14px', color: '#2A3114' }}>{ mMatched }/{ mTotal }</span>
+              <span data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '14px', color: `${inkColor}` }}>{ mMatched }/{ mTotal }</span>
             </div>
           </React.Fragment>) : null }
           { (pIsQuizOrListen) ? (<React.Fragment>
@@ -1203,7 +1232,7 @@ export default function ScoutTemplate(props: any) {
         { (pShowQuizBody) ? (<React.Fragment>
           <div style={{ padding: '24px 26px 28px' }}>
             { (pShowQuizToggle) ? (<React.Fragment>
-              <div data-sk="seg" style={{ display: 'inline-flex', gap: '4px', background: '#F1ECDB', borderRadius: '13px', padding: '4px', marginBottom: '22px' }}>
+              <div data-sk="seg" style={{ display: 'inline-flex', gap: '4px', background: `${listHeaderBg}`, borderRadius: '13px', padding: '4px', marginBottom: '22px' }}>
                 <button onClick={setMeaning} style={{ display: 'flex', alignItems: 'center', gap: '7px', border: 'none', borderRadius: '10px', padding: '8px 15px', fontWeight: '800', fontSize: '13px', cursor: 'pointer', background: `${qmMeaningBg}`, color: `${qmMeaningInk}`, transition: 'all .2s' }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path></svg>
                   Định nghĩa
@@ -1215,19 +1244,19 @@ export default function ScoutTemplate(props: any) {
               </div>
             </React.Fragment>) : null }
 
-            <div data-sk="prompt" style={{ background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '20px', padding: '24px', marginBottom: '18px', boxShadow: '0 8px 22px -16px rgba(46,53,20,.35)' }}>
+            <div data-sk="prompt" style={{ background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '20px', padding: '24px', marginBottom: '18px', boxShadow: '0 8px 22px -16px rgba(46,53,20,.35)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '14px' }}>
                 <span style={{ fontSize: '11.5px', fontWeight: '800', letterSpacing: '.1em', color: `${pAccent}` }}>{ pLabel }</span>
                 <span data-sk="chip" style={{ background: '#EEF1E2', color: '#5D6B2D', fontSize: '11px', fontWeight: '800', padding: '3px 9px', borderRadius: '999px' }}>{ pPosEn }</span>
               </div>
               { (pIsMeaning) ? (<React.Fragment>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px' }}>
-                  <h3 data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '30px', lineHeight: '1.2', margin: '0', color: '#1F1F1F' }}>{ pPromptMeaning }</h3>
-                  <span style={{ fontSize: '13px', color: '#b6bb9c', fontWeight: '700', whiteSpace: 'nowrap' }}>nghĩa là…</span>
+                  <h3 data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '30px', lineHeight: '1.2', margin: '0', color: `${inkColor}` }}>{ pPromptMeaning }</h3>
+                  <span style={{ fontSize: '13px', color: `${titleColor}`, fontWeight: '700', whiteSpace: 'nowrap' }}>nghĩa là…</span>
                 </div>
               </React.Fragment>) : null }
               { (pIsContext) ? (<React.Fragment>
-                <p data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '700', fontSize: '21px', lineHeight: '1.5', margin: '0', color: '#2A3114' }}>{ pPromptContext }</p>
+                <p data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '700', fontSize: '21px', lineHeight: '1.5', margin: '0', color: `${inkColor}` }}>{ pPromptContext }</p>
               </React.Fragment>) : null }
             </div>
 
@@ -1248,7 +1277,7 @@ export default function ScoutTemplate(props: any) {
 
             { (pAnswered) ? (<React.Fragment>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', marginTop: '20px' }}>
-                <span data-sk="pink2" style={{ fontSize: '13px', fontWeight: '700', color: `${titleColor}` }}>Phím <b style={{ color: '#5D6B2D' }}>1–4</b> để chọn · <b style={{ color: '#5D6B2D' }}>Enter</b> để tiếp</span>
+                <span data-sk="pink2" style={{ fontSize: '13px', fontWeight: '700', color: `${titleColor}` }}>Phím <b style={{ color: `${listBtnInk}` }}>1–4</b> để chọn · <b style={{ color: `${listBtnInk}` }}>Enter</b> để tiếp</span>
                 <button onClick={practiceNext} style={{ display: 'flex', alignItems: 'center', gap: '9px', background: `${pAccent}`, border: 'none', borderRadius: '14px', padding: '13px 22px', fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '15px', color: '#FFF8EB', cursor: 'pointer', boxShadow: '0 4px 0 rgba(0,0,0,.16)' }} data-hover="filter:brightness(1.08);">
                   { pNextLabel }
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
@@ -1260,19 +1289,32 @@ export default function ScoutTemplate(props: any) {
 
         { (pShowListenBody) ? (<React.Fragment>
           <div style={{ padding: '26px 26px 28px' }}>
+            { (pIsListening) ? (<React.Fragment>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '16px', marginBottom: '22px' }}>
               <button onClick={listeningSay} style={{ width: '84px', height: '84px', borderRadius: '50%', border: 'none', background: '#5D6B2D', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 6px 0 #3E4A1B' }} data-hover="filter:brightness(1.08);" style-active="transform:translateY(3px);box-shadow:0 3px 0 #3E4A1B;">
                 <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#FFF8EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"></path></svg>
               </button>
               <div>
-                <div data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '17px', color: '#2A3114' }}>Nghe và gõ lại từ tiếng Anh</div>
-                <div data-sk="pink2" style={{ fontSize: '13px', fontWeight: '600', color: `${titleColor}`, marginTop: '3px' }}>Bấm loa để nghe lại · <b style={{ color: '#5D6B2D' }}>Ctrl+X</b> phát lại</div>
+                <div data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '17px', color: `${inkColor}` }}>Nghe và gõ lại từ tiếng Anh</div>
+                <div data-sk="pink2" style={{ fontSize: '13px', fontWeight: '600', color: `${titleColor}`, marginTop: '3px' }}>Bấm loa để nghe lại · <b style={{ color: `${listBtnInk}` }}>Ctrl+X</b> phát lại</div>
               </div>
             </div>
-
-            <div style={{ position: 'relative', marginBottom: '14px' }}>
-              <input value="{ pInput }" oninput="{ listeningInput }" placeholder="Gõ từ bạn nghe được…" autocomplete="off" autocapitalize="off" spellcheck="false" style={{ width: '100%', boxSizing: 'border-box', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '22px', textAlign: 'center', color: '#1F1F1F', background: `${headerBg}`, border: `2px solid ${pInputBorder}`, borderRadius: '16px', padding: '18px 16px', outline: 'none', letterSpacing: '.01em' }} />
+            </React.Fragment>) : null }
+            { (pIsContext) ? (<React.Fragment>
+            <div data-sk="prompt" style={{ background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '20px', padding: '24px', marginBottom: '20px', boxShadow: '0 8px 22px -16px rgba(46,53,20,.35)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '11.5px', fontWeight: '800', letterSpacing: '.1em', color: `${pAccent}` }}>{ pLabel }</span>
+                <span data-sk="chip" style={{ background: '#EEF1E2', color: '#5D6B2D', fontSize: '11px', fontWeight: '800', padding: '3px 9px', borderRadius: '999px' }}>{ pPosEn }</span>
+              </div>
+              <p data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '700', fontSize: '21px', lineHeight: '1.9', margin: '0', color: `${inkColor}` }}>{ pPromptBefore }<input value={ pInput } onChange={ listeningInput } size={ pInputSize } placeholder="______" autoFocus autoComplete="off" autoCapitalize="off" spellCheck={false} style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '21px', textAlign: 'center', color: '#9a5a14', background: 'transparent', border: 'none', borderBottom: `2.5px solid ${pInputBorder}`, outline: 'none', padding: '0 6px', margin: '0 3px', minWidth: '70px' }} />{ pPromptAfter }</p>
             </div>
+            </React.Fragment>) : null }
+
+            { (pIsListening) ? (<React.Fragment>
+            <div style={{ position: 'relative', marginBottom: '14px' }}>
+              <input value={ pInput } onChange={ listeningInput } placeholder={ pInputPlaceholder } autoComplete="off" autoCapitalize="off" spellCheck={false} style={{ width: '100%', boxSizing: 'border-box', fontFamily: '\'Nunito\'', fontWeight: '800', fontSize: '22px', textAlign: 'center', color: `${inkColor}`, background: `${headerBg}`, border: `2px solid ${pInputBorder}`, borderRadius: '16px', padding: '18px 16px', outline: 'none', letterSpacing: '.01em' }} />
+            </div>
+            </React.Fragment>) : null }
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', justifyContent: 'center', marginBottom: '20px' }}>
               { (pLetterSlots)?.map?.((ls, _index) => (<React.Fragment key={_index}>
@@ -1281,10 +1323,10 @@ export default function ScoutTemplate(props: any) {
             </div>
 
             { (pChecked) ? (<React.Fragment>
-              <div data-sk="prompt" style={{ background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '16px', padding: '16px 18px', marginBottom: '18px' }}>
+              <div data-sk="prompt" style={{ background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '16px', padding: '16px 18px', marginBottom: '18px' }}>
                 <div style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '16px', color: `${pTypedFbColor}`, marginBottom: '8px' }}>{ pTypedFeedback }</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
-                  <span data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '20px', color: '#1F1F1F' }}>{ pAnswerWord }</span>
+                  <span data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '20px', color: `${inkColor}` }}>{ pAnswerWord }</span>
                   <span style={{ fontFamily: '\'Space Mono\',monospace', fontSize: '14px', color: '#7c8362' }}>{ pIpa }</span>
                   <span data-sk="pink2" style={{ fontSize: '14px', color: '#6b7155' }}>— { pVi }</span>
                 </div>
@@ -1346,19 +1388,19 @@ export default function ScoutTemplate(props: any) {
 
         { (pShowResult) ? (<React.Fragment>
           <div style={{ padding: '30px 26px 30px', textAlign: 'center' }}>
-            <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: '#FFF3D6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '42px', margin: '0 auto 16px' }}>{ pResultEmoji }</div>
-            <h2 data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', margin: '0 0 8px', color: '#2A3114' }}>{ pResultTitle }</h2>
-            <p data-sk="pink2" style={{ margin: '0 auto 24px', fontSize: '14.5px', color: '#6b7155', fontWeight: '500', maxWidth: '380px', lineHeight: '1.5' }}>{ pResultSub }</p>
+            <div style={{ width: '84px', height: '84px', borderRadius: '50%', background: `${listBtnBg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '42px', margin: '0 auto 16px' }}>{ pResultEmoji }</div>
+            <h2 data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', margin: '0 0 8px', color: `${inkColor}` }}>{ pResultTitle }</h2>
+            <p data-sk="pink2" style={{ margin: '0 auto 24px', fontSize: '14.5px', color: `${titleColor}`, fontWeight: '500', maxWidth: '380px', lineHeight: '1.5' }}>{ pResultSub }</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginBottom: '26px' }}>
-              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '18px', padding: '16px 10px' }}>
+              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '18px', padding: '16px 10px' }}>
                 <div data-sk="pink" style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', color: '#5D6B2D' }}>{ rStatA }</div>
                 <div data-sk="pink2" style={{ fontSize: '12px', fontWeight: '700', color: `${titleColor}`, marginTop: '2px' }}>{ rStatALabel }</div>
               </div>
-              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '18px', padding: '16px 10px' }}>
+              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '18px', padding: '16px 10px' }}>
                 <div style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', color: '#C2693B' }}>{ rStatB }</div>
                 <div data-sk="pink2" style={{ fontSize: '12px', fontWeight: '700', color: `${titleColor}`, marginTop: '2px' }}>{ rStatBLabel }</div>
               </div>
-              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '18px', padding: '16px 10px' }}>
+              <div data-sk="prompt" style={{ flex: '1', maxWidth: '150px', background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '18px', padding: '16px 10px' }}>
                 <div style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '26px', color: '#9a5a14' }}>{ rStatC }</div>
                 <div data-sk="pink2" style={{ fontSize: '12px', fontWeight: '700', color: `${titleColor}`, marginTop: '2px' }}>{ rStatCLabel }</div>
               </div>
@@ -1382,6 +1424,14 @@ export default function ScoutTemplate(props: any) {
           </div>
         </React.Fragment>) : null }
 
+        { (miniConfettiPieces && miniConfettiPieces.length>0) ? (<React.Fragment>
+          <div style={{ position: 'absolute', inset: '0', zIndex: '55', pointerEvents: 'none', overflow: 'hidden' }}>
+            { (miniConfettiPieces)?.map?.((p, _index) => (<React.Fragment key={_index}>
+              <span style={{ position: 'absolute', top: '-20px', left: `${p.left}`, width: `${p.size}`, height: `${p.size}`, background: `${p.bg}`, borderRadius: `${p.radius}`, animation: `tidFall ${p.dur} cubic-bezier(.3,.4,.6,1) ${p.delay} forwards` }}></span>
+            </React.Fragment>)) }
+          </div>
+        </React.Fragment>) : null }
+
       </div>
     </div>
   </React.Fragment>) : null }
@@ -1390,14 +1440,14 @@ export default function ScoutTemplate(props: any) {
       { (confettiPieces)?.map?.((p, _index) => (<React.Fragment key={_index}>
         <span style={{ position: 'absolute', top: '-30px', left: `${p.left}`, width: `${p.size}`, height: `${p.size}`, background: `${p.bg}`, borderRadius: `${p.radius}`, animation: `tidFall ${p.dur} cubic-bezier(.3,.4,.6,1) ${p.delay} forwards` }}></span>
       </React.Fragment>)) }
-      <div style={{ position: 'absolute', top: '34%', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'auto', background: `${headerBg}`, border: '1px solid #EFE7D2', borderRadius: '24px', boxShadow: '0 30px 70px -24px rgba(46,53,20,.5)', padding: '26px 30px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', animation: 'tidPop .5s cubic-bezier(.2,.9,.3,1) forwards', maxWidth: '340px', textAlign: 'center' }}>
+      <div style={{ position: 'absolute', top: '34%', left: '50%', transform: 'translateX(-50%)', pointerEvents: 'auto', background: `${headerBg}`, border: `1px solid ${listBorder}`, borderRadius: '24px', boxShadow: `${nightCardShadow}`, padding: '26px 30px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', animation: 'tidPop .5s cubic-bezier(.2,.9,.3,1) forwards', maxWidth: '340px', textAlign: 'center' }}>
         <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#F6C453', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: '16px', marginBottom: '4px' }}>
           <svg width="48" height="30" viewBox="0 0 58 36"><circle cx="22" cy="12" r="3.4" fill="#1F1F1F"></circle><circle cx="38" cy="12" r="3.4" fill="#1F1F1F"></circle><path d="M20 21c3 5 15 5 18 0" stroke="#1F1F1F" strokeWidth="3" fill="none" strokeLinecap="round"></path></svg>
         </div>
-        <h3 style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '24px', margin: '0', color: '#2A3114' }}>Hoàn thành bộ thẻ! 🎉</h3>
-        <p style={{ margin: '0', fontSize: '14.5px', color: '#6b7155', fontWeight: '500' }}>Bạn đã ôn hết 10 từ chủ đề Môi trường. Tuyệt vời!</p>
+        <h3 style={{ fontFamily: '\'Nunito\'', fontWeight: '900', fontSize: '24px', margin: '0', color: `${inkColor}` }}>Hoàn thành bộ thẻ! 🎉</h3>
+        <p style={{ margin: '0', fontSize: '14.5px', color: `${titleColor}`, fontWeight: '500' }}>Bạn đã ôn hết 10 từ chủ đề Môi trường. Tuyệt vời!</p>
         <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-          <button onClick={closeConfetti} style={{ background: '#EEF1E2', color: '#5D6B2D', border: 'none', borderRadius: '13px', padding: '11px 18px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}>Đóng</button>
+          <button onClick={closeConfetti} style={{ background: `${listBtnBg}`, color: `${listBtnInk}`, border: 'none', borderRadius: '13px', padding: '11px 18px', fontWeight: '800', fontSize: '14px', cursor: 'pointer' }}>Đóng</button>
           <button onClick={closeConfetti} style={{ background: '#5D6B2D', color: '#FFF8EB', border: 'none', borderRadius: '13px', padding: '11px 20px', fontWeight: '800', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 0 #3E4A1B' }}>Học lại bộ này</button>
         </div>
       </div>
