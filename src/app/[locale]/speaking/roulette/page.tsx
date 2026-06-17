@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "@/i18n/navigation";
 import { IELTS_P1, IELTS_P2, IELTS_P3 } from "./data";
+import VocabSavePopup from "@/components/VocabSavePopup";
 
 const TWEAK_DEFAULTS = {
   theme: "grid",
@@ -226,21 +227,43 @@ const playTick = (isStart = false) => {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(isStart ? 300 : 150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + (isStart ? 0.1 : 0.05));
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(isStart ? 800 : 1200, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
 
-    gain.gain.setValueAtTime(isStart ? 0.2 : 0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (isStart ? 0.1 : 0.05));
+    gain.gain.setValueAtTime(isStart ? 0.3 : 0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + (isStart ? 0.1 : 0.05));
-  } catch (e) {
-    // Ignore audio errors
-  }
+    osc.stop(ctx.currentTime + 0.05);
+  } catch (e) {}
+};
+
+const playDing = () => {
+  try {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === "suspended") ctx.resume();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.8);
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.8);
+  } catch (e) {}
 };
 
 const STYLE = `
@@ -759,89 +782,67 @@ function Recorder({ s, resetKey, question }: any) {
   );
 }
 
-function VocabList({ item, s }: { item: any; s: any }) {
-  const [openIdx, setOpenIdx] = useState<number>(-1);
-
-  const handle = async (i: number) => {
-    if (openIdx === i) {
-      setOpenIdx(-1);
-      return;
+function VocabList({ item, s, onWordClick }: { item: any; s: any; onWordClick: any }) {
+  const handle = (e: React.MouseEvent, v: any) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const word = typeof v === "string" ? v : v.t;
+    const example = typeof v === "string" ? undefined : v.s;
+    if (onWordClick) {
+      onWordClick(word, example || "", rect.left, Math.max(0, rect.top));
     }
-    setOpenIdx(i);
   };
 
   return (
-    <div style={{ marginTop: 22, background: s.panel, borderRadius: 16, padding: "18px 20px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
-        <span style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: s.faint, fontWeight: 700 }}>
-          Từ vựng hữu ích trong ngữ cảnh
-        </span>
-      </div>
-      <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 13, margin: 0, padding: 0 }}>
-        {(item.vocab || []).map((v: any, i: number) => {
-          const term = typeof v === "string" ? v : v.t;
-          const parts = typeof v === "string" ? [{ text: v, hot: true }] : highlightParts(v.s, v.t);
-          const open = openIdx === i;
-          return (
-            <li key={i} className="vsent" style={{ animationDelay: i * 70 + "ms" }}>
-              <div style={{ display: "flex", gap: 11, alignItems: "flex-start", fontSize: 15.5, lineHeight: 1.5, color: s.soft }}>
-                <span style={{ flexShrink: 0, width: 6, height: 6, marginTop: 9, borderRadius: 9, background: s.ink, opacity: 0.55 }}></span>
-                <span>
-                  {parts.map((p, j) =>
-                    p.hot ? (
-                      <strong
-                        key={j}
-                        onClick={() => handle(i)}
-                        title="Focus term"
-                        style={{
-                          color: s.ink,
-                          fontWeight: 700,
-                          background: s.hi,
-                          padding: "1px 5px",
-                          borderRadius: 5,
-                          cursor: "pointer",
-                          borderBottom: "1.5px dashed " + s.ink,
-                          boxDecorationBreak: "clone",
-                          WebkitBoxDecorationBreak: "clone",
-                        }}
-                      >
-                        {p.text}
-                      </strong>
-                    ) : (
-                      <span key={j}>{p.text}</span>
-                    )
-                  )}
-                </span>
-              </div>
-              {open && (
-                <div
-                  style={{
-                    marginLeft: 17,
-                    marginTop: 7,
-                    background: s.ink,
-                    color: s.onFill,
-                    borderRadius: 11,
-                    padding: "10px 13px",
-                    fontSize: 14.5,
-                    lineHeight: 1.45,
-                    animation: "chipIn .25s both",
-                  }}
-                >
-                  <span style={{ display: "block", fontSize: 9.5, letterSpacing: ".16em", textTransform: "uppercase", fontWeight: 800, opacity: 0.6, marginBottom: 3 }}>
-                    Trọng tâm từ
+      <div style={{ marginTop: 22, background: s.panel, borderRadius: 16, padding: "18px 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 13 }}>
+          <span style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: s.faint, fontWeight: 700 }}>
+            Từ vựng hữu ích trong ngữ cảnh
+          </span>
+        </div>
+        <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 13, margin: 0, padding: 0 }}>
+          {(item.vocab || []).map((v: any, i: number) => {
+            const parts = typeof v === "string" ? [{ text: v, hot: true }] : highlightParts(v.s, v.t);
+            return (
+              <li key={i} className="vsent" style={{ animationDelay: i * 70 + "ms" }}>
+                <div style={{ display: "flex", gap: 11, alignItems: "flex-start", fontSize: 15.5, lineHeight: 1.5, color: s.soft }}>
+                  <span style={{ flexShrink: 0, width: 6, height: 6, marginTop: 9, borderRadius: 9, background: s.ink, opacity: 0.55 }}></span>
+                  <span>
+                    {parts.map((p, j) =>
+                      p.hot ? (
+                        <strong
+                          key={j}
+                          onClick={(e) => handle(e, v)}
+                          title="Focus term"
+                          style={{
+                            color: s.ink,
+                            fontWeight: 700,
+                            background: s.hi,
+                            padding: "1px 5px",
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            borderBottom: "1.5px dashed " + s.ink,
+                            boxDecorationBreak: "clone",
+                            WebkitBoxDecorationBreak: "clone",
+                          }}
+                        >
+                          {p.text}
+                        </strong>
+                      ) : (
+                        <span key={j}>{p.text}</span>
+                      )
+                    )}
                   </span>
-                  <span style={{ fontWeight: 600 }}>{term}</span>
                 </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
   );
 }
 
-function Result({ mode, item, accent, showVocab, isFav, onFav, onAgain, onClose }: any) {
+function Result({ mode, item, accent, showVocab, isFav, onFav, onAgain, onClose, onWordClick }: any) {
   const isP2 = !!item.bullets;
   const s = surface(accent);
   const seed = seedOf(item);
@@ -923,7 +924,7 @@ function Result({ mode, item, accent, showVocab, isFav, onFav, onAgain, onClose 
             </React.Fragment>
           )}
 
-          {showVocab && <VocabList item={item} s={s} />}
+          {showVocab && <VocabList item={item} s={s} onWordClick={onWordClick} />}
 
           <div style={{ marginTop: 22, paddingTop: 20, borderTop: "1px solid " + s.line }}>
             <div style={{ fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase", color: s.faint, fontWeight: 700, marginBottom: 13 }}>Luyện tập nói</div>
@@ -940,7 +941,7 @@ function Result({ mode, item, accent, showVocab, isFav, onFav, onAgain, onClose 
               className="btn-spin"
               style={{ flex: 1, padding: "15px", borderRadius: 13, background: s.fill, color: s.onFill, fontWeight: 700, fontSize: 15.5, letterSpacing: ".01em" }}
             >
-              Quay lại
+              Quay tiếp
             </button>
             <button
               onClick={onClose}
@@ -1045,6 +1046,7 @@ export default function SpeakingRouletteClient() {
   const [hot, setHot] = useState(-1);
   const [selected, setSelected] = useState<any>(null);
   const [savedOpen, setSavedOpen] = useState(false);
+  const [vocabPopup, setVocabPopup] = useState<{ word: string, example: string, x: number, y: number } | null>(null);
   const [favs, setFavs] = useState<any[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -1129,6 +1131,7 @@ export default function SpeakingRouletteClient() {
       setHot(finalIdx);
       setSelected({ item: pool[deck[finalIdx]], accent: palette[finalIdx % palette.length] });
       setPhase("result");
+      playDing();
     };
     requestAnimationFrame(frame);
     setTimeout(finalize, duration + 360);
@@ -1268,11 +1271,21 @@ export default function SpeakingRouletteClient() {
             onFav={toggleFav}
             onAgain={spin}
             onClose={closeResult}
+            onWordClick={(word: string, example: string, x: number, y: number) => setVocabPopup({ word, example, x, y })}
           />
         )}
       </div>
 
       <SavedPanel open={savedOpen} favs={favs} onClose={() => setSavedOpen(false)} onOpen={openFav} onRemove={removeFav} />
+      
+      {vocabPopup && (
+        <VocabSavePopup
+          word={vocabPopup.word}
+          example={vocabPopup.example}
+          position={{ x: vocabPopup.x, y: vocabPopup.y }}
+          onClose={() => setVocabPopup(null)}
+        />
+      )}
     </div>
   );
 }

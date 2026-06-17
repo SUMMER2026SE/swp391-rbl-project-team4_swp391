@@ -656,17 +656,31 @@ export default function ShadowingPlayerPage() {
 
   useEffect(() => {
     if (isPlaying) {
+      // Guard so the 50ms loop only fires pause/seek once per sentence end,
+      // not repeatedly in the gap before isPlaying flips to false.
+      let isSeeking = false;
       intervalRef.current = setInterval(() => {
+        if (isSeeking) return;
         if (!playerRef.current || subtitles.length === 0) return;
         const sub = subtitles[currentIdx];
         if (!sub) return;
-        
+
         const currentTime = playerRef.current.getCurrentTime();
-        const endTime = sub.start_time + sub.duration;
-        
+        const st = sub.start_time;
+
+        // YouTube auto-captions store a DISPLAY duration that overlaps the next
+        // line by ~1-2s, so trusting raw duration lets the audio bleed into the
+        // next sentence. Never play past where the next subtitle begins.
+        const next = subtitles[currentIdx + 1];
+        const nextSt = next ? next.start_time : null;
+        const endTime = nextSt != null && nextSt > st
+          ? Math.min(st + sub.duration, nextSt)
+          : st + sub.duration;
+
         if (currentTime >= endTime) {
+          isSeeking = true;
           playerRef.current.pauseVideo();
-          playerRef.current.seekTo(sub.start_time);
+          playerRef.current.seekTo(st);
         }
       }, 50);
     } else {
@@ -1257,7 +1271,7 @@ return (
           {vocabToast.type === 'success' ? <Check size={16} className="text-green-400" /> : <CheckCircle2 size={16} className="text-yellow-400" />}
           <span>{vocabToast.message}</span>
           {vocabToast.showLink && (
-            <Link href="/vocab-grammar" className="ml-2 text-white hover:underline flex items-center gap-0.5 whitespace-nowrap bg-white/10 px-2 py-1 rounded-md transition-colors">
+            <Link href="/profile?view=personal" className="ml-2 text-white hover:underline flex items-center gap-0.5 whitespace-nowrap bg-white/10 px-2 py-1 rounded-md transition-colors">
               Xem sổ ➔
             </Link>
           )}

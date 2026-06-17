@@ -441,7 +441,7 @@ function SongNguBaoPageInner({ defaultPublisherId }: { defaultPublisherId: strin
       if (!user) return;
       setUser(user);
       const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-      if (data?.role === "super_admin" || data?.role === "content_editor") setIsAdmin(true);
+      if (data?.role === "ADMIN" || data?.role === "INSTRUCTOR") setIsAdmin(true);
     }
     checkAdmin();
   }, []);

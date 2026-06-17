@@ -140,7 +140,7 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
   const menuItems = [
     { label: "Hồ sơ cá nhân", href: "/profile", icon: User },
     { label: "Chỉnh sửa hồ sơ", href: "/profile/edit", icon: User },
-    { label: "Sổ từ vựng", href: "/vocab-grammar", icon: BookOpen },
+    { label: "Sổ từ vựng", href: "/profile", icon: BookOpen },
     { label: "Kiểm tra năng lực", href: "/roadmap/diagnostic-test", icon: ClipboardCheck },
     { label: "Lộ trình học AI", href: "/roadmap", icon: Sparkles },
     { label: "Đổi ảnh đại diện", href: "/settings/avatar", icon: Camera },
