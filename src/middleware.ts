@@ -17,6 +17,11 @@ export function middleware(request: NextRequest) {
     (p) => pathnameWithoutLocale === p || pathnameWithoutLocale.startsWith(p + "/")
   );
 
+  // NOTE: this app stores the Supabase session in localStorage (not cookies), so
+  // the middleware cannot read the JWT or the user's role here. We only do a
+  // presence check (is the user logged in?). Actual ADMIN/INSTRUCTOR role
+  // enforcement happens in the admin layout (client-side, reads profiles.role)
+  // and in every admin API route via requireRole().
   if (isAdminRoute) {
     const hasAuthCookie = request.cookies.getAll().some(
       (c) => c.name.startsWith("sb-") && c.name.endsWith("-auth-token")
@@ -30,7 +35,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   }
-  
+
   return response;
 }
 

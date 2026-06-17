@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Plus, Check, Play, ChevronRight, Bookmark } from 'lucide-react';
 import { useSaveVocab } from '@/hooks/useSaveVocab';
 import { Link } from '@/i18n/navigation';
@@ -39,6 +39,8 @@ export default function VocabSavePopup({
   const [audioUrl, setAudioUrl] = useState(initialAudioUrl);
   const [partOfSpeech, setPartOfSpeech] = useState(initialPartOfSpeech);
   const [, setIsLookingUp] = useState(false);
+  const [trans, setTrans] = useState(translation);
+  const fetchedTransRef = useRef(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -87,7 +89,19 @@ export default function VocabSavePopup({
         .catch(console.warn)
         .finally(() => setIsLookingUp(false));
     }
-  }, [word, definition, ipa, example, audioUrl, partOfSpeech]);
+
+    if (!trans && !fetchedTransRef.current) {
+      fetchedTransRef.current = true;
+      fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(word)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data[0] && data[0][0]) {
+            setTrans(data[0][0][0]);
+          }
+        })
+        .catch(console.warn);
+    }
+  }, [word, definition, ipa, example, audioUrl, partOfSpeech, trans]);
 
   const handlePlayAudio = () => {
     if (audioUrl) {
@@ -115,7 +129,7 @@ export default function VocabSavePopup({
       word,
       ipa,
       definition: definition || '',
-      translation: translation || '',
+      translation: trans || '',
       exampleSentence: example,
       partOfSpeech: partOfSpeech || 'noun'
     }, selectedCollection || null);
@@ -168,10 +182,10 @@ export default function VocabSavePopup({
               <span className="text-gray-200">{definition}</span>
             </div>
           )}
-          {translation && (
+          {trans && (
             <div>
               <span className="text-gray-500 font-bold text-xs uppercase mr-2">Vi:</span>
-              <span className="text-green-400 font-medium">{translation}</span>
+              <span className="text-green-400 font-medium">{trans}</span>
             </div>
           )}
           {example && (
@@ -180,7 +194,7 @@ export default function VocabSavePopup({
               <span className="text-gray-400 italic">"{example}"</span>
             </div>
           )}
-          {!definition && !translation && (
+          {!definition && !trans && (
             <div className="text-gray-500 italic text-center py-2">Không có dữ liệu chi tiết</div>
           )}
         </div>
@@ -245,7 +259,7 @@ export default function VocabSavePopup({
           {toast.type === 'success' ? <Check size={16} className="text-green-400" /> : <Bookmark size={16} className="text-yellow-400" />}
           <span>{toast.message}</span>
           {toast.showLink && (
-            <Link href="/vocab-grammar" className="ml-2 text-white hover:underline flex items-center gap-0.5 whitespace-nowrap bg-white/10 px-2 py-1 rounded-md transition-colors">
+            <Link href="/profile?view=personal" className="ml-2 text-white hover:underline flex items-center gap-0.5 whitespace-nowrap bg-white/10 px-2 py-1 rounded-md transition-colors">
               Xem sổ <ChevronRight size={14} />
             </Link>
           )}

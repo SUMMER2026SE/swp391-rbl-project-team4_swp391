@@ -1,12 +1,13 @@
-// @ts-nocheck
 "use client";
+// @ts-nocheck
 
 import * as React from 'react';
 import ScoutTemplate from './ScoutTemplate';
 import SidebarPanel from './SidebarPanel';
-import { vocabSets } from '@/data/vocabulary';
 import { supabase } from '@/lib/supabase';
 import ImportVocabularyModal from './ImportVocabularyModal';
+import SentenceBuildExercise from './SentenceBuildExercise';
+import { X } from 'lucide-react';
 
 const FOLDER_COLORS = [
   { color: '#E08A2C', deep: '#BE6F1B' }, // Orange
@@ -31,27 +32,13 @@ const SET_VISUAL = [
 ];
 
 class Component extends React.Component<any, any> {
-  deck: any;
-  wordSets: any;
-  setLabels: any;
-  cardPatterns: any;
-  dashClouds: any;
-  cardStars: any;
-  stats: any;
-  _kh: any;
-  _wrongTimer: any;
-
-  constructor(props: any){
+  constructor(props){
     super(props);
-    this.deck = this._buildDeck(0);
+    this.deck = [];
     this.wordSets = [
-      {id:'personal', kicker:'Cá nhân', label:'Bộ từ của bản thân', count:0, icon:'✏️', color:'#5D6B2D', deep:'#46531F', desc:'Tự thêm và ôn tập từ vựng của riêng bạn.', rating:'—', mastery:0, personal:true},
-      ...vocabSets.map((vs, i) => {
-        const v = SET_VISUAL[i] || SET_VISUAL[0];
-        return {id:String(i), kicker:'IELTS', label:vs.topic, count:vs.words.length, icon:v.icon, color:v.color, deep:v.deep, desc:v.desc, rating:'—', mastery:0, personal:false};
-      })
+      {id:'personal', kicker:'Cá nhân', label:'Bộ từ của bản thân', count:0, icon:'✏️', color:'#5D6B2D', deep:'#46531F', desc:'Tự thêm và ôn tập từ vựng của riêng bạn.', rating:'—', mastery:0, personal:true}
     ];
-    this.setLabels = this.wordSets.reduce((a: any, w: any)=>{a[w.id]=w.label;return a;},{});
+    this.setLabels = {'personal': 'Bộ từ của bản thân'};
     this.cardPatterns = [
       'radial-gradient(rgba(255,255,255,.16) 2px, transparent 2.3px) 0 0/22px 22px',
       'repeating-linear-gradient(45deg, rgba(255,255,255,.10) 0 9px, transparent 9px 22px)',
@@ -68,6 +55,7 @@ class Component extends React.Component<any, any> {
     ];
     // personalFolders now lives in state and is loaded from API
     this.state = {
+      vocabSets: [], vocabSetsLoading: true,
       index:0, flipped:false,
       starred:{0:true,3:true,7:true},
       seen:{0:true},
@@ -76,14 +64,18 @@ class Component extends React.Component<any, any> {
       practice:null, mistakes:{},
       view:'dashboard', targetBand:'7.0', bandMenuOpen:false, examDateStr:'2027-06-28',
       datePickerOpen:false, pickerYM:null,
-      known:{}, unknown:{}, knownTab:null, setMenuOpen:false, currentSet:'0', listKind:'known',
-      srsData:{}, personalFolders:[], importModalOpen: false, dashData: null as any,
+      known:[], unknown:[], reviewList:[], focus:null, focusPos:0, knownTab:null, setMenuOpen:false, currentSet:'0', listKind:'known',
+      srsData:{}, personalFolders:[], importModalOpen: false, dashData: null as any, statsData: null as any,
       activePanel: null as (null | 'profile' | 'avatar' | 'password'), panelLoading: false, panelError: '', panelSuccess: '', avatarUrlOverride: '',
       createFolderOpen: false, createFolderName: '', createFolderLoading: false, createFolderError: '',
       activeFolderId: null as (null|string), activeFolderName: '', activeFolderColorIdx: 0,
       folderWords: [] as any[], folderWordsLoading: false,
-      addWordModalOpen: false, addWordInput: '', addWordResults: [] as any[], addWordFetchLoading: false, addWordSaveLoading: false, addWordError: '',
-      renameFolderModalOpen: false, renameFolderInput: '', renameFolderLoading: false
+      addWordModalOpen: false, addWordInput: '', addWordResults: [] as any[], addWordFetchLoading: false, addWordSaveLoading: false, addWordError: '', duplicatePrompt: null as { word: string, resolve: (val: boolean) => void } | null,
+      renameFolderModalOpen: false, renameFolderInput: '', renameFolderLoading: false,
+      tidiansActive: false,
+      tidiansSourceIdx: [] as number[],
+      tidiansSelectionOpen: false,
+      tidiansCandidates: [] as number[]
     };
     // Mây 3D trôi quanh dashboard
     this.dashClouds = [
@@ -144,11 +136,63 @@ class Component extends React.Component<any, any> {
     } catch(e) { console.error(e); }
   }
 
+  async _fetchStats() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : { 'x-mock-user-id': 'usr_2' };
+      const res = await fetch('/api/vocab-reviews/stats', { headers });
+      if (!res.ok) return;
+      const d = await res.json();
+      this.setState({ statsData: d });
+    } catch(e) { console.error(e); }
+  }
+
+  async _fetchVocabSets() {
+    try {
+      const res = await fetch('/api/system-vocab');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.success && data.data) {
+        const fetchedVocabSets = data.data;
+        this.wordSets = [
+          {id:'personal', kicker:'Cá nhân', label:'Bộ từ của bản thân', count:0, icon:'✏️', color:'#5D6B2D', deep:'#46531F', desc:'Tự thêm và ôn tập từ vựng của riêng bạn.', rating:'—', mastery:0, personal:true},
+          ...fetchedVocabSets.map((vs: any, i: number) => {
+            const v = SET_VISUAL[i] || SET_VISUAL[0];
+            return {id:String(i), kicker:'IELTS', label:vs.topic, count:(vs.words || []).length, icon:v.icon, color:v.color, deep:v.deep, desc:v.desc, rating:'—', mastery:0, personal:false};
+          })
+        ];
+        this.setLabels = this.wordSets.reduce((a: any, w: any)=>{a[w.id]=w.label;return a;},{});
+        this.deck = this._buildDeck(0, fetchedVocabSets);
+        this.setState({ vocabSets: fetchedVocabSets, vocabSetsLoading: false, currentSet: '0' });
+        // Deck is ready now — hydrate the lists so word->index mapping succeeds.
+        this._fetchSrsData('0').then(srsData => this.hydrateLists(srsData));
+      }
+    } catch(e) { console.error(e); this.setState({ vocabSetsLoading: false }); }
+  }
+
   componentDidMount(){
     try{ if(localStorage.getItem('tid-dark')==='1') this.setState({dark:true}); }catch(e){}
+    // Resolve admin access from fresh server-side metadata (avoids stale JWT after a role change).
+    supabase.auth.getUser().then(({ data }) => {
+      const role = data?.user?.user_metadata?.role;
+      if (role === 'ADMIN' || role === 'INSTRUCTOR') this.setState({ isAdminLive: true });
+    }).catch(() => {});
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const view = params.get('view');
+        if (view) {
+          this.setState({ view });
+        }
+      }
+    } catch(e) {}
+    this._fetchVocabSets();
     this._fetchPersonalFolders();
     this._fetchDashboard();
-    this._fetchSrsData('0').then(srsData => this.setState({ srsData }));
+    this._fetchStats();
+    // SRS hydration happens inside _fetchVocabSets once the deck is built (deck must
+    // exist before words can be mapped to indices), so it is not started here.
     this._kh = (e: any)=>{
       const p=this.state.practice;
       if(p){
@@ -156,18 +200,21 @@ class Component extends React.Component<any, any> {
         if(p.finished) return;
         const type=this._curType(p);
         if(e.ctrlKey && e.key.toLowerCase()==='x'){ e.preventDefault(); this.listeningSay(); return; }
-        if(type==='meaning'||type==='context'){
+        if(type==='meaning'){
           if(!p.answered && ['1','2','3','4'].includes(e.key)){ e.preventDefault(); this.quizAnswer(Number(e.key)-1); return; }
           if(p.answered && (e.key==='Enter'||e.code==='Space')){ e.preventDefault(); this.practiceNext(); return; }
-        } else if(type==='listening'){
+        } else if(type==='listening'||type==='context'){
           if(e.key==='Enter'){ e.preventDefault(); if(p.checked) this.practiceNext(); else this.checkType(); return; }
         }
         return;
       }
       const t=e.target; if(t && /input|textarea|select/i.test(t.tagName)) return;
+      const studying = this.state.view==='study' || this.state.view==='cards';
       if(e.code==='Space'){ e.preventDefault(); this.flip(); }
       else if(e.key==='ArrowRight'){ this.next(); }
       else if(e.key==='ArrowLeft'){ this.prev(); }
+      else if(e.key==='1'){ if(studying){ e.preventDefault(); this.markUnknown(); } }
+      else if(e.key==='2'){ if(studying){ e.preventDefault(); this.markKnown(); } }
       else if(e.key && e.key.toLowerCase()==='s'){ this.toggleStar(); }
     };
     window.addEventListener('keydown', this._kh);
@@ -183,13 +230,24 @@ class Component extends React.Component<any, any> {
   componentWillUnmount(){ if(this._kh) window.removeEventListener('keydown', this._kh); if(this._wrongTimer) clearTimeout(this._wrongTimer); }
   flip = ()=> this.setState(s=>({flipped:!s.flipped}));
   next = ()=> this.setState(s=>{
+    if(s.focus && s.focus.length){
+      const np=(s.focusPos+1)%s.focus.length;
+      const conf=s.focusPos===s.focus.length-1;
+      return {focusPos:np, index:s.focus[np], flipped:false, confetti:conf};
+    }
     const ni=(s.index+1)%this.deck.length;
     const seen={...s.seen};
     if(!seen[ni]){ seen[ni]=true; }
     const conf = s.index===this.deck.length-1;
     return {index:ni, flipped:false, seen, confetti:conf};
   }, this.autoSpeak);
-  prev = ()=> this.setState(s=>({index:(s.index-1+this.deck.length)%this.deck.length, flipped:false}), this.autoSpeak);
+  prev = ()=> this.setState(s=>{
+    if(s.focus && s.focus.length){
+      const np=(s.focusPos-1+s.focus.length)%s.focus.length;
+      return {focusPos:np, index:s.focus[np], flipped:false};
+    }
+    return {index:(s.index-1+this.deck.length)%this.deck.length, flipped:false};
+  }, this.autoSpeak);
   toggleAutoPlay = ()=> this.setState(s=>({autoPlay:!s.autoPlay}), ()=>{ if(this.state.autoPlay) this.speak(); });
   autoSpeak = ()=>{ if(this.state.autoPlay) this.speak(); };
   openStats = ()=> this.setState({showStats:true});
@@ -199,16 +257,17 @@ class Component extends React.Component<any, any> {
   setView = (v)=> this.setState({view:v});
   toggleBandMenu = ()=> this.setState(s=>({bandMenuOpen:!s.bandMenuOpen}));
   setTargetBand = (v)=> this.setState({targetBand:v, bandMenuOpen:false});
-  markKnown = ()=> this.setState(s=>{ const i=s.index; const known={...s.known,[i]:true}; const unknown={...s.unknown}; delete unknown[i]; const ni=(i+1)%this.deck.length; this._submitRating(this.deck[i].word,'easy'); return {known, unknown, index:ni, flipped:false}; });
-  markUnknown = ()=> this.setState(s=>{ const i=s.index; const unknown={...s.unknown,[i]:true}; const known={...s.known}; delete known[i]; const ni=(i+1)%this.deck.length; this._submitRating(this.deck[i].word,'forgot'); return {unknown, known, index:ni, flipped:false}; });
+  _advanceNav(s){ if(s.focus && s.focus.length){ const np=(s.focusPos+1)%s.focus.length; return {focusPos:np, index:s.focus[np]}; } return {index:(s.index+1)%this.deck.length}; }
+  markKnown = ()=> this.setState(s=>{ const i=s.index; const known=[i,...s.known.filter((idx: number)=>idx!==i)]; const unknown=s.unknown.filter((idx: number)=>idx!==i); const reviewList=s.reviewList?s.reviewList.filter((idx: number)=>idx!==i):[]; this._submitRating(this.deck[i].word,'easy'); return {known, unknown, reviewList, ...this._advanceNav(s), flipped:false}; });
+  markUnknown = ()=> this.setState(s=>{ const i=s.index; const unknown=[i,...s.unknown.filter((idx: number)=>idx!==i)]; const known=s.known.filter((idx: number)=>idx!==i); const reviewList=s.reviewList?s.reviewList.filter((idx: number)=>idx!==i):[]; this._submitRating(this.deck[i].word,'forgot'); return {unknown, known, reviewList, ...this._advanceNav(s), flipped:false}; });
   showKnownTab = (t)=> this.setState({knownTab:t, view:'cards'});
   closeKnownTab = ()=> this.setState({knownTab:null});
-  goList = (kind)=> this.setState({view:'lists', listKind:kind});
+  goList = (kind)=> this.setState({view:'lists', listKind:kind, focus:null, focusPos:0});
   toggleSetMenu = (e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.setState(s=>({setMenuOpen:!s.setMenuOpen})); };
-  pickSet = (id)=>{ if(id!=='personal'){ this.deck=this._buildDeck(parseInt(id)); } this.setState({currentSet:id, setMenuOpen:false, index:0, flipped:false}); };
-  goSets = ()=> this.setState({view:'sets', setMenuOpen:false});
-  goStudy = ()=> this.setState({view:'study', setMenuOpen:false});
-  goPersonal = ()=> this.setState({view:'personal', setMenuOpen:false});
+  pickSet = (id)=>{ if(id!=='personal'){ this.deck=this._buildDeck(parseInt(id)); } this.setState({currentSet:id, setMenuOpen:false, index:0, flipped:false, focus:null, focusPos:0}); };
+  goSets = ()=> this.setState({view:'sets', setMenuOpen:false, focus:null, focusPos:0});
+  goStudy = ()=> this.setState({view:'study', setMenuOpen:false, focus:null, focusPos:0});
+  goPersonal = ()=> this.setState({view:'personal', setMenuOpen:false, focus:null, focusPos:0});
   setExamDate = (e)=>{ const v=e&&e.target&&e.target.value; if(v) this.setState({examDateStr:v}); };
   toggleDatePicker = ()=> this.setState(s=>{
     if(s.datePickerOpen) return {datePickerOpen:false};
@@ -224,11 +283,11 @@ class Component extends React.Component<any, any> {
   openSet = (id)=>{
     if(id!=='personal'){
       this.deck=this._buildDeck(parseInt(id));
-      this.setState({currentSet:id, index:0, flipped:false, view:'study', setMenuOpen:false, srsData:{}, known:{}, unknown:{}, mistakes:{}}, ()=>{
-        this._fetchSrsData(id).then(srsData=>this.setState({srsData}));
+      this.setState({currentSet:id, index:0, flipped:false, view:'study', setMenuOpen:false, srsData:{}, known:[], unknown:[], reviewList:[], focus:null, focusPos:0, mistakes:{}}, ()=>{
+        this._fetchSrsData(id).then(srsData=>this.hydrateLists(srsData));
       });
     } else {
-      this.setState({currentSet:id, index:0, flipped:false, view:'study', setMenuOpen:false});
+      this.setState({currentSet:id, index:0, flipped:false, view:'study', setMenuOpen:false, focus:null, focusPos:0});
     }
   };
   closeStats = ()=> this.setState({showStats:false});
@@ -247,9 +306,10 @@ class Component extends React.Component<any, any> {
   // ---- DATA & SRS WIRING ----
   _posViFromEn(pos){ const m={v:'Động từ',n:'Danh từ',adj:'Tính từ',adv:'Trạng từ','v/n':'Động từ/Danh từ','n/adj':'Danh từ/Tính từ'}; return m[pos]||pos; }
 
-  _buildDeck(setIndex){
-    if(setIndex===null||setIndex<0||setIndex>=vocabSets.length) return [];
-    const vs=vocabSets[setIndex];
+  _buildDeck(setIndex, overrideSets?: any){
+    const currentVocabSets = overrideSets || this.state?.vocabSets || [];
+    if(setIndex===null||setIndex<0||setIndex>=currentVocabSets.length) return [];
+    const vs=currentVocabSets[setIndex];
     return vs.words.map(w=>({
       word:w.word, ipa:w.ipa||'', posVi:this._posViFromEn(w.pos),
       vi:w.definition, exampleEn:w.example, exampleVi:'', tag:vs.topic, syn:''
@@ -268,6 +328,43 @@ class Component extends React.Component<any, any> {
     }catch{return {};}
   }
 
+  hydrateLists = (srsData: any) => {
+    const wordToIndex: Record<string, number> = {};
+    this.deck.forEach((c: any, i: number) => { wordToIndex[c.word] = i; });
+    
+    const rows = Object.values(srsData).sort((a: any, b: any) => {
+      const ta = a.last_reviewed_at ? new Date(a.last_reviewed_at).getTime() : 0;
+      const tb = b.last_reviewed_at ? new Date(b.last_reviewed_at).getTime() : 0;
+      return tb - ta;
+    });
+
+    const known: number[] = [];
+    const unknown: number[] = [];
+    const reviewList: number[] = [];
+    const now = Date.now();
+
+    rows.forEach((r: any) => {
+      const idx = wordToIndex[r.word];
+      if (idx === undefined) return;
+      
+      const isKnown = r.status === 'known' || (r.status == null && r.review_count >= 1 && r.ease_factor > 2);
+      if (r.status === 'known') known.push(idx);
+      else if (r.status === 'unknown') unknown.push(idx);
+      else if (r.status == null) {
+        if (r.review_count >= 1 && r.ease_factor > 2) known.push(idx);
+        else unknown.push(idx);
+      }
+
+      if (isKnown && r.next_review_at) {
+        const nextTime = new Date(r.next_review_at).getTime();
+        if (nextTime <= now) {
+          reviewList.push(idx);
+        }
+      }
+    });
+    this.setState({ known, unknown, reviewList, srsData });
+  };
+
   async _submitRating(word,rating){
     try{
       const setRef=this.state.currentSet;
@@ -277,7 +374,7 @@ class Component extends React.Component<any, any> {
       const headers={'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{'x-mock-user-id':'usr_2'})};
       await fetch('/api/vocab-reviews/words',{method:'POST',headers,body:JSON.stringify({set_ref:setRef,word,rating})});
       const srsData=await this._fetchSrsData(setRef);
-      this.setState({srsData});
+      this.hydrateLists(srsData);
     }catch(e){console.error(e);}
   }
 
@@ -397,12 +494,27 @@ class Component extends React.Component<any, any> {
     const results=[...this.state.addWordResults];
     for(let i=0;i<results.length;i++){
       const r=results[i];
-      if(r.saved||r.error) continue;
-      if(!r.viDef.trim()) continue;
+      if(r.error||r.duplicate||r.saved||!r.viDef?.trim()||!r.example?.trim()) continue;
       try{
         const res=await fetch('/api/notebook',{method:'POST',headers,body:JSON.stringify({word:r.word,definition:r.viDef.trim(),example:r.example?.trim()||null,pos:r.pos||null,folder_id:this.state.activeFolderId})});
         if(res.status===409){
-          this.setState(prev=>{ const a=[...prev.addWordResults]; a[i]={...a[i],duplicate:true,error:'Từ đã có trong sổ'}; return {addWordResults:a}; });
+          this.setState({addWordSaveLoading:false});
+          const force = await new Promise<boolean>(resolve => {
+            this.setState({ duplicatePrompt: { word: r.word, resolve } });
+          });
+          this.setState({ duplicatePrompt: null, addWordSaveLoading: true });
+          
+          if(force){
+            const retryRes=await fetch('/api/notebook',{method:'POST',headers,body:JSON.stringify({word:r.word,definition:r.viDef.trim(),example:r.example?.trim()||null,pos:r.pos||null,folder_id:this.state.activeFolderId,force:true})});
+            if(retryRes.ok){
+              this.setState(prev=>{ const a=[...prev.addWordResults]; a[i]={...a[i],saved:true,duplicate:false,error:''}; return {addWordResults:a}; });
+              savedCount++;
+            } else {
+              this.setState(prev=>{ const a=[...prev.addWordResults]; a[i]={...a[i],error:'Lỗi khi lưu lại'}; return {addWordResults:a}; });
+            }
+          } else {
+            this.setState(prev=>{ const a=[...prev.addWordResults]; a[i]={...a[i],duplicate:true,error:'Từ đã có trong sổ'}; return {addWordResults:a}; });
+          }
         } else if(res.ok){
           this.setState(prev=>{ const a=[...prev.addWordResults]; a[i]={...a[i],saved:true}; return {addWordResults:a}; });
           savedCount++;
@@ -436,6 +548,7 @@ class Component extends React.Component<any, any> {
   }
 
   async _submitRenameFolderDetail(){
+    if(this.state.activeFolderId === 'general') return;
     const name=this.state.renameFolderInput.trim();
     if(!name) return;
     this.setState({renameFolderLoading:true});
@@ -450,6 +563,7 @@ class Component extends React.Component<any, any> {
   }
 
   async _deleteFolderDetail(){
+    if(this.state.activeFolderId === 'general') return;
     if(!confirm(`Xoá thư mục "${this.state.activeFolderName}"? Các từ sẽ không bị xoá.`)) return;
     try{
       const {data:{session}}=await supabase.auth.getSession();
@@ -474,11 +588,13 @@ class Component extends React.Component<any, any> {
       tag:this.state.activeFolderName,
       syn:''
     }));
-    this.setState({currentSet:'personal', index:0, flipped:false, view:'study', setMenuOpen:false, srsData:{}, known:{}, unknown:{}, mistakes:{}});
+    this.setState({currentSet:'personal', index:0, flipped:false, view:'study', setMenuOpen:false, srsData:{}, known:[], unknown:[], reviewList:[], focus:null, focusPos:0, mistakes:{}});
   }
 
   _computeMastery(setIndex){
-    const vs=vocabSets[setIndex];
+    const currentVocabSets = this.state.vocabSets;
+    const vs=currentVocabSets[setIndex];
+    if (!vs) return null;
     if(!vs||vs.words.length===0) return 0;
     const now=new Date();
     const mastered=vs.words.filter(w=>{
@@ -493,6 +609,14 @@ class Component extends React.Component<any, any> {
     const re=new RegExp('\\b'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(s|es|d|ed|ing)?\\b','i');
     return re.test(s)? s.replace(re,'________') : s+' ________';
   }
+  // Sentence split around the blank so the input can sit inline where the word goes.
+  _blankParts(idx){
+    const w=this.deck[idx].word, s=this.deck[idx].exampleEn||'';
+    const re=new RegExp('\\b'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(s|es|d|ed|ing)?\\b','i');
+    const m=s.match(re);
+    if(m && m.index!=null){ return { before:s.slice(0,m.index), after:s.slice(m.index+m[0].length) }; }
+    return { before:s?s+' ':'', after:'' };
+  }
   _options(idx){
     const others=this._shuffle(this.deck.map((_,k)=>k).filter(k=>k!==idx)).slice(0,3);
     const all=this._shuffle([idx,...others]);
@@ -502,9 +626,13 @@ class Component extends React.Component<any, any> {
     const o=this._options(idx);
     return { idx, type, options:o.list, correct:o.correct, blank:this._blank(idx) };
   }
-  startPractice = (mode)=>{
-    let sourceIdx = this.deck.map((_,k)=>k);
-    if(mode==='review'){ sourceIdx = Object.keys(this.state.mistakes).map(Number); if(!sourceIdx.length) return; }
+  startPractice = (mode, srcIdxArg)=>{
+    let sourceIdx;
+    if(Array.isArray(srcIdxArg)){ sourceIdx = srcIdxArg.filter((k: number)=>this.deck[k]); }
+    else if(mode==='review'){ sourceIdx = this.state.reviewList || []; }
+    else { sourceIdx = this.deck.map((_,k)=>k); }
+    if(!sourceIdx.length) return;
+    const scopeIdx = Array.isArray(srcIdxArg) ? sourceIdx.slice() : null;
     let practice;
     {
       let order=this._shuffle(sourceIdx);
@@ -515,7 +643,7 @@ class Component extends React.Component<any, any> {
       else { const types=['meaning','context','listening']; queue=order.map((k,n)=>this._buildQuestion(k,types[n%3])); }
       const titles={quiz:'Quiz',blank:'Điền vào chỗ trống',listening:'Listening',mixed:'Tổng hợp',review:'Cần ôn tập'};
       const accents={quiz:'#9a5a14',blank:'#C2693B',listening:'#5D6B2D',mixed:'#1F1F1F',review:'#C2693B'};
-      practice={ mode, baseMode:mode, title:titles[mode]||'Luyện tập', accent:accents[mode]||'#5D6B2D',
+      practice={ mode, baseMode:mode, scopeIdx, title:titles[mode]||'Luyện tập', accent:accents[mode]||'#5D6B2D',
         queue, pos:0, quizMode:'meaning', answered:false, selected:null,
         input:'', hintShown:false, checked:false, typedCorrect:false,
         correct:0, wrong:0, finished:false };
@@ -524,6 +652,31 @@ class Component extends React.Component<any, any> {
   };
   closePractice = ()=> this.setState({practice:null});
   _say(text){ try{ const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+  _playSfx(type){
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      if(type==='correct'){
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        osc.start(); osc.stop(ctx.currentTime + 0.3);
+      } else if(type==='wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+        osc.start(); osc.stop(ctx.currentTime + 0.2);
+      }
+    }catch(e){}
+  }
   _addMistake(idx){ this.setState(s=>({mistakes:{...s.mistakes,[idx]:true}})); }
   _curType(p){ return p.mode==='quiz'? p.quizMode : p.queue[p.pos].type; }
   setQuizMode = (m)=> this.setState(s=>({practice:{...s.practice, quizMode:m, answered:false, selected:null}}));
@@ -532,8 +685,9 @@ class Component extends React.Component<any, any> {
     const q=p.queue[p.pos]; const ok=choice===q.correct;
     const mistakes = ok ? s.mistakes : {...s.mistakes,[q.idx]:true};
     this._submitRating(this.deck[q.idx].word, ok?'good':'forgot');
-    return { mistakes, practice:{...p, answered:true, selected:choice, correct:p.correct+(ok?1:0), wrong:p.wrong+(ok?0:1)} };
-  });
+    if(ok) this._playSfx('correct'); else this._playSfx('wrong');
+    return { mistakes, practice:{...p, answered:true, selected:choice, correct:p.correct+(ok?1:0), wrong:p.wrong+(ok?0:1)}, miniConfetti: ok };
+  }, ()=>{ if(this.state.miniConfetti) setTimeout(()=>this.setState({miniConfetti:false}), 1000); });
   listeningInput = (e)=>{ const v=e.target.value; this.setState(s=>({practice:{...s.practice, input:v}})); };
   listeningHint = ()=> this.setState(s=>({practice:{...s.practice, hintShown:true}}));
   listeningSay = ()=>{ const p=this.state.practice; this._say(this.deck[p.queue[p.pos].idx].word); };
@@ -542,15 +696,16 @@ class Component extends React.Component<any, any> {
     const q=p.queue[p.pos]; const ans=this.deck[q.idx].word.trim().toLowerCase();
     const ok=(p.input||'').trim().toLowerCase()===ans;
     const mistakes = ok ? s.mistakes : {...s.mistakes,[q.idx]:true};
-    return { mistakes, practice:{...p, checked:true, typedCorrect:ok, correct:p.correct+(ok?1:0), wrong:p.wrong+(ok?0:1)} };
-  });
+    if(ok) this._playSfx('correct'); else this._playSfx('wrong');
+    return { mistakes, practice:{...p, checked:true, typedCorrect:ok, correct:p.correct+(ok?1:0), wrong:p.wrong+(ok?0:1)}, miniConfetti: ok };
+  }, ()=>{ if(this.state.miniConfetti) setTimeout(()=>this.setState({miniConfetti:false}), 1000); });
   practiceNext = ()=> this.setState(s=>{
     const p=s.practice; const last=p.pos>=p.queue.length-1;
     if(last) return { practice:{...p, finished:true}, confetti:true };
     const np={...p, pos:p.pos+1, answered:false, selected:null, input:'', hintShown:false, checked:false, typedCorrect:false};
     return { practice:np };
   }, ()=>{ const p=this.state.practice; if(p && !p.finished){ const q=p.queue[p.pos]; if(this._curType(p)==='listening') this._say(this.deck[q.idx].word); } });
-  restartPractice = ()=>{ const m=this.state.practice.baseMode||this.state.practice.mode; this.setState({practice:null, confetti:false}, ()=>this.startPractice(m)); };
+  restartPractice = ()=>{ const m=this.state.practice.baseMode||this.state.practice.mode; const scope=this.state.practice.scopeIdx; this.setState({practice:null, confetti:false}, ()=>this.startPractice(m, scope||undefined)); };
 
   // matching
   matchPickLeft = (idx)=> this.setState(s=>{ const p=s.practice; if(p.matched[idx]) return null; return {practice:{...p, selL:idx, wrongPair:null}}; });
@@ -563,24 +718,36 @@ class Component extends React.Component<any, any> {
     return {mistakes, practice:{...p, wrongPair:[p.selL,ridx], hearts, selL:null, finished:hearts<=0}};
   });
   matchClearWrong = ()=> this.setState(s=> s.practice&&s.practice.wrongPair? {practice:{...s.practice, wrongPair:null}} : null);
-  reviewMistakes = ()=>{ if(Object.keys(this.state.mistakes).length) this.startPractice('review'); };
+  reviewMistakes = ()=>{ if((this.state.reviewList || []).length) this.startPractice('review'); };
+  studyList = (kind)=> this.setState(s=>{
+    const src = kind==='known'? s.known : kind==='unknown'? s.unknown : (s.reviewList||[]);
+    const focus = (src||[]).filter((i: number)=>this.deck[i]);
+    if(!focus.length) return null;
+    return {focus, focusPos:0, index:focus[0], flipped:false, view:'study', confetti:false};
+  }, this.autoSpeak);
   _listVals(){
     const kind=this.state.listKind;
-    const src = kind==='known'? this.state.known : kind==='unknown'? this.state.unknown : this.state.mistakes;
-    const rows = Object.keys(src).map(Number).filter(i=>this.deck[i]).map(i=>({
+    const srcList = kind==='known'? this.state.known : kind==='unknown'? this.state.unknown : (this.state.reviewList || []);
+    const rows = (Array.isArray(srcList) ? srcList : []).filter(i=>this.deck[i]).map(i=>({
       word:this.deck[i].word, vi:this.deck[i].vi, posVi:this.deck[i].posVi, ipa:this.deck[i].ipa, pos:this._posShort(this.deck[i].posVi),
       speak:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this._say(this.deck[i].word); },
-      go:()=>this.setState({index:i, flipped:false, view:'cards'}) }));
+      go:()=>this.setState({index:i, flipped:false, view:'cards', focus:null, focusPos:0}) }));
     const meta={
       known:{title:'Đã nhớ', desc:'Những từ bạn đã nắm vững', accent:'#5D6B2D', accentBg:'#EEF1E2', accentInk:'#5D6B2D'},
       unknown:{title:'Chưa nhớ', desc:'Những từ bạn cần xem lại', accent:'#C2693B', accentBg:'#F7E7DE', accentInk:'#C2693B'},
-      review:{title:'Cần ôn tập', desc:'Các từ bạn từng trả lời sai khi luyện tập', accent:'#EE9A23', accentBg:'#FFF3D6', accentInk:'#9a5a14'}
+      review:{title:'Cần ôn tập', desc:'Những từ đã nhớ cần ôn lại', accent:'#EE9A23', accentBg:'#FFF3D6', accentInk:'#9a5a14'}
     }[kind]||{};
     const navActive = (k)=> this.state.view==='lists' && this.state.listKind===k;
     return {
       listKind:kind, listRows:rows, listEmpty:rows.length===0, listHasRows:rows.length>0, listCount:String(rows.length),
       listTitle:meta.title, listDesc:meta.desc, listAccent:meta.accent, listAccentBg:meta.accentBg, listAccentInk:meta.accentInk,
       listIsReview: kind==='review',
+      studyListAgain:()=>this.studyList(kind),
+      listStudyFlashcard:()=>this.studyList(kind),
+      listStudyQuiz:()=>this.startPractice('quiz', srcList),
+      listStudyListening:()=>this.startPractice('listening', srcList),
+      listStudyBlank:()=>this.startPractice('blank', srcList),
+      listStudyMixed:()=>this.startPractice('mixed', srcList),
       goKnownTab:()=>this.goList('known'), goUnknownTab:()=>this.goList('unknown'), goReviewTab:()=>this.goList('review'),
       tabKnownBg: this.state.listKind==='known'?'#5D6B2D':'#fff', tabKnownInk: this.state.listKind==='known'?'#FFF8EB':'#7c8362',
       tabUnknownBg: this.state.listKind==='unknown'?'#C2693B':'#fff', tabUnknownInk: this.state.listKind==='unknown'?'#FFF8EB':'#7c8362',
@@ -644,17 +811,20 @@ class Component extends React.Component<any, any> {
     P.pIsMeaning=type==='meaning'; P.pIsContext=type==='context'; P.pIsListening=type==='listening';
     P.pIsQuiz = P.pIsMeaning||P.pIsContext;
     P.pIsQuizOrListen = !p.finished;
-    P.pShowQuizBody = (P.pIsMeaning||P.pIsContext) && !p.finished;
-    P.pShowListenBody = P.pIsListening && !p.finished;
+    P.pShowQuizBody = P.pIsMeaning && !p.finished;
+    P.pShowListenBody = (P.pIsListening||P.pIsContext) && !p.finished;
+    P.pInputPlaceholder = P.pIsContext ? 'Nhập từ còn thiếu…' : 'Gõ từ bạn nghe được…';
     P.pShowQuizToggle = false;
     P.pQuizMode=p.quizMode; P.setQuizMode=this.setQuizMode;
     P.setMeaning=()=>this.setQuizMode('meaning'); P.setContext=()=>this.setQuizMode('context');
-    P.qmMeaningBg = p.quizMode==='meaning'?'#5D6B2D':'#fff';
-    P.qmMeaningInk = p.quizMode==='meaning'?'#FFF8EB':'#7c8362';
-    P.qmContextBg = p.quizMode==='context'?'#5D6B2D':'#fff';
-    P.qmContextInk = p.quizMode==='context'?'#FFF8EB':'#7c8362';
+    P.qmMeaningBg = p.quizMode==='meaning'?'#5D6B2D':(this.state.dark?'#242A18':'#fff');
+    P.qmMeaningInk = p.quizMode==='meaning'?'#FFF8EB':(this.state.dark?'#A9B189':'#7c8362');
+    P.qmContextBg = p.quizMode==='context'?'#5D6B2D':(this.state.dark?'#242A18':'#fff');
+    P.qmContextInk = p.quizMode==='context'?'#FFF8EB':(this.state.dark?'#A9B189':'#7c8362');
     P.pPosEn=this._posEn(card.posVi);
     P.pPromptMeaning=card.vi; P.pPromptContext=q.blank;
+    if(P.pIsContext){ const parts=this._blankParts(q.idx); P.pPromptBefore=parts.before; P.pPromptAfter=parts.after; P.pInputSize=(card.word?card.word.length:8)+1; }
+    else { P.pPromptBefore=''; P.pPromptAfter=''; P.pInputSize=10; }
     P.pLabel = P.pIsMeaning?'CHỌN TỪ TIẾNG ANH ĐÚNG' : P.pIsContext?'ĐIỀN TỪ VÀO CHỖ TRỐNG' : 'NGHE & GÕ TỪ TIẾNG ANH';
     P.pAnswered=p.answered;
     P.pOptions=q.options.map((w,k)=>{ let st='idle'; if(p.answered){ st = k===q.correct?'correct':(k===p.selected?'wrong':'dim'); } const s=this._optStyle(st);
@@ -665,10 +835,10 @@ class Component extends React.Component<any, any> {
     P.pAnswerWord=card.word; P.pIpa=card.ipa; P.pVi=card.vi; P.pExample=card.exampleEn; P.pExampleVi=card.exampleVi;
     P.pTypedFeedback = p.checked ? (p.typedCorrect?'Chính xác! 🎉':'Đáp án đúng: '+card.word) : '';
     P.pTypedFbColor = p.typedCorrect?'#5D6B2D':'#C2693B';
-    P.pInputBorder = p.checked ? (p.typedCorrect?'#5D6B2D':'#C2693B') : '#E7E1CD';
+    P.pInputBorder = p.checked ? (p.typedCorrect?'#5D6B2D':'#C2693B') : (this.state.dark?'rgba(255,255,255,.08)':'#E7E1CD');
     P.listeningInput=this.listeningInput; P.listeningHint=this.listeningHint; P.listeningSay=this.listeningSay;
     P.checkType=this.checkType; P.practiceNext=this.practiceNext;
-    // letter hint slots
+    // letter hint slots (listening only — context types inline in the sentence)
     if(P.pIsListening){
       const ans=card.word; const typed=(p.input||'');
       P.pLetterSlots = ans.split('').map((ch,k)=>{
@@ -680,7 +850,7 @@ class Component extends React.Component<any, any> {
         return { ch:show||'·', bg, border, ink };
       });
     } else { P.pLetterSlots=[]; }
-    P.pHintHidden = !p.hintShown && !p.checked;
+    P.pHintHidden = P.pIsListening && !p.hintShown && !p.checked;
     P.pShowCheck = !p.checked;
     P.pShowNext = p.answered||p.checked;
     P.pNextLabel = (p.pos>=p.queue.length-1)?'Xem kết quả':'Câu tiếp theo';
@@ -702,14 +872,17 @@ class Component extends React.Component<any, any> {
     const dark=this.state.dark;
     const hc = dark ? ['rgba(255,255,255,.05)','#39491F','#5C722C','#88A23F','#E0A52E']
                     : ['#EAE6D6','#D8E1BF','#A9C07A','#7E9A45','#5D6B2D'];
-    const hist = this.state.dashData?.history ?? {};
+    const realDays = this.state.statsData?.activeDays;
+    const hist = realDays ?? (this.state.dashData?.history ?? {});
+    // real activeDays are interaction COUNTS; dashData.history is minutes.
+    const useCount = !!realDays;
+    const heatLevel = (v: number) => v===0 ? 0 : useCount ? (v<3?1:v<6?2:v<11?3:4) : (v<15?1:v<30?2:v<60?3:4);
     const heatWeeks = Array.from({length:26}, (_,w) => ({
       days: Array.from({length:7}, (_,d) => {
         const date = new Date();
         date.setDate(date.getDate() - ((25-w)*7 + (6-d)));
         const key = date.getFullYear()+'-'+('0'+(date.getMonth()+1)).slice(-2)+'-'+('0'+date.getDate()).slice(-2);
-        const mins = hist[key] ?? 0;
-        const lvl = mins===0 ? 0 : mins<15 ? 1 : mins<30 ? 2 : mins<60 ? 3 : 4;
+        const lvl = heatLevel(hist[key] ?? 0);
         return { bg: hc[lvl] };
       })
     }));
@@ -765,7 +938,7 @@ class Component extends React.Component<any, any> {
     const weekStart = new Date(now2); weekStart.setDate(weekStart.getDate() - 25*7 - 6);
     const months = Array.from({length:6}, (_,i) => { const d = new Date(weekStart); d.setDate(d.getDate() + i*30); return monthLabelsList[d.getMonth()]; });
 
-    const streakLen = this.state.dashData?.streak ?? 0;
+    const streakLen = this.state.statsData?.streak ?? this.state.dashData?.streak ?? 0;
     const streakStart = new Date(now2);
     streakStart.setDate(streakStart.getDate() - streakLen + 1);
     const streakStartKey = streakStart.getFullYear()+'-'+('0'+(streakStart.getMonth()+1)).slice(-2)+'-'+('0'+streakStart.getDate()).slice(-2);
@@ -777,9 +950,9 @@ class Component extends React.Component<any, any> {
         const future=isCurrentMonth && d>today;
         const key = baseYear+'-'+('0'+(baseMonth+1)).slice(-2)+'-'+('0'+d).slice(-2);
         const mins = future ? 0 : (hist[key] ?? 0);
-        let lvl = future ? 0 : mins===0 ? 0 : mins<15 ? 1 : mins<30 ? 2 : mins<60 ? 3 : 4;
+        let lvl = future ? 0 : heatLevel(mins);
         const isToday=isCurrentMonth && d===today;
-        
+
         const isStreak = !future && mins > 0 && key >= streakStartKey;
         let tileBg = future ? (dark?'rgba(255,255,255,.04)':'#F4F0E1') : hc[lvl];
         let ink = future ? (dark?'rgba(255,255,255,.32)':'#c9cdb6') : (lvl>=3?(dark?'#0F1A38':'#FFF8EB'):(dark?'#9FB0D8':'#6b7155'));
@@ -803,7 +976,7 @@ class Component extends React.Component<any, any> {
     const bandRemainNum = Math.max(0, bandTargetNum - bandNowNum);
 
     return {
-      dashStreak: this.state.dashData?.streak ?? this.props.streak?.currentStreak ?? 0,
+      dashStreak: this.state.statsData?.streak ?? this.state.dashData?.streak ?? this.props.streak?.currentStreak ?? 0,
       bandNow: String(bandNowNum || '--'), bandTarget:target, bandRemain: String(bandRemainNum.toFixed(1)), bandGoalW: bandNowNum > 0 ? ((bandNowNum / bandTargetNum) * 100).toFixed(1) + '%' : '2%',
       bandMenuOpen:this.state.bandMenuOpen, toggleBandMenu:this.toggleBandMenu,
       bandOptions: bandOpts.map(v=>({ v, sel:v===target, pick:()=>this.setTargetBand(v),
@@ -854,21 +1027,32 @@ class Component extends React.Component<any, any> {
   }
 
   renderVals(){
-    const reviewCount=Object.keys(this.state.mistakes).length;
+    const isReviewMode=this.state.practice&&this.state.practice.baseMode==='review';
+    const reviewCount=(this.state.reviewList || []).length;
     const P=this._practiceVals(reviewCount);
-    const i=this.state.index, card=this.deck[i], total=this.deck.length;
-    const pct=Math.round(((i+1)/total)*100);
+    const i=this.state.index;
+    const inFocus=Array.isArray(this.state.focus) && this.state.focus.length>0;
+    const card=this.deck[i] || { word: '', ipa: '', posVi: '', vi: '', exampleEn: '', exampleVi: '', tag: '', syn: '' };
+    const total=inFocus ? this.state.focus.length : Math.max(1, this.deck.length);
+    const human=inFocus ? this.state.focusPos+1 : i+1;
+    const pct=Math.round((human/total)*100);
     const starred=!!this.state.starred[i];
-    const maxAdded=Math.max(...this.stats.map(d=>d.added));
+    const sd=this.state.statsData;
+    const daily=(sd && Array.isArray(sd.daily)) ? sd.daily : [];
+    const maxAdded=Math.max(1, ...daily.map((d: any)=>(d.learned||0)+(d.review||0)));
     const H=190;
-    const bars=this.stats.map(d=>({
-      day:d.day, added:d.added,
-      learnedH:Math.round((d.learned/maxAdded)*H)+'px',
-      reviewH:Math.round((d.review/maxAdded)*H)+'px'
-    }));
-    const totalAdded=this.stats.reduce((a,d)=>a+d.added,0);
-    const totalLearned=this.stats.reduce((a,d)=>a+d.learned,0);
-    const totalReview=this.stats.reduce((a,d)=>a+d.review,0);
+    const bars=daily.map((d: any)=>{
+      const added=(d.learned||0)+(d.review||0);
+      return {
+        day:d.label, added,
+        learnedH:Math.round(((d.learned||0)/maxAdded)*H)+'px',
+        reviewH:Math.round(((d.review||0)/maxAdded)*H)+'px'
+      };
+    });
+    const totalAdded=sd?sd.wordsAdded:0;
+    const totalLearned=sd?sd.known:0;
+    const totalReview=sd?sd.due:0;
+    const accuracyStr=(sd && sd.accuracy!=null)?sd.accuracy+'%':'—';
     const cols=['#F6C453','#5D6B2D','#EE9A23','#FFF8EB','#C2693B','#8AA04A','#E8B4A0'];
     const confettiPieces=this.state.confetti? Array.from({length:64}).map((_,k)=>({
       left:(Math.random()*100).toFixed(1)+'%',
@@ -878,13 +1062,21 @@ class Component extends React.Component<any, any> {
       size:(7+Math.random()*8).toFixed(0)+'px',
       radius: k%3===0?'50%':'2px'
     })):[];
+    const miniConfettiPieces=this.state.miniConfetti? Array.from({length:32}).map((_,k)=>({
+      left:(10+Math.random()*80).toFixed(1)+'%',
+      bg:cols[k%cols.length],
+      delay:(Math.random()*0.2).toFixed(2)+'s',
+      dur:(1.0+Math.random()*0.8).toFixed(2)+'s',
+      size:(6+Math.random()*6).toFixed(0)+'px',
+      radius: k%3===0?'50%':'2px'
+    })):[];
     return {
       word:card.word, ipa:card.ipa, posVi:card.posVi, vi:card.vi,
       exampleEn:card.exampleEn, exampleVi:card.exampleVi, tag:card.tag, syn:card.syn,
       flipped:this.state.flipped,
       cardTransform:this.state.flipped?'rotateY(180deg)':'rotateY(0deg)',
       meaningTransform:this.state.flipped?'translateY(0%)':'translateY(-101%)',
-      index:i, human:i+1, total,
+      index:i, human, total,
       progressPct:pct, progressW:pct+'%',
       starred, starFill: starred?'#F6C453':'none', starStroke: starred?'#EE9A23':'#b6bb9c',
       starFill2: starred?'#2A3114':'none', starStroke2:'#2A3114',
@@ -916,6 +1108,11 @@ class Component extends React.Component<any, any> {
       streakSub: this.state.dark ? '#9FA882' : '#8a9170',
       dividerColor: this.state.dark ? 'rgba(255,255,255,.07)' : '#F2EEE0',
       monthCellBg: this.state.dark ? '#242A18' : '#fff',
+      listHeaderBg: this.state.dark ? '#242A18' : '#FBF8EF',
+      listBorder: this.state.dark ? 'rgba(255,255,255,.06)' : '#EFE7D2',
+      listHover: this.state.dark ? 'background:rgba(255,255,255,.03);' : 'background:#FBF8EF;',
+      listBtnBg: this.state.dark ? 'rgba(255,255,255,.08)' : '#EEF1E2',
+      listBtnInk: this.state.dark ? '#A9B189' : '#5D6B2D',
       
       cardFrontBg: this.state.dark?'linear-gradient(165deg,#0F1A38 0%,#1B2C54 58%,#26437a 100%)':'#F6C453',
       cardBorder: this.state.dark?'#2E4576':'#e3b13f',
@@ -950,17 +1147,17 @@ class Component extends React.Component<any, any> {
       autoTrackBg: this.state.autoPlay?'#5D6B2D':'#D8D2BE',
       toggleAutoPlay:this.toggleAutoPlay,
       showStats:this.state.showStats, openStats:this.openStats, closeStats:this.closeStats, stop:this.stop,
-      bars, totalAdded, totalLearned, totalReview,
+      bars, totalAdded, totalLearned, totalReview, accuracy:accuracyStr,
       flip:this.flip, next:this.next, prev:this.prev, toggleStar:this.toggleStar,
       speak:this.speak, speakBtn:this.speakBtn, starBtn:this.starBtn, jumpTo:this.jumpTo,
-      showConfetti:this.state.confetti, closeConfetti:this.closeConfetti, confettiPieces,
+      showConfetti:this.state.confetti, closeConfetti:this.closeConfetti, confettiPieces, miniConfettiPieces,
       masteryPct:'68%', masteryW:'68%',
       reviewCount, reviewBadge:String(reviewCount), hasMistakes:reviewCount>0,
       reviewBadgeBg: reviewCount>0?'rgba(238,154,35,.32)':'rgba(255,255,255,.12)',
       isDashboard:this.state.view==='dashboard', isStudy:this.state.view==='study',
       isStats:this.state.view==='stats',
       goDashboard:()=>this.setView('dashboard'),
-      goStats:()=>this.setView('stats'),
+      goStats:()=>{ this._fetchStats(); this.setView('stats'); },
       navStatsBg: this.state.view==='stats'?'#F6C453':'transparent',
       navStatsInk: this.state.view==='stats'?'#2A3114':'#C9CFAE',
       navStatsWeight: this.state.view==='stats'?'800':'600',
@@ -1008,20 +1205,25 @@ class Component extends React.Component<any, any> {
       personalFolderCount: this.state.personalFolders.length,
       isFolderDetail: this.state.view==='folderDetail',
       folderDetailName: this.state.activeFolderName,
-      folderDetailWords: this.state.folderWords,
+      folderDetailWords: this.state.folderWords.map(w => ({
+          ...w,
+          speak: (e: any) => { if(e&&e.stopPropagation) e.stopPropagation(); this._say(w.word); }
+      })),
       folderDetailLoading: this.state.folderWordsLoading,
       folderDetailColor: FOLDER_COLORS[this.state.activeFolderColorIdx]?.color||'#E08A2C',
       folderDetailDeep: FOLDER_COLORS[this.state.activeFolderColorIdx]?.deep||'#C2693B',
       goBackToPersonal: ()=>this.setState({view:'personal'}),
       openFolderAddWordModal: ()=>this.setState({addWordModalOpen:true,addWordInput:'',addWordResults:[],addWordError:'',addWordFetchLoading:false,addWordSaveLoading:false}),
       deleteFolderWord: (id)=>this._deleteFolderWord(id),
-      startRenameFolderDetail: ()=>this.setState({renameFolderModalOpen:true,renameFolderInput:this.state.activeFolderName}),
-      deleteFolderDetail: ()=>this._deleteFolderDetail(),
+      startRenameFolderDetail: this.state.activeFolderId === 'general' ? null : ()=>this.setState({renameFolderModalOpen:true,renameFolderInput:this.state.activeFolderName}),
+      deleteFolderDetail: this.state.activeFolderId === 'general' ? null : ()=>this._deleteFolderDetail(),
       studyFolderWords: ()=>this._studyFolderWords(),
       navAvatarUrl: this.state.avatarUrlOverride || this.props.avatarUrl || '',
       openImportModal: () => this.setState({ importModalOpen: true }),
       createNewFolder: () => this.setState({ createFolderOpen: true, createFolderName: '', createFolderError: '' }),
       goEditProfile:    () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/profile/edit`; },
+      isAdmin: this.state.isAdminLive || this.props.role === 'ADMIN' || this.props.role === 'INSTRUCTOR',
+      goAdmin:          () => { const seg=window.location.pathname.split('/')[1]; const lc=(seg==='en'||seg==='vi')?`/${seg}`:''; window.location.href=`${lc}/admin`; },
       goVocabNotebook:  () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/practice/vocabulary/notebook`; },
       goDiagnostic:     () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/roadmap/diagnostic-test`; },
       goRoadmap:        () => { const lc=window.location.pathname.split('/')[1]||'en'; window.location.href=`/${lc}/roadmap`; },
@@ -1030,13 +1232,24 @@ class Component extends React.Component<any, any> {
       openPasswordPanel: () => this.setState({ activePanel: 'password',  panelError: '', panelSuccess: '' }),
       closePanel:        () => this.setState({ activePanel: null, panelLoading: false, panelError: '', panelSuccess: '' }),
       ...this._dashboardVals(),
+      startTidians:()=> {
+        let sourceIdx = this.deck.map((_,k)=>k);
+        // If we are viewing a specific list (like known/unknown/review), scope to that list
+        if (this.state.view === 'lists') {
+            const kind = this.state.listKind;
+            const src = kind==='known'? this.state.known : kind==='unknown'? this.state.unknown : (this.state.reviewList || []);
+            sourceIdx = src.filter((i: number)=>this.deck[i]);
+        }
+        if(!sourceIdx.length) return;
+        this.setState({ tidiansSelectionOpen: true, tidiansCandidates: sourceIdx });
+      },
       startQuiz:()=>this.startPractice('quiz'),
       startListening:()=>this.startPractice('listening'),
       startBlank:()=>this.startPractice('blank'),
       startMixed:()=>this.startPractice('mixed'),
       markKnown:this.markKnown, markUnknown:this.markUnknown,
-      knownCount:Object.keys(this.state.known).length,
-      unknownCount:Object.keys(this.state.unknown).length,
+      knownCount:this.state.known.length,
+      unknownCount:this.state.unknown.length,
       showKnownTab:this.showKnownTab, closeKnownTab:this.closeKnownTab,
       showKnownTabKnown:()=>this.goList('known'),
       showKnownTabUnknown:()=>this.goList('unknown'),
@@ -1049,11 +1262,11 @@ class Component extends React.Component<any, any> {
       knownTabTitle: this.state.knownTab==='known'?'Đã nhớ':'Chưa nhớ',
       knownTabAccent: this.state.knownTab==='known'?'#5D6B2D':'#C2693B',
       knownTabBg: this.state.knownTab==='known'?'#EEF1E2':'#F7E7DE',
-      knownTabList: Object.keys(this.state.knownTab==='known'?this.state.known:(this.state.knownTab==='unknown'?this.state.unknown:{})).map(Number).map(i=>({
-        word:this.deck[i].word, vi:this.deck[i].vi, posVi:this.deck[i].posVi, ipa:this.deck[i].ipa, pos:this._posShort(this.deck[i].posVi),
-        speak:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this._say(this.deck[i].word); },
-        go:()=>this.setState({index:i, flipped:false, knownTab:null, view:'cards'}) })),
-      knownTabEmpty: Object.keys(this.state.knownTab==='known'?this.state.known:(this.state.knownTab==='unknown'?this.state.unknown:{})).length===0,
+      knownTabList: (this.state.knownTab==='known'?this.state.known:(this.state.knownTab==='unknown'?this.state.unknown:[])).map((i: number)=>({
+        word:this.deck[i]?this.deck[i].word:'', vi:this.deck[i]?this.deck[i].vi:'', posVi:this.deck[i]?this.deck[i].posVi:'', ipa:this.deck[i]?this.deck[i].ipa:'', pos:this.deck[i]?this._posShort(this.deck[i].posVi):'',
+        speak:(e: any)=>{ if(e&&e.stopPropagation) e.stopPropagation(); if(this.deck[i]) this._say(this.deck[i].word); },
+        go:()=>this.setState({index:i, flipped:false, knownTab:null, view:'cards', focus:null, focusPos:0}) })),
+      knownTabEmpty: (this.state.knownTab==='known'?this.state.known:(this.state.knownTab==='unknown'?this.state.unknown:[])).length===0,
       setMenuOpen:this.state.setMenuOpen, toggleSetMenu:this.toggleSetMenu,
       currentSetLabel:this.setLabels[this.state.currentSet]||'Môi trường',
       setOptions:this.wordSets.map(ws=>({ id:ws.id, label:ws.label, count:ws.count, icon:ws.icon,
@@ -1067,6 +1280,17 @@ class Component extends React.Component<any, any> {
   }
 
   render() {
+    if (this.state.vocabSetsLoading) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#FDFBF7', color: '#5D6B2D', fontFamily: "'Nunito', sans-serif" }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: 'spin 1s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+            <h2 style={{ margin: 0, fontSize: '20px' }}>Đang tải bộ từ vựng...</h2>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <React.Fragment>
         <ScoutTemplate userName={this.props.userName} {...this.renderVals()} />
@@ -1135,7 +1359,7 @@ class Component extends React.Component<any, any> {
           const labelStyle = {display:'block',fontSize:'11px',fontWeight:800,color:ink2,marginBottom:'5px',textTransform:'uppercase' as const,letterSpacing:'.08em'};
           const results = this.state.addWordResults;
           const hasResults = results.length > 0;
-          const saveable = results.filter(r=>!r.saved&&!r.error&&r.viDef?.trim());
+          const saveable = results.filter(r=>!r.saved&&!r.error&&r.viDef?.trim()&&r.example?.trim());
           return (
           <div style={{position:'fixed',inset:0,zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>this.setState({addWordModalOpen:false})}>
             <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)'}}></div>
@@ -1223,11 +1447,13 @@ class Component extends React.Component<any, any> {
                               <input value={r.viDef} onChange={e=>this._updateWordResult(i,'viDef',e.target.value)} placeholder="Nhập nghĩa..." style={{...inputStyle,fontSize:'13px',padding:'8px 11px'}}/>
                             </div>
                             {r.enDef && <div style={{fontSize:'12px',fontWeight:600,color:ink2,fontStyle:'italic',lineHeight:'1.4',padding:'0 2px'}}>📖 {r.enDef}</div>}
-                            {r.example && (
-                              <div style={{background:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)',borderRadius:'8px',padding:'8px 12px',fontSize:'13px',fontWeight:600,color:ink2,fontStyle:'italic',lineHeight:'1.5'}}>
-                                🎧 "{r.example}"
-                              </div>
-                            )}
+                            <div>
+                              <label style={{...labelStyle,marginBottom:'4px'}}>Ví dụ (kèm ví dụ để có thể lưu)</label>
+                              <textarea value={r.example} onChange={e=>this._updateWordResult(i,'example',e.target.value)} placeholder="Nhập ví dụ..." style={{...inputStyle,fontSize:'13px',padding:'8px 11px',height:'60px'}}/>
+                            </div>
+                            {!r.viDef?.trim() || !r.example?.trim() ? (
+                               <div style={{fontSize:'12px',fontWeight:700,color:'#FF8080'}}>Thiếu định nghĩa hoặc ví dụ. Vui lòng bổ sung để có thể lưu.</div>
+                            ) : null}
                           </div>
                         )}
                       </div>
@@ -1246,6 +1472,37 @@ class Component extends React.Component<any, any> {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+          );
+        })()}
+        {this.state.duplicatePrompt && (() => {
+          const dk = this.state.dark;
+          const bg = dk?'#242A18':'#FFFDF6';
+          const bdr = dk?'1px solid rgba(255,255,255,.1)':'1px solid #E4DEC9';
+          const ink = dk?'#F3F1E6':'#2A3114';
+          const ink2 = dk?'#9FA882':'#6b7155';
+          return (
+          <div style={{position:'fixed',inset:0,zIndex:10000,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
+            <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.6)',backdropFilter:'blur(8px)'}}></div>
+            <div style={{position:'relative',background:bg,border:bdr,borderRadius:'24px',padding:'28px',width:'100%',maxWidth:'400px',boxShadow:'0 32px 80px rgba(0,0,0,.45)',animation:'panelSlideIn .25s ease both',textAlign:'center'}} onClick={e=>e.stopPropagation()}>
+              <div style={{width:'48px',height:'48px',borderRadius:'14px',background:'rgba(255,128,128,.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8080" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h3 style={{fontFamily:'Nunito,sans-serif',fontWeight:900,fontSize:'18px',margin:'0 0 8px',color:ink}}>Từ đã có trong sổ</h3>
+              <p style={{fontSize:'14px',fontWeight:600,color:ink2,margin:'0 0 24px',lineHeight:'1.5'}}>
+                Từ "<strong style={{color:ink,fontWeight:800}}>{this.state.duplicatePrompt.word}</strong>" đã tồn tại trong sổ từ vựng của bạn.<br/><br/>Bạn có muốn add vào lại không?
+              </p>
+              <div style={{display:'flex',gap:'10px'}}>
+                <button onClick={()=>this.state.duplicatePrompt?.resolve(true)}
+                  style={{flex:1,background:'#FF8080',border:'none',borderRadius:'14px',color:'#fff',padding:'13px 0',fontFamily:'Nunito,sans-serif',fontWeight:900,fontSize:'15px',cursor:'pointer'}}>
+                  Add lại
+                </button>
+                <button onClick={()=>this.state.duplicatePrompt?.resolve(false)}
+                  style={{flex:1,background:dk?'rgba(255,255,255,.08)':'#F0EAD8',border:'none',borderRadius:'14px',color:ink2,padding:'13px 0',fontFamily:'Nunito,sans-serif',fontWeight:800,fontSize:'15px',cursor:'pointer'}}>
+                  Huỷ
+                </button>
+              </div>
             </div>
           </div>
           );
@@ -1292,6 +1549,60 @@ class Component extends React.Component<any, any> {
             nightCardBorder={this.state.dark ? '#2C4474' : '#EFE7D2'}
           />
         )}
+        {this.state.tidiansSelectionOpen && (
+          <div style={{position:'fixed',inset:0,zIndex:200,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Nunito', sans-serif"}}>
+             <div style={{background:'#FFFDF8',color:'#2A3114',padding:'40px 30px',borderRadius:'24px',width:'90%',maxWidth:'420px',position:'relative',boxShadow:'0 20px 40px rgba(0,0,0,0.2)'}}>
+                <button onClick={() => this.setState({tidiansSelectionOpen:false})} style={{position:'absolute',top:'16px',right:'16px',background:'none',border:'none',cursor:'pointer',color:'#666'}}>
+                   <X size={24} />
+                </button>
+                <h3 style={{marginTop:0,marginBottom:'30px',textAlign:'center',fontSize:'22px',fontWeight:'800',color:'#1F2937'}}>Bạn muốn luyện với bao nhiêu từ?</h3>
+                <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',gap:'12px'}}>
+                   {[10, 20, 30, 50].map(n => (
+                      <button key={n} 
+                        onClick={() => {
+                           const shuffled = [...this.state.tidiansCandidates].sort(() => 0.5 - Math.random());
+                           const selected = shuffled.slice(0, Math.min(n, this.state.tidiansCandidates.length));
+                           this.setState({ tidiansSelectionOpen: false, tidiansActive: true, tidiansSourceIdx: selected });
+                        }}
+                        style={{padding:'14px 20px',background:'#fff',border:'1px solid #E5E7EB',borderRadius:'12px',fontSize:'18px',fontWeight:'800',color:'#374151',cursor:'pointer',minWidth:'80px',boxShadow:'0 2px 4px rgba(0,0,0,0.05)',transition:'all 0.2s'}}>
+                        {n}
+                      </button>
+                   ))}
+                   <button 
+                     onClick={() => {
+                         this.setState({ tidiansSelectionOpen: false, tidiansActive: true, tidiansSourceIdx: this.state.tidiansCandidates });
+                     }}
+                     style={{padding:'14px 20px',background:'#fff',border:'1px solid #E5E7EB',borderRadius:'12px',fontSize:'18px',fontWeight:'800',color:'#374151',cursor:'pointer',width:'100%',marginTop:'10px',boxShadow:'0 2px 4px rgba(0,0,0,0.05)',transition:'all 0.2s'}}>
+                     Tất cả ({this.state.tidiansCandidates.length})
+                   </button>
+                </div>
+             </div>
+          </div>
+        )}
+
+        {this.state.tidiansActive && this.state.tidiansSourceIdx && (() => {
+          const words = this.state.tidiansSourceIdx.map((i: number) => this.deck[i]).filter(Boolean);
+          const setId = this.state.currentSet || 'all';
+          return (
+            <SentenceBuildExercise
+              words={words}
+              storageKeyId={`s${setId}`}
+              folders={this.state.personalFolders}
+              onBack={() => this.setState({ tidiansActive: false })}
+              onHistoryPost={async (payload) => {
+                 try {
+                   await fetch('/api/student/history', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(payload)
+                   });
+                 } catch (e) {
+                   console.error("Failed to post history", e);
+                 }
+              }}
+            />
+          );
+        })()}
       </React.Fragment>
     );
   }

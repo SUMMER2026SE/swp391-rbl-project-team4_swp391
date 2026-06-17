@@ -150,7 +150,7 @@ export default function AdminLayout({
       <header className="md:hidden flex items-center justify-between bg-[#0d153a] text-white px-5 py-4 shadow-md sticky top-0 z-40">
         <div className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
           <span className="text-[#3B5C37] font-serif text-2xl leading-none">*</span>
-          <span>QualiCode Admin</span>
+          <span>Quali IELTS Admin</span>
         </div>
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}

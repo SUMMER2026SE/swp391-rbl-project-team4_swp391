@@ -23,7 +23,7 @@ export default function PersonalNotebookPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || "";
-      const headers: any = {};
+      const headers: Record<string, string> = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
       else headers["x-mock-user-id"] = "usr_2";
 
@@ -57,7 +57,7 @@ export default function PersonalNotebookPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token || "";
-      const headers: any = { 'Content-Type': 'application/json' };
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       else headers["x-mock-user-id"] = "usr_2";
 

@@ -137,7 +137,6 @@ export default function SentenceBuildExercise({ words, onBack, storageKeyId, ini
     enDef?: string;
     example?: string;
     pos?: string;
-    audioUrl?: string;
     saving?: boolean;
     saved?: boolean;
     saveError?: string;

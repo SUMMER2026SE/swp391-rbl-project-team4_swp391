@@ -44,7 +44,7 @@ export default function ProfilePage() {
 
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', background: '#FBF8EF', fontFamily: "'-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif" }}>
-      <FlashcardApp userName={user?.user_metadata?.name || user?.email?.split('@')[0] || 'Học viên'} streak={streak} avatarUrl={user?.user_metadata?.avatar_url || ''} />
+      <FlashcardApp userName={user?.user_metadata?.name || user?.email?.split('@')[0] || 'Học viên'} streak={streak} avatarUrl={user?.user_metadata?.avatar_url || ''} role={user?.user_metadata?.role || 'STUDENT'} />
     </div>
   );
 }
