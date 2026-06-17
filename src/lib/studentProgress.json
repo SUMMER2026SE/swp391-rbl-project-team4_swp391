@@ -57,10 +57,10 @@
       "lastStudyDate": "2026-06-16",
       "lastStudyTimestamp": "2026-06-16T15:09:34.330Z",
       "dailyGoalMinutes": 30,
-      "todayMinutes": 10,
+      "todayMinutes": 0,
       "lastGoalMetDate": null,
       "history": {
-        "2026-06-16": 10
+        "2026-06-16": 0
       }
     }
   },
