@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import AuthCookieManager from "@/components/AuthCookieManager";
 import MaintenanceGuard from "@/components/MaintenanceGuard";
+import ChatWidgetWrapper from "@/components/chatbot/ChatWidgetWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,6 +64,7 @@ export default async function LocaleLayout({
         <MaintenanceGuard>
           {children}
         </MaintenanceGuard>
+        <ChatWidgetWrapper />
       </NextIntlClientProvider>
     </div>
   );

@@ -20,13 +20,20 @@ export async function GET(request: NextRequest) {
     if (!exchangeError && data?.user) {
       // Initialize metadata for new Google users
       if (!data.user.user_metadata?.role) {
+        const name = data.user.user_metadata?.full_name || data.user.email?.split("@")[0] || "Người dùng";
         await supabaseAdmin.auth.admin.updateUserById(data.user.id, {
           user_metadata: {
             role: "STUDENT",
-            name: data.user.user_metadata?.full_name || data.user.email?.split("@")[0] || "Người dùng",
+            name,
             isLocked: false,
           },
         });
+
+        // Ensure profile exists in DB
+        await supabaseAdmin.from("profiles").upsert({
+          id: data.user.id,
+          role: "STUDENT",
+        }, { onConflict: "id" });
       }
       return NextResponse.redirect(`${origin}${next}`);
     }

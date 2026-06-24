@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import {
   Search,
   Plus,
@@ -128,17 +129,17 @@ export default function PaymentManagementPage() {
     setIsLoading(true);
     try {
       // Fetch packages
-      const pkgRes = await fetch("/api/admin/payments/packages");
+      const pkgRes = await authFetch("/api/admin/payments/packages");
       const pkgData = await pkgRes.json();
       if (pkgRes.ok) setPackages(pkgData.packages || []);
 
       // Fetch invoices
-      const invRes = await fetch("/api/admin/payments/invoices?limit=100");
+      const invRes = await authFetch("/api/admin/payments/invoices?limit=100");
       const invData = await invRes.json();
       if (invRes.ok) setInvoices(invData.invoices || []);
 
       // Fetch sepay
-      const txRes = await fetch("/api/admin/payments/sepay");
+      const txRes = await authFetch("/api/admin/payments/sepay");
       const txData = await txRes.json();
       if (txRes.ok) setSepayTransactions(txData.transactions || []);
     } catch (error) {
@@ -249,7 +250,7 @@ export default function PaymentManagementPage() {
     
     setActionLoading(true);
     try {
-      const response = await fetch(`/api/admin/payments/packages/${pkg.id}`, {
+      const response = await authFetch(`/api/admin/payments/packages/${pkg.id}`, {
         method: "DELETE"
       });
 
@@ -269,7 +270,7 @@ export default function PaymentManagementPage() {
 
   const handleTogglePkgActive = async (pkg: PaymentPackage) => {
     try {
-      const response = await fetch(`/api/admin/payments/packages/${pkg.id}`, {
+      const response = await authFetch(`/api/admin/payments/packages/${pkg.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -310,7 +311,7 @@ export default function PaymentManagementPage() {
 
     setActionLoading(true);
     try {
-      const response = await fetch("/api/admin/payments/invoices", {
+      const response = await authFetch("/api/admin/payments/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -347,7 +348,7 @@ export default function PaymentManagementPage() {
 
     setActionLoading(true);
     try {
-      const response = await fetch(`/api/admin/payments/invoices/${invoice.id}`, {
+      const response = await authFetch(`/api/admin/payments/invoices/${invoice.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -379,7 +380,7 @@ export default function PaymentManagementPage() {
 
     setActionLoading(true);
     try {
-      const response = await fetch(`/api/admin/payments/invoices/${invoice.id}`, {
+      const response = await authFetch(`/api/admin/payments/invoices/${invoice.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -410,7 +411,7 @@ export default function PaymentManagementPage() {
 
     setActionLoading(true);
     try {
-      const response = await fetch("/api/admin/payments/sepay", {
+      const response = await authFetch("/api/admin/payments/sepay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -463,7 +464,7 @@ export default function PaymentManagementPage() {
 
     setActionLoading(true);
     try {
-      const response = await fetch("/api/admin/payments/sepay", {
+      const response = await authFetch("/api/admin/payments/sepay", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
 import { sendAccountLockEmail, sendAccountUnlockEmail } from "@/lib/emailService";
@@ -9,6 +10,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireRole(request, ADMIN_ONLY);
+    if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
     const { id } = await params;
     const body = await request.json();
     const { name, email, role, isLocked } = body;
@@ -20,10 +24,10 @@ export async function PUT(
       );
     }
 
-    const validRoles = ["ADMIN", "STUDENT", "GUEST"];
+    const validRoles = ["ADMIN", "INSTRUCTOR", "STUDENT", "GUEST"];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { message: "Vai trò không hợp lệ." },
+        { message: "Vai trò không hợp lệ. Phải là ADMIN, INSTRUCTOR, STUDENT hoặc GUEST." },
         { status: 400 }
       );
     }
@@ -71,6 +75,14 @@ export async function PUT(
       } catch (mailErr: any) {
         console.warn("⚠️ Gặp lỗi khi gửi email thông báo trạng thái tài khoản:", mailErr.message);
       }
+    }
+
+    // Keep profiles.role (the source of truth enforced by the admin layout & RLS) in sync.
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .upsert({ id, role }, { onConflict: "id" });
+    if (profileError) {
+      console.error("⚠️ [Supabase DB] Không thể đồng bộ profiles.role:", profileError.message);
     }
 
     const formattedUser = {

@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { 
   Sparkles, Mic, MicOff, Square,
   Edit3, CheckCircle, Home,
   ChevronRight, Info
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { fetchSpeakingTopics } from "@/services/speakingService";
 
 // Types for IELTS Speaking questions
 interface Question {
@@ -219,7 +220,8 @@ function SpeakingTestRoomContent() {
   // URL Params config
   const mode = (searchParams.get("mode") || "mock") as "mock" | "part1" | "part2" | "part3";
   const topicKey = searchParams.get("topic") || "study";
-  const currentExam = EXAM_DATA[topicKey] || EXAM_DATA.study;
+  const [currentExam, setCurrentExam] = useState<any>(null);
+  const [isLoadingExam, setIsLoadingExam] = useState(true);
 
   // Active state controller
   const [currentStep, setCurrentStep] = useState<"intro" | "part1" | "part2_prep" | "part2_speak" | "part3" | "submitting">("intro");
@@ -293,6 +295,63 @@ function SpeakingTestRoomContent() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchSpeakingTopics().then(data => {
+      if (!mounted) return;
+      if (data && data.length > 0) {
+        // Find matching topic rows
+        const rows = data.filter((t: any) => 
+          String(t.topic || "").toLowerCase() === topicKey.toLowerCase() || 
+          String(t.title || "").toLowerCase() === topicKey.toLowerCase()
+        );
+
+        if (rows.length > 0) {
+          const part1Row = rows.find((r: any) => r.part === 1);
+          const part2Row = rows.find((r: any) => r.part === 2);
+          const part3Row = rows.find((r: any) => r.part === 3);
+
+          const part1Questions = part1Row?.questions 
+            ? (typeof part1Row.questions === 'string' ? JSON.parse(part1Row.questions) : part1Row.questions) 
+            : [];
+          const part2Questions = part2Row?.questions 
+            ? (typeof part2Row.questions === 'string' ? JSON.parse(part2Row.questions) : part2Row.questions) 
+            : {};
+          const part3Questions = part3Row?.questions 
+            ? (typeof part3Row.questions === 'string' ? JSON.parse(part3Row.questions) : part3Row.questions) 
+            : [];
+
+          const exam: any = {
+            title: part1Row?.topic || topicKey,
+            part1: part1Questions.map((qText: string, idx: number) => ({ id: `s1_q${idx}`, text: qText, duration: 45 })),
+            part2: {
+              text: part2Questions.cue_card || "Describe a place you have always wanted to visit.",
+              bullets: part2Questions.bullet_points || ["Where it is", "Why you want to go there"],
+              duration: 120
+            },
+            part3: part3Questions.map((qText: string, idx: number) => ({ id: `s3_q${idx}`, text: qText, duration: 60 }))
+          };
+          setCurrentExam(exam);
+        } else {
+          setCurrentExam(EXAM_DATA[topicKey] || EXAM_DATA.study);
+        }
+      } else {
+        setCurrentExam(EXAM_DATA[topicKey] || EXAM_DATA.study);
+      }
+      setIsLoadingExam(false);
+    }).catch(err => {
+      console.error("Error loading speaking exam:", err);
+      if (mounted) {
+        setCurrentExam(EXAM_DATA[topicKey] || EXAM_DATA.study);
+        setIsLoadingExam(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [topicKey]);
 
   // Helper: request mic permission and update state
   const requestMicPermission = useCallback(async () => {
@@ -850,6 +909,17 @@ function SpeakingTestRoomContent() {
     }, 2500);
   };
 
+  if (isLoadingExam || !currentExam) {
+    return (
+      <div className="min-h-screen bg-[#0b0f19] flex flex-col items-center justify-center p-6 text-center text-white">
+        <div className="relative w-16 h-16 mb-4 mx-auto">
+          <div className="absolute inset-0 rounded-full border-4 border-violet-500/20 border-t-[#ff7a00] animate-spin" />
+        </div>
+        <p className="text-sm font-black text-slate-400">Đang tải chủ đề thi Speaking...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#0b0f19] text-[#e2e8f0] min-h-screen font-sans flex flex-col relative overflow-hidden">
       
@@ -1174,7 +1244,7 @@ function SpeakingTestRoomContent() {
                     <p className="text-sm font-black text-white mb-3">&ldquo; {currentExam.part2.text} &rdquo;</p>
                     
                     <ul className="space-y-1.5 pl-4 list-disc text-xs text-slate-300 leading-normal">
-                      {currentExam.part2.bullets.map((b, i) => (
+                      {currentExam.part2.bullets.map((b: string, i: number) => (
                         <li key={i}>{b}</li>
                       ))}
                     </ul>

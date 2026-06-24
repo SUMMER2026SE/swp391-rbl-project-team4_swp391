@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { authFetch } from "@/lib/authFetch";
 import Link from "next/link";
 import { 
   Users, 
@@ -33,7 +34,7 @@ interface StatsData {
     total: number;
     active: number;
     locked: number;
-    roles: { ADMIN: number; STUDENT: number; GUEST: number };
+    roles: { ADMIN: number; INSTRUCTOR: number; STUDENT: number; GUEST: number };
   };
   recentInvoices: {
     id: string;
@@ -57,7 +58,7 @@ export default function AdminDashboardOverview() {
     async function fetchStats() {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/admin/stats");
+        const res = await authFetch("/api/admin/stats");
         if (!res.ok) {
           throw new Error("Không thể kết nối máy chủ để lấy dữ liệu thống kê.");
         }
@@ -118,7 +119,7 @@ export default function AdminDashboardOverview() {
               Báo cáo & Thống kê Hệ thống
             </span>
             <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
-              Chào mừng đến với <span className="text-[#649e5d]">QualiCode</span> Dashboard!
+              Chào mừng đến với <span className="text-[#649e5d]">Quali IELTS</span> Dashboard!
             </h1>
             <p className="text-slate-300 text-xs md:text-sm leading-relaxed font-medium">
               Theo dõi thời gian thực doanh thu bán hàng, đăng ký gói học tập IELTS và lượng người dùng đăng ký hoạt động trong hệ thống.
@@ -436,13 +437,18 @@ export default function AdminDashboardOverview() {
                 style={{ width: `${users.total > 0 ? (users.roles.STUDENT / users.total) * 100 : 0}%` }}
                 title={`Student: ${users.roles.STUDENT}`}
               />
-              <div 
-                className="h-full bg-[#ff9233]" 
+              <div
+                className="h-full bg-[#b38f4d]"
+                style={{ width: `${users.total > 0 ? (users.roles.INSTRUCTOR / users.total) * 100 : 0}%` }}
+                title={`Instructor: ${users.roles.INSTRUCTOR}`}
+              />
+              <div
+                className="h-full bg-[#ff9233]"
                 style={{ width: `${users.total > 0 ? (users.roles.GUEST / users.total) * 100 : 0}%` }}
                 title={`Guest: ${users.roles.GUEST}`}
               />
-              <div 
-                className="h-full bg-[#0d153a]" 
+              <div
+                className="h-full bg-[#0d153a]"
                 style={{ width: `${users.total > 0 ? (users.roles.ADMIN / users.total) * 100 : 0}%` }}
                 title={`Admin: ${users.roles.ADMIN}`}
               />
@@ -452,6 +458,10 @@ export default function AdminDashboardOverview() {
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded bg-[#3B5C37] block" />
                 <span>Học viên ({users.roles.STUDENT})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded bg-[#b38f4d] block" />
+                <span>Giảng viên ({users.roles.INSTRUCTOR})</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded bg-[#ff9233] block" />
@@ -563,7 +573,7 @@ export default function AdminDashboardOverview() {
                   Quản lý Người dùng
                 </h3>
                 <p className="text-slate-400 text-[10px] leading-relaxed font-bold">
-                  Quản lý danh sách học viên, phân quyền ADMIN, STUDENT, GUEST hoặc mở/khóa tài khoản học viên.
+                  Quản lý danh sách học viên, phân quyền ADMIN, INSTRUCTOR, STUDENT, GUEST hoặc mở/khóa tài khoản học viên.
                 </p>
               </div>
             </div>

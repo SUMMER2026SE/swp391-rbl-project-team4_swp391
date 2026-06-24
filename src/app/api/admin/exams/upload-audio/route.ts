@@ -1,8 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_OR_INSTRUCTOR } from "@/lib/roles";
 
 // POST /api/admin/exams/upload-audio — Upload audio file to Supabase Storage
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_OR_INSTRUCTOR);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

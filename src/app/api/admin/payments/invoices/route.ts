@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { getInvoices, createInvoice } from "@/lib/paymentDb";
 import { logActivity } from "@/lib/activityLogger";
 
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
@@ -57,6 +61,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const body = await request.json();
     const { userEmail, userName, packageId, packageName, amount, userId } = body;

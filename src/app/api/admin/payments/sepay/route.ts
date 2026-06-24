@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRole, ADMIN_ONLY } from "@/lib/roles";
 import { getSepayTransactions, saveSepayTransactions, getInvoices, saveInvoices } from "@/lib/paymentDb";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
 import { sendPaymentSuccessEmail } from "@/lib/emailService";
 
 export async function GET(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search") || "";
   const status = searchParams.get("status") || "";
@@ -45,6 +49,9 @@ export async function GET(request: NextRequest) {
 
 // POST: Giả lập / nhận webhook từ Sepay (Mô phỏng tự động đối khớp)
 export async function POST(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const body = await request.json();
     const { amount, transferContent, senderAccount, senderBank, bankTransactionId } = body;
@@ -200,6 +207,9 @@ export async function POST(request: NextRequest) {
 // PATCH: Đối soát thủ công (Manual binding)
 // Admin duyệt tay bằng cách liên kết 1 giao dịch UNMATCHED với 1 hóa đơn PENDING
 export async function PATCH(request: NextRequest) {
+  const auth = await requireRole(request, ADMIN_ONLY);
+  if (!auth) return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
   try {
     const body = await request.json();
     const { transactionId, invoiceId } = body;

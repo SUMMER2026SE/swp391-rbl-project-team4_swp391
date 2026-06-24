@@ -2,7 +2,7 @@ import React from "react";
 import ExamForm from "../_components/ExamForm";
 
 export const metadata = {
-  title: "Tạo đề thi mới | QualiCode Admin",
+  title: "Tạo đề thi mới | Quali IELTS Admin",
   description: "Tạo đề thi Cambridge IELTS Listening mới",
 };
 

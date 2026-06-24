@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { authFetch } from "@/lib/authFetch";
 import Link from "next/link";
 import {
   Plus,
@@ -46,7 +47,7 @@ export default function AdminExamsPage() {
       if (statusFilter !== "all") params.set("status", statusFilter);
       if (search.trim()) params.set("search", search.trim());
 
-      const res = await fetch(`/api/admin/exams?${params.toString()}`);
+      const res = await authFetch(`/api/admin/exams?${params.toString()}`);
       const data = await res.json();
       if (res.ok) {
         setExams(data.exams || []);
@@ -74,7 +75,7 @@ export default function AdminExamsPage() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/exams/${deleteTarget.id}`, { method: "DELETE" });
+      const res = await authFetch(`/api/admin/exams/${deleteTarget.id}`, { method: "DELETE" });
       const data = await res.json();
       if (res.ok) {
         setExams((prev) => prev.filter((e) => e.id !== deleteTarget.id));

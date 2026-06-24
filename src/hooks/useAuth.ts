@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 export interface AuthUser extends User {
   user_metadata: {
     name?: string;
-    role?: "ADMIN" | "STUDENT" | "GUEST";
+    role?: import("@/lib/roles").UserRole;
     isLocked?: boolean;
     avatar_url?: string;
     bio?: string;
