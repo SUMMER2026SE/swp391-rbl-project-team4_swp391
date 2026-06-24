@@ -75,6 +75,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     toastUploadSuccess: isEn ? "Audio uploaded successfully!" : "Upload audio thành công!",
     toastSaveDraftSuccess: isEn ? "Draft saved successfully!" : "Đã lưu nháp thành công!",
     toastPublishSuccess: isEn ? "Exam published successfully!" : "Đề thi đã được xuất bản thành công!",
+    toastUpdateSuccess: isEn ? "Exam updated successfully!" : "Đề thi đã được cập nhật thành công!",
     toastSaveError: isEn ? "Failed to save exam" : "Lưu thất bại",
     toastConnError: isEn ? "Server connection error" : "Lỗi kết nối máy chủ",
     headerCreate: isEn ? "Create New Cambridge Exam" : "Tạo đề thi Cambridge mới",
@@ -122,6 +123,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     backToList: isEn ? "← Back to List" : "← Quay lại danh sách",
     saveDraft: isEn ? "Save Draft" : "Lưu nháp",
     publish: isEn ? "Publish" : "Xuất bản",
+    save: isEn ? "Save" : "Lưu",
 
     // Validation
     valTitleRequired: isEn ? "Exam title is required" : "Tiêu đề đề thi là bắt buộc",
@@ -468,7 +470,9 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
       if (res.ok) {
         showToast(
           "success",
-          submitStatus === "published"
+          initialData?.status === "published"
+            ? t.toastUpdateSuccess
+            : submitStatus === "published"
             ? t.toastPublishSuccess
             : t.toastSaveDraftSuccess
         );
@@ -1022,31 +1026,48 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
         </Link>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => handleSubmit("draft")}
-            disabled={isSaving || isUploadingAudio}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-600 hover:border-[#0d153a] hover:text-[#0d153a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {t.saveDraft}
-          </button>
+          {initialData?.status === "published" ? (
+            <button
+              onClick={() => handleSubmit("published")}
+              disabled={isSaving || isUploadingAudio}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#3B5C37] text-white text-sm font-bold hover:bg-[#2f4a2b] transition-all shadow-[0_4px_16px_rgba(59, 92, 55,0.25)] hover:shadow-[0_6px_20px_rgba(59, 92, 55,0.35)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {t.save}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => handleSubmit("draft")}
+                disabled={isSaving || isUploadingAudio}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-600 hover:border-[#0d153a] hover:text-[#0d153a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {t.saveDraft}
+              </button>
 
-          <button
-            onClick={() => handleSubmit("published")}
-            disabled={isSaving || isUploadingAudio}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#3B5C37] text-white text-sm font-bold hover:bg-[#2f4a2b] transition-all shadow-[0_4px_16px_rgba(59, 92, 55,0.25)] hover:shadow-[0_6px_20px_rgba(59, 92, 55,0.35)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-          >
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-            {t.publish}
-          </button>
+              <button
+                onClick={() => handleSubmit("published")}
+                disabled={isSaving || isUploadingAudio}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#3B5C37] text-white text-sm font-bold hover:bg-[#2f4a2b] transition-all shadow-[0_4px_16px_rgba(59, 92, 55,0.25)] hover:shadow-[0_6px_20px_rgba(59, 92, 55,0.35)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {t.publish}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
