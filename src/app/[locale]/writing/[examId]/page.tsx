@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -18,6 +18,7 @@ import {
   WRITING_TEST_META,
 } from "@/lib/writingMockData";
 import { fetchWritingTasks } from "@/services/writingService";
+import { supabase } from "@/lib/supabase";
 import {
   buildWritingFeedback,
   countWords,
@@ -114,8 +115,8 @@ function TaskChart({ task }: { task: WritingTask }) {
 
 export default function WritingTestPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const taskId = searchParams?.get("taskId");
+  const params = useParams();
+  const examId = params?.examId as string | undefined;
 
   const [answers, setAnswers] = useState<Record<WritingTaskType, string>>({
     task1: "",
@@ -127,6 +128,7 @@ export default function WritingTestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tasks, setTasks] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [examMeta, setExamMeta] = useState<any>(WRITING_TEST_META);
   const timerStarted = useRef(false);
 
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? tasks[0] ?? WRITING_TASKS[0];
@@ -140,61 +142,116 @@ export default function WritingTestPage() {
   const totalWords = wordCounts.task1 + wordCounts.task2;
 
   useEffect(() => {
-    const storageKey = `ielts-writing-${taskId || "default"}`;
+    const loadWritingData = async () => {
+      try {
+        if (examId) {
+          // 1. Fetch exam details from exams
+          const { data: examData } = await supabase
+            .from("exams")
+            .select("*")
+            .eq("id", examId)
+            .single();
+
+          if (examData) {
+            setExamMeta({
+              id: examData.id,
+              testTitle: examData.title || WRITING_TEST_META.testTitle,
+              durationMinutes: examData.duration_minutes || WRITING_TEST_META.durationMinutes
+            });
+            if (examData.duration_minutes) {
+              setTimeRemaining(examData.duration_minutes * 60);
+            }
+          }
+
+          // 2. Fetch exam sections
+          const { data: sectionsData } = await supabase
+            .from("exam_sections")
+            .select("*")
+            .eq("exam_id", examId)
+            .order("section_no", { ascending: true });
+
+          if (sectionsData && sectionsData.length > 0) {
+            const mapped = sectionsData.map((sec: any) => {
+              const taskId = sec.section_no === 1 ? "task1" : "task2";
+              return {
+                id: taskId,
+                label: sec.section_no === 1 ? "Writing Task 1" : "Writing Task 2",
+                title: sec.title || (sec.section_no === 1 ? "Report" : "Essay"),
+                prompt: sec.content || "",
+                recommendedMinutes: sec.section_no === 1 ? 20 : 40,
+                minimumWords: sec.section_no === 1 ? 150 : 250,
+                bullets: [],
+                assessmentFocus: ["Task Achievement", "Coherence and Cohesion", "Lexical Resource", "Grammatical Range and Accuracy"],
+                visualTitle: sec.title,
+                visualDescription: "",
+                dataPoints: [],
+                imageUrl: null
+              };
+            });
+            setTasks(mapped);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback 1: load writing tasks from writing_tasks table
+        const dbTasks = await fetchWritingTasks();
+        if (dbTasks && dbTasks.length > 0) {
+          let selected: any[] = [];
+          if (examId) {
+            const singleTask = dbTasks.find((t: any) => t.id === examId);
+            if (singleTask) {
+              selected = [singleTask];
+            }
+          }
+          if (selected.length === 0) {
+            const task1 = dbTasks.find((t: any) => t.task_type === 'task1');
+            const task2 = dbTasks.find((t: any) => t.task_type === 'task2');
+            selected = [task1, task2].filter(Boolean);
+          }
+
+          const mapped = selected.map((t: any) => ({
+            id: t.task_type === 'task1' ? 'task1' : 'task2',
+            label: t.task_type === 'task1' ? 'Writing Task 1' : 'Writing Task 2',
+            title: t.title,
+            prompt: t.description || t.prompt || "",
+            recommendedMinutes: t.task_type === 'task1' ? 20 : 40,
+            minimumWords: t.task_type === 'task1' ? 150 : 250,
+            bullets: t.bullets || [],
+            assessmentFocus: t.assessment_focus || ["Range of vocabulary and grammar", "Cohesion and coherence", "Task response"],
+            visualTitle: t.visual_title || t.title,
+            visualDescription: t.visual_description || "",
+            dataPoints: t.data_points || [],
+            imageUrl: t.cloudinary_url || t.thumbnail_url || null
+          }));
+          setTasks(mapped);
+
+          // Dynamic timer and active task
+          if (mapped.length > 0) {
+            setActiveTaskId(mapped[0].id);
+            const durationMinutes = mapped.reduce((acc, curr) => acc + curr.recommendedMinutes, 0);
+            setTimeRemaining(durationMinutes * 60);
+          }
+        } else {
+          // Fallback 2: fallback to static WRITING_TASKS
+          setTasks(WRITING_TASKS);
+        }
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error loading writing exam data:", err);
+        setTasks(WRITING_TASKS);
+        setIsLoading(false);
+      }
+    };
+
+    const storageKey = `ielts-writing-${examId || "default"}`;
     // Clear initial state to prevent previous test content bleeding
     setAnswers({
       task1: "",
       task2: "",
     });
 
-    fetchWritingTasks().then(data => {
-      let selected: any[] = [];
-      if (data && data.length > 0) {
-        if (taskId) {
-          const singleTask = data.find((t: any) => t.id === taskId);
-          if (singleTask) {
-            selected = [singleTask];
-          }
-        }
-        if (selected.length === 0) {
-          // If no taskId or task not found, load default first task1 and task2
-          const task1 = data.find((t: any) => t.task_type === 'task1');
-          const task2 = data.find((t: any) => t.task_type === 'task2');
-          selected = [task1, task2].filter(Boolean);
-        }
-
-        const mapped = selected.map((t: any) => ({
-          id: t.task_type === 'task1' ? 'task1' : 'task2',
-          label: t.task_type === 'task1' ? 'Writing Task 1' : 'Writing Task 2',
-          title: t.title,
-          prompt: t.description || t.prompt || "",
-          recommendedMinutes: t.task_type === 'task1' ? 20 : 40,
-          minimumWords: t.task_type === 'task1' ? 150 : 250,
-          bullets: t.bullets || [],
-          assessmentFocus: t.assessment_focus || ["Range of vocabulary and grammar", "Cohesion and coherence", "Task response"],
-          visualTitle: t.visual_title || t.title,
-          visualDescription: t.visual_description || "",
-          dataPoints: t.data_points || [],
-          imageUrl: t.cloudinary_url || t.thumbnail_url || null
-        }));
-
-        setTasks(mapped);
-
-        // Dynamic timer and active task
-        if (mapped.length > 0) {
-          setActiveTaskId(mapped[0].id);
-          const durationMinutes = mapped.reduce((acc, curr) => acc + curr.recommendedMinutes, 0);
-          setTimeRemaining(durationMinutes * 60);
-        }
-      } else {
-        setTasks(WRITING_TASKS);
-      }
-      setIsLoading(false);
-    }).catch(err => {
-      console.error("Error loading writing tasks:", err);
-      setTasks(WRITING_TASKS);
-      setIsLoading(false);
-    });
+    loadWritingData();
 
     const persisted = loadPersisted(storageKey);
     if (!persisted) return;
@@ -211,7 +268,7 @@ export default function WritingTestPage() {
       }
       if (persisted.savedAt) setSavedAt(persisted.savedAt);
     });
-  }, [taskId]);
+  }, [examId]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -226,7 +283,7 @@ export default function WritingTestPage() {
 
   useEffect(() => {
     if (isLoading) return;
-    const storageKey = `ielts-writing-${taskId || "default"}`;
+    const storageKey = `ielts-writing-${examId || "default"}`;
     const nextSavedAt = new Date().toISOString();
     const payload: WritingPersistedState = {
       answers,
@@ -236,11 +293,11 @@ export default function WritingTestPage() {
     };
     localStorage.setItem(storageKey, JSON.stringify(payload));
     setSavedAt(nextSavedAt);
-  }, [answers, activeTaskId, timeRemaining, isLoading, taskId]);
+  }, [answers, activeTaskId, timeRemaining, isLoading, examId]);
 
   const submitTest = useCallback(() => {
     if (isSubmitting) return;
-    const storageKey = `ielts-writing-${taskId || "default"}`;
+    const storageKey = `ielts-writing-${examId || "default"}`;
     const missingTask = tasks.find(
       (task) => countWords(answers[task.id as WritingTaskType]) < Math.min(20, task.minimumWords)
     );
@@ -255,7 +312,7 @@ export default function WritingTestPage() {
     const feedback = buildWritingFeedback(attemptId, answers);
     saveWritingAttempt({
       id: attemptId,
-      testId: WRITING_TEST_META.id,
+      testId: examMeta.id || WRITING_TEST_META.id,
       answers,
       wordCounts,
       timeRemaining,
@@ -264,7 +321,7 @@ export default function WritingTestPage() {
     });
     localStorage.removeItem(storageKey);
     router.push(`/writing/result?id=${attemptId}`);
-  }, [answers, isSubmitting, router, timeRemaining, wordCounts, tasks, taskId]);
+  }, [answers, isSubmitting, router, timeRemaining, wordCounts, tasks, examMeta, examId]);
 
   useEffect(() => {
     if (timeRemaining === 0 && !isSubmitting) {
@@ -296,7 +353,7 @@ export default function WritingTestPage() {
             </Link>
             <div className="min-w-0">
               <p className="truncate text-xs font-black uppercase tracking-wider text-[#3B5C37]">
-                {WRITING_TEST_META.testTitle}
+                {examMeta.testTitle}
               </p>
               <p className="truncate text-sm font-black text-[#0f1738]">
                 {activeTask.label} - {activeTask.title}
@@ -386,7 +443,7 @@ export default function WritingTestPage() {
             {activeTask.prompt}
           </p>
 
-          {activeTask.bullets && (
+          {activeTask.bullets && activeTask.bullets.length > 0 && (
             <ul className="mt-4 space-y-2 rounded-xl border border-[#e6eadf] bg-white p-4 text-sm text-[#374151]">
               {activeTask.bullets.map((bullet: string) => (
                 <li key={bullet} className="flex gap-2">
