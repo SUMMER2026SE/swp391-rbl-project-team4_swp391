@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSepayTransactions, saveSepayTransactions, getInvoices, saveInvoices } from "@/lib/paymentDb";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
+import { sendPaymentSuccessEmail } from "@/lib/emailService";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -149,6 +150,13 @@ export async function POST(request: NextRequest) {
             `Hóa đơn ${invoice.id} đã được tự động thanh toán qua cổng Sepay (Giao dịch: ${newTx.id})`,
             request
           );
+
+          // Gửi email thông báo thanh toán thành công
+          try {
+            await sendPaymentSuccessEmail(invoice.userEmail, invoice.userName, invoice);
+          } catch (mailErr: any) {
+            console.warn("⚠️ Gặp lỗi khi gửi email thông báo thanh toán (Sepay POST):", mailErr.message);
+          }
         } else if (invoice.status === "PAID") {
           console.log(`⚠️ [Sepay Webhook] Hóa đơn ${invoice.id} đã được thanh toán trước đó.`);
         } else {
@@ -284,6 +292,13 @@ export async function PATCH(request: NextRequest) {
       `Duyệt đối soát giao dịch Sepay thủ công thành công: Hóa đơn ${invoice.id} được khớp với Giao dịch Sepay ${transactionId}`,
       request
     );
+
+    // Gửi email thông báo thanh toán thành công
+    try {
+      await sendPaymentSuccessEmail(invoice.userEmail, invoice.userName, invoice);
+    } catch (mailErr: any) {
+      console.warn("⚠️ Gặp lỗi khi gửi email thông báo thanh toán (Sepay PATCH):", mailErr.message);
+    }
 
     return NextResponse.json({
       message: "Duyệt đối soát giao dịch thủ công thành công!",

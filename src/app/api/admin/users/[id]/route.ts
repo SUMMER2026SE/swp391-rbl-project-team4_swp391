@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
+import { sendAccountLockEmail, sendAccountUnlockEmail } from "@/lib/emailService";
 
 // PUT: Cập nhật thông tin chi tiết người dùng trên Supabase Auth DB
 export async function PUT(
@@ -57,7 +58,23 @@ export async function PUT(
       throw new Error(updateError?.message || "Không thể cập nhật thông tin người dùng.");
     }
 
+    // Gửi email thông báo khóa/mở tài khoản nếu trạng thái thay đổi
+    const wasLocked = currentUser.user_metadata?.isLocked === true;
+    const isNowLocked = newMetadata.isLocked === true;
+    if (wasLocked !== isNowLocked) {
+      try {
+        if (isNowLocked) {
+          await sendAccountLockEmail(email, name);
+        } else {
+          await sendAccountUnlockEmail(email, name);
+        }
+      } catch (mailErr: any) {
+        console.warn("⚠️ Gặp lỗi khi gửi email thông báo trạng thái tài khoản:", mailErr.message);
+      }
+    }
+
     const formattedUser = {
+
       id: user.id,
       name: user.user_metadata?.name || name,
       email: user.email || email,

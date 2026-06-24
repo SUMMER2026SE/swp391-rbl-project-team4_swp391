@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInvoices, saveInvoices } from "@/lib/paymentDb";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
+import { sendPaymentSuccessEmail } from "@/lib/emailService";
 
 export async function PUT(
   request: NextRequest,
@@ -108,6 +109,15 @@ export async function PUT(
         `Duyệt thanh toán hóa đơn thành công: ${invoice.id} (${invoice.packageName}, Số tiền: ${invoice.amount.toLocaleString("vi-VN")} VNĐ, Phương thức: ${invoice.paymentMethod})`,
         request
       );
+
+      // Gửi email thông báo thanh toán thành công
+      if (oldStatus !== "PAID") {
+        try {
+          await sendPaymentSuccessEmail(invoice.userEmail, invoice.userName, invoice);
+        } catch (mailErr: any) {
+          console.warn("⚠️ Gặp lỗi khi gửi email xác nhận thanh toán:", mailErr.message);
+        }
+      }
     } else {
       // Log update status activity (e.g., Cancelled)
       await logActivity(

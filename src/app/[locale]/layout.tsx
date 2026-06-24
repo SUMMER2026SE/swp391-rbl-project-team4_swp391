@@ -4,6 +4,7 @@ import "../globals.css";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import AuthCookieManager from "@/components/AuthCookieManager";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,8 +60,11 @@ export default async function LocaleLayout({
     >
       <NextIntlClientProvider locale={resolvedParams.locale} messages={messages}>
         <AuthCookieManager />
-        {children}
+        <MaintenanceGuard>
+          {children}
+        </MaintenanceGuard>
       </NextIntlClientProvider>
     </div>
   );
 }
+

@@ -203,6 +203,19 @@ function SpeakingTestRoomContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.settings) {
+          setSettings(data.settings);
+        }
+      })
+      .catch((err) => console.error("Lỗi lấy cấu hình:", err));
+  }, []);
+
   // URL Params config
   const mode = (searchParams.get("mode") || "mock") as "mock" | "part1" | "part2" | "part3";
   const topicKey = searchParams.get("topic") || "study";
@@ -778,8 +791,17 @@ function SpeakingTestRoomContent() {
       // Simulating a realistic score
       const pScore = parseFloat((6.5 + Math.random()).toFixed(1));
 
-      // Calculate overall band score (average of 4 components, rounded to nearest 0.5)
-      const exactAverage = (fcScore + lrScore + graScore + pScore) / 4;
+      // Calculate overall band score using dynamic weights if configured
+      const fluencyWeight = settings?.bandScore?.fluencyWeight ?? 0.25;
+      const lexicalWeight = settings?.bandScore?.lexicalWeight ?? 0.25;
+      const grammarWeight = settings?.bandScore?.grammarWeight ?? 0.25;
+      const pronunciationWeight = settings?.bandScore?.pronunciationWeight ?? 0.25;
+
+      const exactAverage = 
+        (fcScore * fluencyWeight) + 
+        (lrScore * lexicalWeight) + 
+        (graScore * grammarWeight) + 
+        (pScore * pronunciationWeight);
       const roundedBand = Math.round(exactAverage * 2) / 2;
 
       // Generate a mock ID
