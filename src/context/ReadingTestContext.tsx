@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { supabase } from "@/lib/supabase";
 import { fetchReadingPassages } from "@/services/readingService";
 import {
@@ -133,9 +133,11 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
 
     fetchReadingPassages().then(data => {
       const validData = data ? data.filter(p => p.questions && p.questions.length > 0) : [];
-      if (validData.length > 0) {
+      const bcData = validData.filter(p => p.youpass_id && p.youpass_id.startsWith("bc-passage-"));
+      bcData.sort((a, b) => a.youpass_id.localeCompare(b.youpass_id));
+      if (bcData.length > 0) {
         let runningQId = 1;
-        const mappedPassages = validData.map((p, pIdx) => {
+        const mappedPassages = bcData.map((p, pIdx) => {
           const sectionLabel = p.sectionLabel || `Reading Passage ${pIdx + 1}`;
           const paragraphs = p.paragraphs || (p.content_html ? [{ id: `p-${pIdx}-1`, label: "", text: p.content_html.replace(/<[^>]*>/g, '') }] : []);
           
@@ -155,7 +157,10 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
               defaultInstruction = "Answer the question with NO MORE THAN TWO WORDS.";
             } else if (rawType === "matching") {
               type = "matching";
-              defaultInstruction = "Choose the correct heading for each section.";
+              const isParagraphMatching = q.headings && q.headings.every((h: any) => typeof h === "string" && h.length === 1 && h >= "A" && h <= "Z");
+              defaultInstruction = isParagraphMatching
+                ? "Which paragraph contains the following information?"
+                : "Choose the correct heading for each section.";
             }
 
             const prompt = q.statement || q.text || q.prompt || q.question_text || "";
@@ -220,6 +225,10 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
         setUserRole("GUEST");
         setUserName(null);
       }
+    }).catch((err) => {
+      console.warn("Failed to retrieve reading test user session:", err);
+      setUserRole("GUEST");
+      setUserName(null);
     });
   }, []);
 

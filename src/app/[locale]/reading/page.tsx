@@ -30,7 +30,9 @@ export default function ReadingLobbyPage() {
     fetchReadingPassages()
       .then((data) => {
         const valid = data ? data.filter((p: any) => p.questions && p.questions.length > 0) : [];
-        setPassages(valid);
+        const filtered = valid.filter((p: any) => p.youpass_id && p.youpass_id.startsWith("bc-passage-"));
+        filtered.sort((a: any, b: any) => a.youpass_id.localeCompare(b.youpass_id));
+        setPassages(filtered);
       })
       .catch((err) => console.error("Error loading passages:", err));
 
@@ -46,6 +48,10 @@ export default function ReadingLobbyPage() {
       } else {
         setUserRole("GUEST");
       }
+      setLoading(false);
+    }).catch((err) => {
+      console.warn("Failed to get session in reading lobby:", err);
+      setUserRole("GUEST");
       setLoading(false);
     });
   }, []);
@@ -284,27 +290,27 @@ export default function ReadingLobbyPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Card 1: Cambridge 18 - Test 1 (PLAYABLE) */}
+          {/* Card 1: British Council Road to IELTS — Academic Reading Test 1 (PLAYABLE) */}
           <div className="bg-white rounded-[32px] border border-gray-150 p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-gray-200 transition-all duration-300">
             <div>
               {/* Header section with book cover & metadata */}
               <div className="flex gap-6 items-start relative">
                 {/* Cambridge tag pill */}
                 <div className="absolute top-0 right-0 bg-[#fefdf0] border border-[#f5e0aa] text-[#b07d0a] text-[10px] font-black uppercase px-3 py-1 rounded-full">
-                  CAM 18
+                  BC IELTS
                 </div>
 
                 <div className="relative w-[100px] h-[138px] sm:w-[120px] sm:h-[166px] shrink-0 rounded-2xl overflow-hidden shadow-md">
                   <img 
                     src="/assets/cambridge/cam-12.jpeg" 
-                    alt="Cambridge 18 Academic Reading" 
+                    alt="British Council Road to IELTS Academic Reading" 
                     className="object-cover w-full h-full"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-1">
                   <h3 className="text-xl sm:text-2xl font-black text-[#0f1738] leading-tight">
-                    Cambridge 18 - Test 1
+                    British Council Road to IELTS — Academic Reading Test 1
                   </h3>
                   
                   <div className="inline-flex w-fit items-center gap-1 bg-amber-50 border border-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[11px] font-bold">
@@ -329,11 +335,11 @@ export default function ReadingLobbyPage() {
                       1
                     </div>
                     <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
-                      Urban Farming: The Future of Food Production
+                      MAKING TIME FOR SCIENCE
                     </span>
                   </div>
                   <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 shrink-0">
-                    ENVIRONMENT
+                    SCIENCE
                   </span>
                 </div>
 
@@ -344,11 +350,11 @@ export default function ReadingLobbyPage() {
                       2
                     </div>
                     <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
-                      The Psychology of Decision-Making
+                      The Triune Brain
                     </span>
                   </div>
                   <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-100 text-purple-600 shrink-0">
-                    PSYCHOLOGY
+                    NEUROSCIENCE
                   </span>
                 </div>
 
@@ -359,11 +365,11 @@ export default function ReadingLobbyPage() {
                       3
                     </div>
                     <span className="text-sm font-extrabold text-[#1b3d1e] truncate pr-2">
-                      The Deep Ocean: Earth's Final Frontier
+                      HELIUM’S FUTURE UP IN THE AIR
                     </span>
                   </div>
                   <span className="text-[9px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-100 text-orange-600 shrink-0">
-                    NATURAL SCIENCE
+                    CHEMISTRY
                   </span>
                 </div>
               </div>
