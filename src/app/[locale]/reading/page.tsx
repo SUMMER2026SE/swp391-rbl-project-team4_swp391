@@ -367,7 +367,6 @@ export default function ReadingLobbyPage() {
             <div className="col-span-full flex items-center justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent border-[#3B5C37]"></div>
             </div>
-            </div>
           ) : exams.length === 0 ? (
             <div className="col-span-full text-center py-12 text-gray-500 font-medium bg-white rounded-3xl border border-gray-150 shadow-sm">
               Không tìm thấy đề thi Reading nào.
