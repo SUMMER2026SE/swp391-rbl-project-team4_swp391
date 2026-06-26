@@ -3,6 +3,7 @@ import { READING_ANSWER_KEY, checkAnswer } from "@/lib/readingAnswerKey";
 import { READING_PASSAGE_1, READING_PASSAGE_2, READING_PASSAGE_3, READING_TEST_META } from "@/lib/readingMockData";
 import type { ReadingAttemptPayload, ReadingGradeResult } from "@/types/readingGrade";
 import { buildReadingExplanationVi } from "@/lib/readingExplainEngine";
+import { supabaseAdmin } from "@/lib/supabase";
 
 const GEMINI_MODEL = "gemini-1.5-flash";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
@@ -89,18 +90,109 @@ function fallbackGrade(
   };
 }
 
+async function getDbGrade(
+  attemptId: string,
+  testId: string,
+  answers: Record<string, string>
+): Promise<ReadingGradeResult> {
+  const { data: questions, error } = await supabaseAdmin
+    .from("questions")
+    .select("id, section, question_type, text, correct_answer, options, order_index")
+    .eq("exam_id", testId)
+    .order("order_index", { ascending: true });
+
+  if (error || !questions || questions.length === 0) {
+    console.error("Error fetching questions for grading:", error);
+    throw new Error("Could not find questions for this exam");
+  }
+
+  const checkAnswerLocal = (correct: string, userAnswer: string, qOrderIndex: number): boolean => {
+    if (!correct || !userAnswer?.trim()) return false;
+
+    const u = userAnswer.trim().toLowerCase().replace(/\s+/g, " ");
+    const c = correct.trim().toLowerCase().replace(/\s+/g, " ");
+
+    if (u === c) return true;
+
+    // Interchangeable answers for Q12 & Q13 in Cambridge 18 Test 2
+    if (testId === "a1b2c3d4-0001-0001-0001-000000000002" && (qOrderIndex === 12 || qOrderIndex === 13)) {
+      const userAns12 = (answers["12"] || "").trim().toUpperCase();
+      const userAns13 = (answers["13"] || "").trim().toUpperCase();
+      const allowed = ["C", "E"];
+      if (qOrderIndex === 12) {
+        return allowed.includes(userAns12);
+      } else {
+        return allowed.includes(userAns13) && userAns13 !== userAns12;
+      }
+    }
+
+    if (/^[a-f]$/i.test(c)) {
+      return u === c || u.startsWith(c + " ") || u.startsWith(c + ".");
+    }
+
+    const stdAnswers = ["true", "false", "not given", "yes", "no"];
+    if (stdAnswers.includes(c)) {
+      if ((u === "true" || u === "yes") && (c === "true" || c === "yes")) return true;
+      if ((u === "false" || u === "no") && (c === "false" || c === "no")) return true;
+      return u === c;
+    }
+
+    return c.includes(u) || u.includes(c);
+  };
+
+  const questionResults = questions.map((q) => {
+    const userAnswer = answers[String(q.order_index)] ?? "";
+    const correctAnswer = q.correct_answer ?? "";
+    const isCorrect = checkAnswerLocal(correctAnswer, userAnswer, q.order_index);
+
+    let explanationVi = `Đáp án đúng là "${correctAnswer}".`;
+    if (q.question_type?.includes("true_false") || q.question_type?.includes("tfng")) {
+      explanationVi = `Câu phát biểu này là ${correctAnswer}.`;
+    }
+
+    return {
+      questionId: q.order_index,
+      isCorrect,
+      correctAnswer,
+      userAnswer: userAnswer || "(không trả lời)",
+      explanationVi,
+      tipVi: undefined,
+    };
+  });
+
+  const rawScore = questionResults.filter((r) => r.isCorrect).length;
+  const total = questionResults.length;
+
+  return {
+    attemptId,
+    rawScore,
+    totalQuestions: total,
+    bandScore: bandFromRaw(rawScore, total),
+    overallFeedbackVi: `Bạn đạt ${rawScore}/${total} câu đúng. Hãy ôn lại các dạng câu hỏi sai.`,
+    strengths: rawScore >= total / 2 ? ["Hoàn thành phần lớn câu hỏi"] : [],
+    improvements: ["Đọc kỹ từ khóa trong đề"],
+    questionResults,
+    gradedAt: new Date().toISOString(),
+  };
+}
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   try {
     const body = (await request.json()) as ReadingAttemptPayload;
-    const { id: attemptId, answers } = body;
+    const { id: attemptId, testId, answers } = body;
 
     if (!attemptId || !answers) {
       return NextResponse.json({ error: "Thiếu dữ liệu bài nộp." }, { status: 400 });
     }
 
-    const prelim = fallbackGrade(attemptId, answers);
+    let prelim: ReadingGradeResult;
+    if (testId && testId !== "bc-road-to-ielts-reading-1") {
+      prelim = await getDbGrade(attemptId, testId, answers);
+    } else {
+      prelim = fallbackGrade(attemptId, answers);
+    }
 
     if (!apiKey) {
       console.warn("[Gemini Reading] GEMINI_API_KEY is not configured. Returning local fallback grade.");

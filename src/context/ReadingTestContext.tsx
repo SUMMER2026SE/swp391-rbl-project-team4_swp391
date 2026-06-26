@@ -160,22 +160,22 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
               const secQuestions = (questionsData || [])
                 .filter((q: any) => q.section === sec.section_no)
                 .map((q: any) => {
-                  const rawType = q.question_type || "";
+                  const rawType = (q.question_type || "").toLowerCase();
                   let type = "tfng";
                   let defaultInstruction = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE, or NOT GIVEN.";
                   
-                  if (rawType === "true_false_not_given" || rawType === "tfng") {
+                  if (rawType.includes("true_false") || rawType.includes("tfng") || rawType.includes("y_n_ng") || rawType.includes("yes_no")) {
                     type = "tfng";
                     defaultInstruction = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE, or NOT GIVEN.";
-                  } else if (rawType === "multiple_choice" || rawType === "mcq") {
+                  } else if (rawType.includes("multiple_choice") || rawType.includes("mcq")) {
                     type = "mcq";
                     defaultInstruction = "Choose the correct letter, A, B, C or D.";
-                  } else if (rawType === "short_answer" || rawType === "fill") {
+                  } else if (rawType.includes("short_answer") || rawType.includes("fill") || rawType.includes("blank")) {
                     type = "fill";
                     defaultInstruction = "Answer the question with NO MORE THAN TWO WORDS.";
-                  } else if (rawType === "matching") {
+                  } else if (rawType.includes("matching")) {
                     type = "matching";
-                    defaultInstruction = "Choose the correct heading for each section.";
+                    defaultInstruction = "Choose the correct heading/option for each question.";
                   }
 
                   let options = q.options || [];
@@ -201,7 +201,26 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
                     options,
                     placeholder: "Type your answer...",
                     maxWords: 2,
-                    headings: []
+                    headings: type === "matching" ? (q.options || []) : []
+                  };
+                });
+
+              // Split passage content into paragraphs properly
+              const paragraphs = (sec.content || "")
+                .split(/\n\s*\n/)
+                .filter((txt: string) => txt.trim().length > 0)
+                .map((txt: string, pIdx: number) => {
+                  let label = "";
+                  let cleanedText = txt.trim();
+                  const match = cleanedText.match(/^([A-I])\s+/);
+                  if (match) {
+                    label = `Paragraph ${match[1]}`;
+                    cleanedText = cleanedText.substring(match[0].length);
+                  }
+                  return {
+                    id: `p-${sec.id}-${pIdx}`,
+                    label,
+                    text: cleanedText
                   };
                 });
 
@@ -210,7 +229,7 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
                 sectionLabel: `Reading Passage ${sec.section_no}`,
                 title: sec.title || `Passage ${sec.section_no}`,
                 subtitle: `You should spend about 20 minutes on Questions, which are based on Reading Passage ${sec.section_no} below.`,
-                paragraphs: [{ id: `p-${sec.id}-1`, label: "", text: sec.content || "" }],
+                paragraphs,
                 questions: secQuestions
               };
             });
@@ -225,8 +244,13 @@ export function ReadingTestProvider({ children }: { children: React.ReactNode })
         const data = await fetchReadingPassages();
         const validData = data ? data.filter(p => p.questions && p.questions.length > 0) : [];
         if (validData.length > 0) {
+          // Rule 1: Always filter test questions/passages to only match the target exam prefix (e.g., bc-passage- for British Council Test 1)
+          // and sort them alphabetically (e.g., bc-passage-1, bc-passage-2, bc-passage-3) to maintain the exact sequence of the PDF.
+          const filteredData = validData.filter((p: any) => p.youpass_id && p.youpass_id.startsWith("bc-passage-"));
+          filteredData.sort((a: any, b: any) => a.youpass_id.localeCompare(b.youpass_id));
+          
           let runningQId = 1;
-          const mappedPassages = validData.map((p, pIdx) => {
+          const mappedPassages = filteredData.map((p, pIdx) => {
             const sectionLabel = p.sectionLabel || `Reading Passage ${pIdx + 1}`;
             const paragraphs = p.paragraphs || (p.content_html ? [{ id: `p-${pIdx}-1`, label: "", text: p.content_html.replace(/<[^>]*>/g, '') }] : []);
             

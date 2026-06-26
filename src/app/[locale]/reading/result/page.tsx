@@ -14,7 +14,7 @@ import {
   Lightbulb,
   TrendingUp,
 } from "lucide-react";
-import { READING_PASSAGE_1, READING_TEST_META } from "@/lib/readingMockData";
+import { READING_PASSAGE_1, READING_PASSAGE_2, READING_PASSAGE_3, READING_TEST_META } from "@/lib/readingMockData";
 import {
   getReadingAttempt,
   updateReadingAttempt,
@@ -31,6 +31,7 @@ function ResultContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [gradeSource, setGradeSource] = useState<"gemini" | "fallback" | "">("");
+  const [questionsById, setQuestionsById] = useState<Record<string, any>>({});
 
   useEffect(() => {
     if (!attemptId) {
@@ -47,6 +48,38 @@ function ResultContent() {
     }
 
     setAttempt(saved);
+
+    // Dynamic question mapping to display correct prompts
+    if (saved.testId && saved.testId !== "bc-road-to-ielts-reading-1") {
+      fetch(`/api/reading/exams/${saved.testId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.questions) {
+            let runningQId = 1;
+            const mapped = Object.fromEntries(
+              data.questions.map((q: any) => [
+                runningQId,
+                {
+                  id: runningQId++,
+                  prompt: q.text || "",
+                  options: q.options || [],
+                },
+              ])
+            );
+            setQuestionsById(mapped);
+          }
+        })
+        .catch((err) => console.error("Error loading questions for result:", err));
+    } else {
+      const mapped = Object.fromEntries(
+        [
+          ...READING_PASSAGE_1.questions,
+          ...READING_PASSAGE_2.questions,
+          ...READING_PASSAGE_3.questions,
+        ].map((q) => [q.id, q])
+      );
+      setQuestionsById(mapped);
+    }
 
     if (saved.grade) {
       setGrade(saved.grade);
@@ -198,9 +231,7 @@ function ResultContent() {
     );
   }
 
-  const questionsById = Object.fromEntries(
-    READING_PASSAGE_1.questions.map((q) => [q.id, q])
-  );
+
 
   return (
     <div className="min-h-dvh bg-gradient-to-b from-slate-50 to-blue-50/30">

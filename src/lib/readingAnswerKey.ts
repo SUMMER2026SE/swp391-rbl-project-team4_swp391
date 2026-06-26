@@ -62,6 +62,8 @@ export function checkAnswer(questionId: number, userAnswer: string): boolean {
   // Standarized Yes/No/True/False/Not Given
   const stdAnswers = ["true", "false", "not given", "yes", "no"];
   if (stdAnswers.includes(c)) {
+    if ((u === "true" || u === "yes") && (c === "true" || c === "yes")) return true;
+    if ((u === "false" || u === "no") && (c === "false" || c === "no")) return true;
     return u === c;
   }
 
