@@ -200,9 +200,12 @@ export async function PUT(
 
 // DELETE /api/admin/exams/[id] — Delete exam (sections cascade, then remove audio)
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireRole(request, ADMIN_OR_INSTRUCTOR);
+  if (!auth) return Response.json({ error: "Forbidden" }, { status: 403 });
+
   try {
     const { id } = await params;
 
@@ -219,11 +222,43 @@ export async function DELETE(
       .select("answers")
       .eq("exam_id", id);
 
-    // Delete exam (cascade deletes sections)
-    const { error } = await supabaseAdmin.from("exams").delete().eq("id", id);
+    // Delete exam using a self-healing cascade deletion loop for foreign key constraints
+    const tableColumns: Record<string, string> = {
+      questions: "exam_id",
+      exam_sections: "exam_id",
+      user_submissions: "exam_id",
+      practice_history: "test_id"
+    };
 
-    if (error) {
-      return Response.json({ error: error.message }, { status: 500 });
+    let deletionError = null;
+    while (true) {
+      const { error: delError } = await supabaseAdmin.from("exams").delete().eq("id", id);
+      if (!delError) {
+        break;
+      }
+
+      if (delError.code === "23503") {
+        const errorMsg = delError.details || delError.message || "";
+        const match = errorMsg.match(/referenced from table "([^"]+)"/);
+        if (match) {
+          const table = match[1];
+          const column = tableColumns[table] || "exam_id";
+          const { error: depError } = await supabaseAdmin.from(table).delete().eq(column, id);
+          if (depError) {
+            console.error(`[Delete Cascade] Failed to delete from dependent table '${table}':`, depError);
+            deletionError = depError;
+            break;
+          }
+          continue;
+        }
+      }
+
+      deletionError = delError;
+      break;
+    }
+
+    if (deletionError) {
+      return Response.json({ error: (deletionError as any).message }, { status: 500 });
     }
 
     // Cleanup speaking topics if category is speaking
