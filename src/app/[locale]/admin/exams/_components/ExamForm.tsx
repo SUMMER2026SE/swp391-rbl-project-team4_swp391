@@ -250,6 +250,9 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     try {
       const fd = new FormData();
       fd.append("file", file);
+      if (form.title) {
+        fd.append("examTitle", form.title);
+      }
       const res = await authFetch("/api/admin/exams/upload-audio", { method: "POST", body: fd });
       const data = await res.json();
       if (res.ok) {
@@ -334,6 +337,9 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     try {
       const fd = new FormData();
       fd.append("file", file);
+      if (form.title) {
+        fd.append("examTitle", form.title);
+      }
       const res = await authFetch("/api/admin/exams/upload-audio", { method: "POST", body: fd });
       const data = await res.json();
       if (res.ok) {
@@ -349,7 +355,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
     } finally {
       setIsUploadingAudio(false);
     }
-  }, [t.valAudioType, t.valAudioSize, t.toastUploadSuccess, t.valUploadError, t.valUploadConnError]);
+  }, [t.valAudioType, t.valAudioSize, t.toastUploadSuccess, t.valUploadError, t.valUploadConnError, form.title]);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {

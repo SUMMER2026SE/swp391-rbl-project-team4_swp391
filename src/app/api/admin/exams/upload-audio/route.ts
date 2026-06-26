@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const examTitle = formData.get("examTitle") as string | null;
 
     if (!file) {
       return Response.json({ error: "Không tìm thấy file audio" }, { status: 400 });
@@ -27,11 +28,11 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "File audio không được vượt quá 200MB" }, { status: 400 });
     }
 
-    // Generate storage path under 'admin/<filename-no-ext>/<filename>_<timestamp>.<ext>' in 'audio' bucket
+    // Generate storage path under 'admin/<examTitle-or-filename>/<filename>_<timestamp>.<ext>' in 'audio' bucket
     const timestamp = Date.now();
     const originalName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
     const ext = file.name.split(".").pop() || "mp3";
-    const folderName = originalName.trim();
+    const folderName = examTitle ? examTitle.trim().replace(/[\/\\:\*\?"<>\|]/g, "_") : originalName.trim();
     const storagePath = `admin/${folderName}/${originalName}_${timestamp}.${ext}`;
 
     // Convert File to ArrayBuffer then Uint8Array for Supabase upload
