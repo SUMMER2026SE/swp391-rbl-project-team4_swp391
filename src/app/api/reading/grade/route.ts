@@ -176,12 +176,82 @@ async function getDbGrade(
   };
 }
 
+async function saveSubmission(
+  authHeader: string | null,
+  result: ReadingGradeResult,
+  answers: Record<string, string>,
+  submittedAt?: string
+) {
+  if (!authHeader) return;
+  const token = authHeader.replace("Bearer ", "");
+  if (!token) return;
+
+  try {
+    const { data: { user }, error: userErr } = await supabaseAdmin.auth.getUser(token);
+    if (userErr || !user) {
+      console.warn("[Reading API Save] Failed to get authenticated user:", userErr);
+      return;
+    }
+
+    const userId = user.id;
+    const submissionId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : "00000000-0000-0000-0000-" + Math.random().toString(16).substring(2, 14).padEnd(12, '0');
+    
+    const resolvedExamId = "e5cad0de-0e8f-408b-9488-5e58a33a1ebb"; // IELTS Reading Test 1 UUID
+
+    // 1. Save to user_submissions
+    const { error: subErr } = await supabaseAdmin.from("user_submissions").insert({
+      id: submissionId,
+      user_id: userId,
+      exam_id: resolvedExamId,
+      score: result.bandScore,
+      answers: {
+        userAnswers: answers,
+        feedback: result,
+      },
+      started_at: submittedAt || new Date().toISOString(),
+      completed_at: new Date().toISOString(),
+    });
+
+    if (subErr) {
+      console.error("[Reading API Save] Error saving to user_submissions:", subErr.message);
+    } else {
+      console.log("[Reading API Save] Successfully saved to user_submissions");
+    }
+
+    // 2. Save to practice_history
+    const { error: histErr } = await supabaseAdmin.from("practice_history").insert({
+      user_id: userId,
+      category: "reading",
+      test_id: resolvedExamId,
+      test_name: READING_TEST_META.testTitle,
+      score: result.rawScore,
+      total: result.totalQuestions,
+      metadata: {
+        raw_score: result.rawScore,
+        band_level: result.bandScore,
+        submission_id: submissionId,
+      },
+    });
+
+    if (histErr) {
+      console.error("[Reading API Save] Error saving to practice_history:", histErr.message);
+    } else {
+      console.log("[Reading API Save] Successfully saved to practice_history");
+    }
+  } catch (err: any) {
+    console.error("[Reading API Save] Unexpected error saving submission:", err.message);
+  }
+}
+
 export async function POST(request: NextRequest) {
   const apiKey = process.env.GEMINI_API_KEY;
+  const authHeader = request.headers.get("Authorization");
 
   try {
     const body = (await request.json()) as ReadingAttemptPayload;
-    const { id: attemptId, testId, answers } = body;
+    const { id: attemptId, testId, answers, submittedAt } = body;
 
     if (!attemptId || !answers) {
       return NextResponse.json({ error: "Thiếu dữ liệu bài nộp." }, { status: 400 });
@@ -196,6 +266,7 @@ export async function POST(request: NextRequest) {
 
     if (!apiKey) {
       console.warn("[Gemini Reading] GEMINI_API_KEY is not configured. Returning local fallback grade.");
+      await saveSubmission(authHeader, prelim, answers, submittedAt);
       return NextResponse.json({ grade: prelim, source: "fallback" });
     }
 
@@ -241,6 +312,7 @@ Trả về ĐÚNG 1 JSON object (không markdown) schema:
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
       console.error("[Gemini Reading]", geminiRes.status, errText);
+      await saveSubmission(authHeader, prelim, answers, submittedAt);
       return NextResponse.json({ grade: prelim, source: "fallback" });
     }
 
@@ -252,6 +324,7 @@ Trả về ĐÚNG 1 JSON object (không markdown) schema:
     const parsed = parseGeminiJson(rawText);
 
     if (!parsed?.overallFeedbackVi || !String(parsed.overallFeedbackVi).trim()) {
+      await saveSubmission(authHeader, prelim, answers, submittedAt);
       return NextResponse.json({ grade: prelim, source: "fallback" });
     }
 
@@ -268,6 +341,7 @@ Trả về ĐÚNG 1 JSON object (không markdown) schema:
       gradedAt: new Date().toISOString(),
     };
 
+    await saveSubmission(authHeader, grade, answers, submittedAt);
     return NextResponse.json({ grade, source: "gemini" });
   } catch (error) {
     console.error("[Gemini Reading] Unexpected:", error);

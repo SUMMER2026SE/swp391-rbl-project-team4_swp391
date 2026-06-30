@@ -124,56 +124,9 @@ function ResultContent() {
           status: "graded",
         });
 
-        // Save progress to Supabase user_submissions and practice_history
+        // Register learning activity to study log API
         if (session?.user) {
           try {
-            const userId = session.user.id;
-            const submissionId = typeof window !== "undefined" && window.crypto?.randomUUID 
-              ? window.crypto.randomUUID() 
-              : "00000000-0000-0000-0000-" + Math.random().toString(16).substring(2, 14).padEnd(12, '0');
-
-            // 1. Save to user_submissions
-            const { error: subErr } = await supabase.from("user_submissions").insert({
-              id: submissionId,
-              user_id: userId,
-              exam_id: READING_TEST_META.id,
-              score: result.bandScore,
-              answers: {
-                userAnswers: saved.answers,
-                feedback: result,
-              },
-              started_at: saved.submittedAt || new Date().toISOString(),
-              completed_at: new Date().toISOString(),
-            });
-
-            if (subErr) {
-              console.error("❌ Lỗi khi lưu kết quả Reading vào user_submissions:", subErr);
-            } else {
-              console.log("✅ Lưu kết quả Reading vào user_submissions thành công!");
-            }
-
-            // 2. Save to practice_history for dashboard display
-            const { error: histErr } = await supabase.from("practice_history").insert({
-              user_id: userId,
-              category: "reading",
-              test_id: READING_TEST_META.id,
-              test_name: READING_TEST_META.testTitle,
-              score: result.rawScore,
-              total: result.totalQuestions,
-              metadata: {
-                raw_score: result.rawScore,
-                band_level: result.bandScore,
-                submission_id: submissionId,
-              },
-            });
-
-            if (histErr) {
-              console.error("❌ Lỗi khi lưu kết quả Reading vào practice_history:", histErr);
-            } else {
-              console.log("✅ Lưu kết quả Reading vào practice_history thành công!");
-            }
-
-            // 3. Register learning activity to study log API
             await fetch("/api/student/study-log", {
               method: "POST",
               headers: {
