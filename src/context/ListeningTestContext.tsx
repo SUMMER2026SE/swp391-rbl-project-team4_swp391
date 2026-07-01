@@ -348,14 +348,18 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
               };
             });
 
+            const sectionAudioUrl = (row.answers as any)?.audio_url || "";
+
             return {
               section: row.section_no,
               title: row.title || `Section ${row.section_no}`,
-              audio_src: exam.audio_url || "",
+              audio_src: sectionAudioUrl || exam.audio_url || "",
               audio_description: row.content || "",
               questions: questions
             };
           });
+
+          const hasAudio = !!exam.audio_url || sectionsData.some(s => s.audio_src);
 
           const realTest = {
             id: exam.id,
@@ -363,7 +367,7 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
             test_name: exam.title,
             volume: exam.cambridge_no ? `Cambridge ${exam.cambridge_no}` : "Standard",
             test_number: exam.test_no || 1,
-            has_audio: !!exam.audio_url,
+            has_audio: hasAudio,
             is_visible: true,
             sections: sectionsData
           };
@@ -373,8 +377,9 @@ export function ListeningTestProvider({ children }: { children: React.ReactNode 
           setSections(normalized);
           setCurrentSectionIndex(0);
 
-          if (exam.audio_url) {
-            initAudio(exam.audio_url);
+          const firstAudio = exam.audio_url || sectionsData.find(s => s.audio_src)?.audio_src;
+          if (firstAudio) {
+            initAudio(firstAudio);
           }
         } else {
           throw new Error("No sections found for this listening exam");
