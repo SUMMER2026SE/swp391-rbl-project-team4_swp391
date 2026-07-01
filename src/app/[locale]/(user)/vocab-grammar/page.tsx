@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import { BookOpen, GraduationCap, ArrowRight, Layers } from "lucide-react";
+import Navbar from "@/components/Navbar";
 
 export default function VocabGrammarPage() {
   const router = useRouter();
@@ -17,7 +18,8 @@ export default function VocabGrammarPage() {
         backgroundPosition: "center top"
       }}
     >
-      <main className="flex-1 flex flex-col items-center justify-center px-6 pt-20 pb-20">
+      <Navbar />
+      <main className="flex-1 flex flex-col items-center justify-center px-6 pt-28 pb-20">
         
         {/* Header Block */}
         <div className="text-center mb-12">
