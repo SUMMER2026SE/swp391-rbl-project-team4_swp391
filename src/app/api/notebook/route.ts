@@ -55,21 +55,47 @@ export async function POST(request: NextRequest) {
 
   const lowerWord = String(word).toLowerCase().trim();
 
-  if (force) {
-    // Upsert path — overwrite existing
-    const { data, error } = await supabaseAdmin
-      .from('user_notebook')
-      .upsert(
-        { user_id: user.id, word: lowerWord, definition: definition || null, example: example || null, pos: pos || null, folder_id: actualFolderId || null, source: source || null, category: category || null },
-        { onConflict: 'user_id,word' }
-      )
-      .select()
-      .single();
-    if (error) { console.error('[notebook POST upsert]', error); return NextResponse.json({ error: error.message, code: error.code }, { status: 500 }); }
-    return NextResponse.json({ data });
+  // Fetch existing first to manually handle conflict
+  const { data: existing, error: checkErr } = await supabaseAdmin
+    .from('user_notebook')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('word', lowerWord)
+    .maybeSingle();
+
+  if (checkErr) {
+    console.error('[notebook POST check]', checkErr);
+    return NextResponse.json({ error: checkErr.message, code: checkErr.code }, { status: 500 });
   }
 
-  // Normal insert — let DB raise unique violation
+  if (force) {
+    if (existing) {
+      // Update
+      const { data, error } = await supabaseAdmin
+        .from('user_notebook')
+        .update({ definition: definition || null, example: example || null, pos: pos || null, folder_id: actualFolderId || null, source: source || null, category: category || null })
+        .eq('id', existing.id)
+        .select()
+        .single();
+      if (error) { console.error('[notebook POST force update]', error); return NextResponse.json({ error: error.message, code: error.code }, { status: 500 }); }
+      return NextResponse.json({ data });
+    } else {
+      // Insert
+      const { data, error } = await supabaseAdmin
+        .from('user_notebook')
+        .insert({ user_id: user.id, word: lowerWord, definition: definition || null, example: example || null, pos: pos || null, folder_id: actualFolderId || null, source: source || null, category: category || null })
+        .select()
+        .single();
+      if (error) { console.error('[notebook POST force insert]', error); return NextResponse.json({ error: error.message, code: error.code }, { status: 500 }); }
+      return NextResponse.json({ data });
+    }
+  }
+
+  if (existing) {
+    return NextResponse.json({ error: "Word already exists" }, { status: 409 });
+  }
+
+  // Normal insert
   const { data, error } = await supabaseAdmin
     .from('user_notebook')
     .insert({ user_id: user.id, word: lowerWord, definition: definition || null, example: example || null, pos: pos || null, folder_id: actualFolderId || null, source: source || null, category: category || null })
@@ -77,8 +103,6 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
-    // 23505 = unique_violation (word already exists)
-    if (error.code === '23505') return NextResponse.json({ error: "Word already exists" }, { status: 409 });
     console.error('[notebook POST insert]', error);
     return NextResponse.json({ error: error.message, code: error.code }, { status: 500 });
   }

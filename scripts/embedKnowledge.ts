@@ -57,8 +57,8 @@ async function embedWithRetry(chunk: ChunkInput, retries = 5, delayMs = 3000): P
       const isRateLimit = errStr.includes("429") || errStr.includes("quota") || errStr.includes("Quota");
       const isServerErr = errStr.includes("503") || errStr.includes("unavailable");
       
-      if ((isRateLimit || isServerErr) && attempt < retries) {
-        console.warn(`[API Info] Rate limit or server busy for chunk "${chunk.content.substring(0, 30)}...". Retrying in ${delayMs}ms (Attempt ${attempt}/${retries})...`);
+      if (attempt < retries) {
+        console.warn(`[API Info] Error embedding chunk "${chunk.content.substring(0, 30)}..." (${errStr}). Retrying in ${delayMs}ms (Attempt ${attempt}/${retries})...`);
         await sleep(delayMs);
         delayMs *= 2; // exponential backoff
         continue;
