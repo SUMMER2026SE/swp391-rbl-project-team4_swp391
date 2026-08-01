@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { motion } from "framer-motion";
 import { RotateCcw, ChevronRight, CheckCircle2, Minus, X, Star } from "lucide-react";
 import { ResultSunMascot } from "@/components/sunMascot";
+import { supabase } from "@/lib/supabase";
 
 type ResultData = {
   correctCount: number;
@@ -23,7 +24,11 @@ type ResultData = {
 export default function ReadingResultPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<ResultData | null>(null);
+
+  const source = searchParams.get("source");
+  const taskId = searchParams.get("task_id");
 
   useEffect(() => {
     const stored = localStorage.getItem("reading_result");
@@ -42,6 +47,67 @@ export default function ReadingResultPage() {
       router.push("/reading");
     }
   }, [router, params.testId]);
+
+  useEffect(() => {
+    if (data) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        const headers: Record<string, string> = {};
+        
+        if (session?.user) {
+          headers["Authorization"] = `Bearer ${session.access_token}`;
+        } else {
+          headers["x-mock-user-id"] = "usr_2";
+        }
+        
+        // 1. Save to practice_history if not already saved to avoid duplicate submissions
+        const savedKey = `saved_ph_${data.testId}_${data.timeSpent || 0}`;
+        if (!localStorage.getItem(savedKey)) {
+          const phHeaders = {
+            ...headers,
+            "Content-Type": "application/json"
+          };
+          fetch("/api/student/practice-history", {
+            method: "POST",
+            headers: phHeaders,
+            body: JSON.stringify({
+              testId: data.testId,
+              category: "reading",
+              testName: `Cambridge IELTS Reading - ${data.testId}`,
+              score: data.correctCount,
+              total: data.total,
+              metadata: {
+                answers: {},
+                band_level: data.band,
+                time_spent_seconds: data.timeSpent,
+              }
+            })
+          }).then(async res => {
+            if (res.ok) {
+              localStorage.setItem(savedKey, "true");
+            } else {
+              const err = await res.json().catch(() => ({}));
+              console.error("Failed to insert practice history via API:", err.error || "Unknown error");
+            }
+          }).catch(err => console.error("Failed to insert practice history via API:", err));
+        }
+
+        // 2. Complete daily task if came from daily_task
+        if (source === "daily_task" && taskId) {
+          const completedKey = `completed_task_${taskId}`;
+          if (!localStorage.getItem(completedKey)) {
+            fetch(`/api/student/daily-tasks/${taskId}/complete`, {
+              method: "POST",
+              headers
+            }).then(res => {
+              if (res.ok) {
+                localStorage.setItem(completedKey, "true");
+              }
+            }).catch(err => console.error("Auto complete daily task failed:", err));
+          }
+        }
+      });
+    }
+  }, [data, source, taskId]);
 
   if (!data) return null;
 
@@ -198,21 +264,39 @@ export default function ReadingResultPage() {
           </motion.div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <button
-              onClick={() => router.push(`/reading/cam/${data.testId}?mode=${data.mode === "exam" ? "exam" : "practice"}${data.passage ? `&passage=${data.passage}` : ""}`)}
-              className="flex-1 group bg-white text-herb-900 font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3"
-            >
-              <RotateCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-              Làm lại bài
-            </button>
-            <button
-              onClick={() => router.push(`/reading/cam/${data.testId}/review${data.passage ? `?passage=${data.passage}` : ""}`)}
-              className="flex-1 group bg-herb-900 text-white font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3"
-            >
-              Xem bài giải chi tiết
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+          <div className="flex flex-col gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => router.push(`/reading/cam/${data.testId}?mode=${data.mode === "exam" ? "exam" : "practice"}${data.passage ? `&passage=${data.passage}` : ""}`)}
+                className="flex-1 group bg-white text-herb-900 font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
+              >
+                <RotateCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
+                Làm lại bài
+              </button>
+              <button
+                onClick={() => router.push(`/reading/cam/${data.testId}/review${data.passage ? `?passage=${data.passage}` : ""}`)}
+                className="flex-1 group bg-herb-900 text-white font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
+              >
+                Xem bài giải chi tiết
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+
+            {source === "daily_task" ? (
+              <button
+                onClick={() => router.push("/learning/daily")}
+                className="w-full group bg-emerald-500 text-white font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
+              >
+                Hoàn thành & Quay về Daily
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push("/roadmap")}
+                className="w-full group bg-amber-400 text-[#0d153a] font-black uppercase tracking-tight py-4 px-8 rounded-2xl border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3 cursor-pointer"
+              >
+                Quay về lộ trình học
+              </button>
+            )}
           </div>
         </div>
       </div>

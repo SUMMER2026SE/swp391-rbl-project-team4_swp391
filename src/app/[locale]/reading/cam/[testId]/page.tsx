@@ -2268,7 +2268,19 @@ function ReadingPracticeContent({ params }: { params: Promise<{ testId: string }
     };
     localStorage.setItem("ielts_mock_submission", JSON.stringify(submissionData));
 
-    router.push(`/reading/cam/${resolvedParams.testId}/result${searchParams.get("passage") ? `?passage=${searchParams.get("passage")}` : ""}`);
+    const passage = searchParams.get("passage");
+    const source = searchParams.get("source");
+    const taskId = searchParams.get("task_id");
+    
+    let redirectUrl = `/reading/cam/${resolvedParams.testId}/result`;
+    const queryParams: string[] = [];
+    if (passage) queryParams.push(`passage=${passage}`);
+    if (source) queryParams.push(`source=${source}`);
+    if (taskId) queryParams.push(`task_id=${taskId}`);
+    if (queryParams.length > 0) {
+      redirectUrl += `?${queryParams.join("&")}`;
+    }
+    router.push(redirectUrl);
   };
 
   const gtTranslate = async (text: string): Promise<string> => {

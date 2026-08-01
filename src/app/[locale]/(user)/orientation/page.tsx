@@ -114,6 +114,7 @@ export default function OrientationPage() {
                 prompt: content?.description || extra.prompt || "",
                 chartDescription: extra.chartDescription || "",
                 minimumWords: extra.minimumWords || (content?.task_type === "task2" ? 250 : 150),
+                cloudinaryUrl: content?.cloudinary_url || "",
               };
             }),
             speaking: (data.speaking || []).map((m: any, idx: number) => {
@@ -411,13 +412,33 @@ export default function OrientationPage() {
 
       <div className="grid md:grid-cols-4 gap-4">
         {[
-          { icon: Volume2, label: "Listening", color: "blue", detail: "Transcript + Điền từ & Trắc nghiệm (3 câu)" },
-          { icon: BookOpen, label: "Reading", color: "emerald", detail: "Đọc hiểu + T/F/NG + MCQ (4 câu)" },
-          { icon: PenTool, label: "Writing", color: "orange", detail: "Task 1 báo cáo + Task 2 luận điểm" },
-          { icon: Mic, label: "Speaking", color: "pink", detail: "Part 1 câu ngắn + Part 2 Cue Card" }
-        ].map(({ icon: Icon, label, color, detail }) => (
-          <div key={label} className={`bg-white rounded-2xl border border-${color}-50 p-4 shadow-sm space-y-2`}>
-            <div className={`w-9 h-9 rounded-xl bg-${color}-50 border border-${color}-100 flex items-center justify-center text-${color}-500`}>
+          { 
+            icon: Volume2, 
+            label: "Listening", 
+            detail: "Transcript + Điền từ & Trắc nghiệm (3 câu)",
+            iconClass: "bg-blue-50 border-blue-100 text-blue-500"
+          },
+          { 
+            icon: BookOpen, 
+            label: "Reading", 
+            detail: "Đọc hiểu + T/F/NG + MCQ (4 câu)",
+            iconClass: "bg-emerald-50 border-emerald-100 text-emerald-500"
+          },
+          { 
+            icon: PenTool, 
+            label: "Writing", 
+            detail: "Task 1 báo cáo + Task 2 luận điểm",
+            iconClass: "bg-orange-50 border-orange-100 text-orange-500"
+          },
+          { 
+            icon: Mic, 
+            label: "Speaking", 
+            detail: "Part 1 câu ngắn + Part 2 Cue Card",
+            iconClass: "bg-pink-50 border-pink-100 text-pink-500"
+          }
+        ].map(({ icon: Icon, label, detail, iconClass }) => (
+          <div key={label} className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm space-y-2">
+            <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${iconClass}`}>
               <Icon className="w-5 h-5" />
             </div>
             <h4 className="text-xs font-black text-[#0d153a] uppercase tracking-wider">{label}</h4>
@@ -490,7 +511,7 @@ export default function OrientationPage() {
           </div>
 
           <label className="text-xs font-extrabold text-[#0d153a] block">
-            Q{idx + 1}. {q.questionText}
+            Q{idx + 1}. {typeof q.questionText === "string" ? q.questionText.replace(/\{\d+\}/g, "_______") : q.questionText}
           </label>
 
           {q.type === "fill_in_blank" && (
@@ -656,7 +677,24 @@ export default function OrientationPage() {
             {getWordCount(answers.w1)} / 150 từ
           </span>
         </div>
-        <p className="text-xs font-bold text-slate-700 italic">{questions.writing[0]?.prompt}</p>
+        <div 
+          className="text-xs font-bold text-slate-700 italic"
+          dangerouslySetInnerHTML={{ __html: questions.writing[0]?.prompt || "" }}
+        />
+
+        {questions.writing[0]?.cloudinaryUrl && (
+          <div className="my-4 max-w-xl mx-auto rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50 flex items-center justify-center p-2">
+            <img 
+              src={questions.writing[0].cloudinaryUrl} 
+              alt="Writing Task 1 Chart" 
+              className="max-h-[300px] object-contain w-auto h-auto rounded-lg"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+
         {questions.writing[0]?.chartDescription && (
           <pre className="text-[10px] font-mono bg-slate-50 p-3.5 rounded-xl border border-slate-100 whitespace-pre-line text-slate-600 leading-normal mt-2.5">
             {questions.writing[0]?.chartDescription}
@@ -678,7 +716,10 @@ export default function OrientationPage() {
             {getWordCount(answers.w2)} / 250 từ
           </span>
         </div>
-        <p className="text-xs font-bold text-slate-700 italic">{questions.writing[1]?.prompt}</p>
+        <div 
+          className="text-xs font-bold text-slate-700 italic"
+          dangerouslySetInnerHTML={{ __html: questions.writing[1]?.prompt || "" }}
+        />
         <textarea
           rows={8}
           placeholder="Nhập bài làm Task 2 của bạn (ít nhất 250 từ)..."

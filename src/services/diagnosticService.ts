@@ -65,7 +65,51 @@ export async function fetchDiagnosticQuestions() {
         const targetKeys = keys.slice(0, 3);
         
         const localSection1 = localTestData?.sections?.[0];
-        const block = localSection1?.blocks?.[0];
+        const blocks = localSection1?.blocks || [];
+
+        const extractQuestionText = (text: string, targetBrace: string): string => {
+          const lines = text.split('\n');
+          const targetLine = lines.find((l: string) => l.includes(targetBrace));
+          if (targetLine) {
+            let cleaned = targetLine.replace(/^[-*•\s]+/g, '').replace(/\*\*/g, '').trim();
+            cleaned = cleaned.replace(targetBrace, '_______');
+            cleaned = cleaned.replace(/\{\d+\}/g, '_______');
+            return cleaned;
+          }
+          let cleaned = text.replace(/^[-*•\s]+/g, '').replace(/\*\*/g, '').trim();
+          cleaned = cleaned.replace(targetBrace, '_______');
+          cleaned = cleaned.replace(/\{\d+\}/g, '_______');
+          return cleaned;
+        };
+
+        const findBlockForQuestion = (blocksList: any[], qNum: number) => {
+          if (!Array.isArray(blocksList)) return null;
+          const targetBrace = `{${qNum}}`;
+          for (const b of blocksList) {
+            const type = b.type;
+            if (type === 'note_completion' || type === 'form_completion' || type === 'sentence_completion') {
+              const template = b.content?.template || '';
+              if (template.includes(targetBrace)) return b;
+            } else if (type === 'table_completion') {
+              const tableRows = b.content?.tableRows || [];
+              for (const row of tableRows) {
+                if (Array.isArray(row)) {
+                  const hasBrace = row.some((c: any) => c && typeof c === 'string' && c.includes(targetBrace));
+                  if (hasBrace) return b;
+                }
+              }
+            } else if (type === 'multiple_choice') {
+              const questions = b.content?.questions || [];
+              const hasQ = questions.some((q: any) => q.qNum === qNum || q.number === qNum);
+              if (hasQ) return b;
+            } else if (type === 'matching') {
+              const items = b.content?.items || [];
+              const hasItem = items.some((item: any) => item.qNum === qNum || item.number === qNum);
+              if (hasItem) return b;
+            }
+          }
+          return blocksList[0];
+        };
         
         listening = targetKeys.map((key, idx) => {
           const correctAns = answersObj[key];
@@ -75,20 +119,15 @@ export async function fetchDiagnosticQuestions() {
           let options: any[] = [];
           let qType = "fill_in_blank";
 
+          const block = findBlockForQuestion(blocks, qNum);
+
           if (block) {
             const type = block.type;
             const targetBrace = `{${qNum}}`;
             
             if (type === 'note_completion' || type === 'form_completion' || type === 'sentence_completion') {
               const template = block.content?.template || '';
-              const lines = template.split('\n');
-              const targetLine = lines.find((l: string) => l.includes(targetBrace));
-              if (targetLine) {
-                let cleaned = targetLine.replace(/^[-*•\s]+/g, '').replace(/\*\*/g, '').trim();
-                cleaned = cleaned.replace(targetBrace, '_______');
-                cleaned = cleaned.replace(/\{\d+\}/g, '_______');
-                extractedText = cleaned;
-              }
+              extractedText = extractQuestionText(template, targetBrace);
             } else if (type === 'table_completion') {
               const tableRows = block.content?.tableRows || [];
               let foundCell = '';
@@ -102,10 +141,7 @@ export async function fetchDiagnosticQuestions() {
                 }
               }
               if (foundCell) {
-                let cleaned = foundCell.replace(/^[-*•\s]+/g, '').replace(/\*\*/g, '').trim();
-                cleaned = cleaned.replace(targetBrace, '_______');
-                cleaned = cleaned.replace(/\{\d+\}/g, '_______');
-                extractedText = cleaned;
+                extractedText = extractQuestionText(foundCell, targetBrace);
               }
             } else if (type === 'multiple_choice') {
               const questions = block.content?.questions || [];
@@ -331,7 +367,8 @@ export async function fetchDiagnosticQuestions() {
           content: {
             task_type: "task1",
             description: t1.description,
-            title: t1.title
+            title: t1.title,
+            cloudinary_url: t1.cloudinary_url || t1.thumbnail_url || ""
           },
           extra_data: {
             chartDescription: t1.visual_description || ""
