@@ -1,7 +1,7 @@
 [
   {
     "id": "pkg_1",
-    "name": "IELTS Premium 3 Tháng",
+    "name": "Gói Plus",
     "price": 5000,
     "durationMonths": 3,
     "description": "Gói học IELTS cơ bản cho học viên muốn cải thiện cấp tốc trong 3 tháng.",
@@ -16,12 +16,12 @@
   },
   {
     "id": "pkg_2",
-    "name": "IELTS VIP 6 Tháng",
+    "name": "Gói Pro",
     "price": 5000,
     "durationMonths": 6,
     "description": "Gói học tập nâng cao, chấm chữa chi tiết, thích hợp cho mục tiêu tăng 1.0 - 1.5 band.",
     "features": [
-      "Tất cả tính năng của gói Premium 3 Tháng",
+      "Tất cả tính năng của gói Plus",
       "Đánh giá chi tiết từ AI nâng cao (ngữ pháp, từ vựng, độ trôi chảy)",
       "Ưu tiên phản hồi hỗ trợ trong 2 giờ",
       "Thống kê tiến độ học tập thông minh",
@@ -32,12 +32,12 @@
   },
   {
     "id": "pkg_3",
-    "name": "IELTS Master 12 Tháng",
+    "name": "Gói Ultra",
     "price": 5000,
     "durationMonths": 12,
     "description": "Giải pháp luyện thi toàn diện trong 1 năm cho người mất gốc hoặc mục tiêu band điểm cao 7.5+.",
     "features": [
-      "Tất cả tính năng của gói VIP 6 Tháng",
+      "Tất cả tính năng của gói Pro",
       "Thời hạn học tập trọn vẹn 12 tháng không giới hạn lượt truy cập",
       "Báo cáo phân tích điểm yếu kèm lộ trình khắc phục cá nhân hóa",
       "Cam kết đầu ra chuẩn IELTS Cambridge",

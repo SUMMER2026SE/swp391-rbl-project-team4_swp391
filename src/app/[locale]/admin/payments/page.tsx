@@ -351,6 +351,7 @@ export default function PaymentManagementPage() {
     setPkgDuration("3");
     setPkgDescription("");
     setPkgFeatures([]);
+    setNewFeatureText("");
     setPkgIsActive(true);
     setShowPkgModal(true);
   };
@@ -362,7 +363,8 @@ export default function PaymentManagementPage() {
     setPkgPrice(pkg.price.toString());
     setPkgDuration(pkg.durationMonths.toString());
     setPkgDescription(pkg.description);
-    setPkgFeatures(pkg.features);
+    setPkgFeatures(pkg.features || []);
+    setNewFeatureText("");
     setPkgIsActive(pkg.isActive);
     setShowPkgModal(true);
   };
@@ -372,6 +374,15 @@ export default function PaymentManagementPage() {
     if (!pkgName || !pkgPrice) {
       showToast(isEn ? "Please enter package name and price." : "Vui lòng nhập tên gói và giá tiền.", "error");
       return;
+    }
+
+    // Auto-include feature if user typed text in the feature field without clicking "Thêm" button
+    let finalFeatures = [...pkgFeatures];
+    if (newFeatureText && newFeatureText.trim()) {
+      const trimmed = newFeatureText.trim();
+      if (!finalFeatures.includes(trimmed)) {
+        finalFeatures.push(trimmed);
+      }
     }
 
     setActionLoading(true);
@@ -390,13 +401,14 @@ export default function PaymentManagementPage() {
           price: Number(pkgPrice),
           durationMonths: Number(pkgDuration),
           description: pkgDescription,
-          features: pkgFeatures,
+          features: finalFeatures,
           isActive: pkgIsActive
         })
       });
 
       const data = await response.json();
       if (response.ok) {
+        setNewFeatureText("");
         showToast(t.toastPkgSaveSuccess);
         setShowPkgModal(false);
         fetchData();

@@ -588,6 +588,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
 
   const shouldShowSections = 
     form.category === "listening" || 
+    form.category === "speaking" || 
     mode === "edit" || 
     isFileParsed || 
     form.sections.some(s => (s.content && s.content.trim() !== "") || (s.answers && s.answers.trim() !== ""));
@@ -760,8 +761,8 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
         </div>
       </div>
 
-      {/* ── AUTO IMPORT FILE & SMART CONTENT PARSER (Disabled for Listening) ── */}
-      {form.category !== "listening" && (
+      {/* ── AUTO IMPORT FILE & SMART CONTENT PARSER (Disabled for Listening & Speaking) ── */}
+      {form.category !== "listening" && form.category !== "speaking" && (
         <div className="bg-gradient-to-br from-[#EEF1E2] via-[#FAF8F2] to-[#FFF3D6] rounded-3xl border-2 border-[#C5CEAB] p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -1046,7 +1047,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
                 </button>
               )}
 
-              {form.category !== "listening" && !autoImportOpen && (
+              {form.category !== "listening" && form.category !== "speaking" && !autoImportOpen && (
                 <button
                   type="button"
                   onClick={() => setAutoImportOpen(true)}
@@ -1109,7 +1110,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
                     <div className="p-5 space-y-4 bg-white border-t border-slate-200">
                       <div>
                         <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1.5">
-                          {form.category === "writing" ? "TIÊU ĐỀ TASK" : "TIÊU ĐỀ SECTION"}
+                          {form.category === "writing" ? "TIÊU ĐỀ TASK" : form.category === "speaking" ? "TIÊU ĐỀ PART" : "TIÊU ĐỀ SECTION"}
                         </label>
                         <input
                           type="text"
@@ -1128,7 +1129,7 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
 
                       <div>
                         <label className="block text-[11px] font-black text-slate-600 uppercase tracking-wider mb-1.5">
-                          {form.category === "writing" ? "YÊU CẦU ĐỀ BÀI (PROMPT)" : "NỘI DUNG / TRANSCRIPT / CÂU HỎI"}
+                          {form.category === "writing" ? "YÊU CẦU ĐỀ BÀI (PROMPT)" : form.category === "speaking" ? "CÂU HỎI & CHỦ ĐỀ NÓI (PROMPTS / CUE CARD)" : "NỘI DUNG / TRANSCRIPT / CÂU HỎI"}
                         </label>
                         <textarea
                           rows={6}
@@ -1141,7 +1142,13 @@ export default function ExamForm({ initialData, mode }: ExamFormProps) {
                               return { ...p, sections: secs };
                             });
                           }}
-                          placeholder={form.category === "writing" ? "Nhập yêu cầu đề bài Task..." : "Nhập nội dung bài đọc, transcript audio hoặc yêu cầu câu hỏi..."}
+                          placeholder={
+                            form.category === "writing"
+                              ? "Nhập yêu cầu đề bài Task..."
+                              : form.category === "speaking"
+                              ? "Nhập các câu hỏi Speaking cho Part này (VD: Part 1 Topics, Part 2 Cue Card & Questions, Part 3 Follow-up)..."
+                              : "Nhập nội dung bài đọc, transcript audio hoặc yêu cầu câu hỏi..."
+                          }
                           className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium text-[#0d153a] focus:outline-none focus:border-[#3B5C37] transition-colors"
                         />
                       </div>

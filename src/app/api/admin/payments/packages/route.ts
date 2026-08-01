@@ -1,14 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole, ADMIN_ONLY } from "@/lib/roles";
-import { getPackages, createPackage } from "@/lib/paymentDb";
+import { getPackages, createPackage, getInvoices } from "@/lib/paymentDb";
+import { supabaseAdmin } from "@/lib/supabase";
 import { logActivity } from "@/lib/activityLogger";
 
 export async function GET() {
   try {
     const packages = await getPackages();
-    // Sort packages by newest first or by price
-    packages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return NextResponse.json({ packages });
+    const invoices = await getInvoices();
+
+    const buyerCounts: Record<string, number> = {};
+
+    // Count purchases from invoices
+    invoices.forEach((inv) => {
+      if (inv.status === "PAID" || inv.status === "PENDING") {
+        buyerCounts[inv.packageId] = (buyerCounts[inv.packageId] || 0) + 1;
+      }
+    });
+
+    // Count subscriptions/metadata from Supabase users
+    try {
+      const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+      if (users) {
+        users.forEach((u) => {
+          const pkgId = u.user_metadata?.packageId;
+          if (pkgId && pkgId !== "none") {
+            buyerCounts[pkgId] = (buyerCounts[pkgId] || 0) + 1;
+          }
+        });
+      }
+    } catch {
+      // Ignore if fail
+    }
+
+    const packagesWithCounts = packages.map((pkg) => ({
+      ...pkg,
+      buyerCount: buyerCounts[pkg.id] || buyerCounts[pkg.name] || 0,
+    }));
+
+    // Sort packages by durationMonths ascending then price
+    packagesWithCounts.sort((a, b) => (a.durationMonths || 0) - (b.durationMonths || 0) || a.price - b.price);
+    return NextResponse.json({ packages: packagesWithCounts });
   } catch (error: any) {
     console.error("❌ Lỗi API GET /api/admin/payments/packages:", error);
     return NextResponse.json(

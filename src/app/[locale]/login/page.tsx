@@ -20,15 +20,17 @@ export default function LoginPage() {
     async function checkUser() {
       const urlParams = new URLSearchParams(window.location.search);
 
-      // Check if arriving from a downgrade/insufficient permissions redirect
+      // Check if arriving from a downgrade/insufficient permissions redirect or account locked
       const errorParam = urlParams.get("error");
       if (errorParam === "insufficient_permissions") {
         setErrorMsg(t("error.insufficientPermissions"));
-        // Clean up URL query parameters
         if (typeof window !== "undefined" && window.history.replaceState) {
           const newUrl = window.location.pathname;
           window.history.replaceState({}, document.title, newUrl);
         }
+      } else if (errorParam === "account_locked") {
+        window.location.href = "/account-locked";
+        return;
       }
 
       // Check if arriving from email confirmation redirect
@@ -63,9 +65,36 @@ export default function LoginPage() {
       if (!hasSession) {
         try {
           const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
+          if (session?.user) {
+            const metadata = session.user.user_metadata || {};
+            const isMetadataLocked = metadata.isLocked === true || !!session.user.banned_until;
+
+            let isDbLocked = false;
+            try {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("isLocked")
+                .eq("id", session.user.id)
+                .maybeSingle();
+              if (profile?.isLocked) {
+                isDbLocked = true;
+              }
+            } catch {
+              // ignore
+            }
+
+            if (isMetadataLocked || isDbLocked) {
+              await supabase.auth.signOut();
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("mock_session");
+                document.cookie = "sb-custom-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+              }
+              window.location.href = "/account-locked";
+              return;
+            }
+
             hasSession = true;
-            let role = session.user.user_metadata?.role;
+            let role = metadata.role;
 
             // Handle new Google OAuth users that do not have a role yet
             if (!role) {
@@ -131,23 +160,47 @@ export default function LoginPage() {
 
       if (error) {
         let msg = error.message;
+        const msgLower = msg.toLowerCase();
         if (msg === "Invalid login credentials") {
           msg = t("error.invalidCredentials");
         } else if (msg === "Email not confirmed") {
           msg = t("error.emailNotConfirmed");
+        } else if (msgLower.includes("banned") || msgLower.includes("locked") || msgLower.includes("disabled")) {
+          window.location.href = "/account-locked";
+          return;
         }
         throw new Error(msg);
       }
 
       if (data?.user) {
-        const metadata = data.user.user_metadata;
-        const isLocked = metadata?.isLocked === true;
-        const role = metadata?.role || "GUEST";
+        const metadata = data.user.user_metadata || {};
+        const isMetadataLocked = metadata.isLocked === true || !!data.user.banned_until;
 
-        if (isLocked) {
-          await supabase.auth.signOut();
-          throw new Error(t("error.accountLocked"));
+        let isDbLocked = false;
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("isLocked")
+            .eq("id", data.user.id)
+            .maybeSingle();
+          if (profile?.isLocked) {
+            isDbLocked = true;
+          }
+        } catch {
+          // ignore error
         }
+
+        if (isMetadataLocked || isDbLocked) {
+          await supabase.auth.signOut();
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("mock_session");
+            document.cookie = "sb-custom-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+          }
+          window.location.href = "/account-locked";
+          return;
+        }
+
+        const role = metadata.role || "GUEST";
 
         if (typeof window !== "undefined") {
           document.cookie = "sb-custom-auth-token=true; path=/; max-age=86400; SameSite=Lax";

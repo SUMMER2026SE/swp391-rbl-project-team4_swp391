@@ -17,6 +17,10 @@ import {
   Clock,
   FileText,
   CreditCard,
+  Lock,
+  UserX,
+  Mail,
+  ShieldAlert,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -32,7 +36,9 @@ export default function AdminLayout({
     email: "admin@qualicode.com",
     role: "ADMIN"
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAccountLocked, setIsAccountLocked] = useState(false);
+  const [lockedEmail, setLockedEmail] = useState("");
 
   // Check admin session and implement route protection - Bypassed per user request
   useEffect(() => {
@@ -83,6 +89,19 @@ export default function AdminLayout({
         }
 
         const metadata = user.user_metadata || {};
+        const isMetadataLocked = metadata.isLocked === true || !!user.banned_until;
+
+        let isDbLocked = false;
+        try {
+          const { data: profile } = await supabase.from("profiles").select("role, isLocked").eq("id", user.id).single();
+          if (profile?.isLocked) isDbLocked = true;
+        } catch (e) {}
+
+        if (isMetadataLocked || isDbLocked) {
+          setIsAccountLocked(true);
+          setLockedEmail(user.email || "N/A");
+          return;
+        }
 
         // Fetch from profiles as single source of truth.
         const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
@@ -109,15 +128,17 @@ export default function AdminLayout({
         });
       } catch (err) {
         console.warn("Could not fetch logged-in user metadata, using defaults:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadUserInfo();
-    setIsLoading(false);
   }, [pathname]);
 
   const handleSignOut = async () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("mock_session");
+      document.cookie = "sb-custom-auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
     try {
       await supabase.auth.signOut();
@@ -126,6 +147,74 @@ export default function AdminLayout({
     }
     window.location.href = "/login";
   };
+
+  if (isAccountLocked) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#FDF8F6] p-4 md:p-6 relative overflow-hidden font-sans">
+        {/* Background glowing soft shapes */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-rose-200/50 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-orange-200/50 blur-3xl pointer-events-none" />
+
+        {/* Main card */}
+        <div className="w-full max-w-lg bg-white rounded-[32px] border border-rose-100 shadow-[0_20px_50px_rgba(225,29,72,0.08)] p-8 md:p-10 text-center relative z-10 space-y-6 animate-fade-in">
+          {/* Lock Icon */}
+          <div className="w-20 h-20 rounded-3xl bg-rose-50 border-4 border-rose-100 text-rose-500 flex items-center justify-center mx-auto shadow-sm">
+            <UserX className="w-10 h-10" />
+          </div>
+
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-100 text-rose-700 mb-3 border border-rose-200">
+              <Lock className="w-3.5 h-3.5" />
+              TÀI KHOẢN ĐÃ BỊ KHÓA
+            </span>
+            <h1 className="text-2xl md:text-3xl font-black text-[#0f1738] tracking-tight">
+              Quyền truy cập bị ngưng
+            </h1>
+            <p className="text-xs md:text-sm font-semibold text-slate-500 mt-2 leading-relaxed">
+              Tài khoản của bạn (<strong className="text-slate-800">{lockedEmail}</strong>) đã bị khóa bởi Quản trị viên hệ thống. Bạn tạm thời không thể truy cập các tính năng trang Quản trị.
+            </p>
+          </div>
+
+          {/* Account Details Box */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-left space-y-2.5 text-xs font-medium text-slate-600">
+            <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+              <span className="text-slate-400 font-bold">Email tài khoản:</span>
+              <span className="font-extrabold text-slate-800">{lockedEmail}</span>
+            </div>
+            <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
+              <span className="text-slate-400 font-bold">Trạng thái:</span>
+              <span className="font-extrabold text-rose-600 flex items-center gap-1">
+                <ShieldAlert className="w-3.5 h-3.5" />
+                Bị khóa (Tạm ngưng)
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-slate-400 font-bold">Lý do:</span>
+              <span className="font-extrabold text-slate-700">Khóa bởi Quản trị viên hệ thống</span>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <button
+              onClick={handleSignOut}
+              className="flex-1 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-200"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Đăng xuất</span>
+            </button>
+            <a
+              href="mailto:admin@qualicode.com?subject=Y%C3%AAu%20c%E1%BA%A7u%20m%E1%BB%9F%20kh%C3%B3a%20t%C3%A0i%20kho%E1%BA%A3n"
+              className="flex-1 py-3 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-all shadow-md shadow-rose-200 flex items-center justify-center gap-2 cursor-pointer no-underline"
+            >
+              <Mail className="w-4 h-4" />
+              <span>Liên hệ Quản trị viên</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Định nghĩa danh sách menu điều hướng
   const menuItems = [

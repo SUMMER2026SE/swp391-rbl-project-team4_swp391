@@ -603,7 +603,6 @@ export default function AdminUsersPage() {
             >
               <option value="ALL">{t.filterAllRoles}</option>
               <option value="ADMIN">ADMIN</option>
-              <option value="INSTRUCTOR">INSTRUCTOR</option>
               <option value="STUDENT">STUDENT</option>
               <option value="GUEST">GUEST</option>
             </select>
@@ -942,7 +941,6 @@ export default function AdminUsersPage() {
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#3B5C37] text-slate-700 font-semibold"
                 >
                   <option value="STUDENT">{t.optionStudent}</option>
-                  <option value="INSTRUCTOR">{t.optionInstructor}</option>
                   <option value="GUEST">{t.optionGuest}</option>
                   <option value="ADMIN">{t.optionAdmin}</option>
                 </select>
@@ -1020,16 +1018,22 @@ export default function AdminUsersPage() {
               {/* Role Selection */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">{t.labelRole}</label>
-                <select
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value as any)}
-                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#3B5C37] text-slate-700 font-semibold"
-                >
-                  <option value="STUDENT">{t.optionStudent}</option>
-                  <option value="INSTRUCTOR">{t.optionInstructor}</option>
-                  <option value="GUEST">{t.optionGuest}</option>
-                  <option value="ADMIN">{t.optionAdmin}</option>
-                </select>
+                {selectedUser?.role === "INSTRUCTOR" ? (
+                  <div className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold flex items-center justify-between">
+                    <span>{t.optionInstructor}</span>
+                    <span className="text-xs font-normal text-slate-400">({isEn ? "Fixed role" : "Cố định, không thể đổi"})</span>
+                  </div>
+                ) : (
+                  <select
+                    value={formRole}
+                    onChange={(e) => setFormRole(e.target.value as any)}
+                    className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#3B5C37] text-slate-700 font-semibold"
+                  >
+                    <option value="STUDENT">{t.optionStudent}</option>
+                    <option value="GUEST">{t.optionGuest}</option>
+                    <option value="ADMIN">{t.optionAdmin}</option>
+                  </select>
+                )}
               </div>
 
               {/* VIP Package Selection */}

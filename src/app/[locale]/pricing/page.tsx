@@ -53,28 +53,52 @@ const getLocalizedTierInfo = (pkg: PaymentPackage, index: number, isEn: boolean)
   const hasCustomFeatures = Array.isArray(pkg.features) && pkg.features.length > 0;
   const hasCustomDesc = Boolean(pkg.description && pkg.description.trim());
 
-  let defaultName = pkg.name;
+  let name = pkg.name || (pkg.id === "pkg_1" ? "Gói Plus" : pkg.id === "pkg_2" ? "Gói Pro" : pkg.id === "pkg_3" ? "Gói Ultra" : `Gói ${pkg.durationMonths || 3} tháng`);
+
+  if (isEn) {
+    if (name === "Gói Plus" || name === "IELTS Premium 3 Tháng") name = "Plus Plan";
+    else if (name === "Gói Pro" || name === "IELTS VIP 6 Tháng") name = "Pro Plan";
+    else if (name === "Gói Ultra" || name === "IELTS Master 12 Tháng") name = "Ultra Plan";
+  }
+
   let subLabel = isEn
     ? `Study Package (${pkg.durationMonths || 3} ${pkg.durationMonths === 1 ? "Month" : "Months"})`
     : `Luyện thi (${pkg.durationMonths || 3} tháng)`;
-  let durationText = isEn
+
+  if (pkg.id === "pkg_1") {
+    subLabel = isEn ? "Basic Test Prep (3 Months)" : "Luyện thi cơ bản (3 tháng)";
+  } else if (pkg.id === "pkg_2") {
+    subLabel = isEn ? "Intensive Band Booster (6 Months)" : "Nâng band chuyên sâu (6 tháng)";
+  } else if (pkg.id === "pkg_3") {
+    subLabel = isEn ? "Comprehensive Cambridge & AI (12 Months)" : "Toàn diện Cambridge & AI (12 tháng)";
+  }
+
+  const durationText = isEn
     ? `${pkg.durationMonths || 3} ${pkg.durationMonths === 1 ? "Month" : "Months"}`
     : `${pkg.durationMonths || 3} Tháng`;
-  let defaultDesc = pkg.description || "";
-  let defaultFeatures: string[] = hasCustomFeatures ? pkg.features : [];
 
-  if (index === 0 || pkg.id === "pkg_1") {
-    if (!defaultName || pkg.id === "pkg_1" || pkg.name === "IELTS Premium 3 Tháng") {
-      defaultName = isEn ? "Plus Plan" : (pkg.name || "Gói Plus");
-    }
-    subLabel = isEn ? "Basic Test Prep (3 Months)" : "Luyện thi cơ bản (3 tháng)";
-    durationText = isEn ? "3 Months" : "3 Tháng";
-    if (!hasCustomDesc) {
+  let defaultDesc = pkg.description || "";
+  if (!hasCustomDesc) {
+    if (pkg.id === "pkg_1") {
       defaultDesc = isEn
         ? "Essential IELTS preparation package for students looking for fast 3-month score improvement."
         : "Gói học IELTS cơ bản cho học viên muốn cải thiện cấp tốc trong 3 tháng.";
+    } else if (pkg.id === "pkg_2") {
+      defaultDesc = isEn
+        ? "Advanced learning package with in-depth evaluation, ideal for boosting 1.0 - 1.5 bands."
+        : "Gói học tập nâng cao, chấm chữa chi tiết, thích hợp cho mục tiêu tăng 1.0 - 1.5 band.";
+    } else if (pkg.id === "pkg_3") {
+      defaultDesc = isEn
+        ? "Comprehensive 1-year test prep solution for learners aiming for target band 7.5+."
+        : "Giải pháp luyện thi toàn diện trong 1 năm cho người mất gốc hoặc mục tiêu band điểm cao 7.5+.";
+    } else {
+      defaultDesc = isEn ? "Custom IELTS preparation package." : "Gói học tập và luyện thi IELTS tùy chỉnh.";
     }
-    if (!hasCustomFeatures) {
+  }
+
+  let defaultFeatures: string[] = hasCustomFeatures ? pkg.features : [];
+  if (!hasCustomFeatures) {
+    if (pkg.id === "pkg_1") {
       defaultFeatures = isEn
         ? [
             "Full access to Speaking question bank",
@@ -88,19 +112,7 @@ const getLocalizedTierInfo = (pkg: PaymentPackage, index: number, isEn: boolean)
             "Xem đáp án chi tiết các phần thi",
             "Luyện tập 30 bài thi thử IELTS thực tế"
           ];
-    }
-  } else if (index === 1 || pkg.id === "pkg_2") {
-    if (!defaultName || pkg.id === "pkg_2" || pkg.name === "IELTS VIP 6 Tháng") {
-      defaultName = isEn ? "Pro Plan" : (pkg.name || "Gói Pro");
-    }
-    subLabel = isEn ? "Intensive Band Booster (6 Months)" : "Nâng band chuyên sâu (6 tháng)";
-    durationText = isEn ? "6 Months" : "6 Tháng";
-    if (!hasCustomDesc) {
-      defaultDesc = isEn
-        ? "Advanced learning package with in-depth evaluation, ideal for boosting 1.0 - 1.5 bands."
-        : "Gói học tập nâng cao, chấm chữa chi tiết, thích hợp cho mục tiêu tăng 1.0 - 1.5 band.";
-    }
-    if (!hasCustomFeatures) {
+    } else if (pkg.id === "pkg_2") {
       defaultFeatures = isEn
         ? [
             "All features included in Plus Plan",
@@ -116,19 +128,7 @@ const getLocalizedTierInfo = (pkg: PaymentPackage, index: number, isEn: boolean)
             "Thống kê tiến độ học tập thông minh",
             "Tặng thêm tài liệu Speaking dự đoán quý mới nhất"
           ];
-    }
-  } else if (index === 2 || pkg.id === "pkg_3") {
-    if (!defaultName || pkg.id === "pkg_3" || pkg.name === "IELTS Master 12 Tháng") {
-      defaultName = isEn ? "Ultra Plan" : (pkg.name || "Gói Ultra");
-    }
-    subLabel = isEn ? "Comprehensive Cambridge & AI (12 Months)" : "Toàn diện Cambridge & AI (12 tháng)";
-    durationText = isEn ? "12 Months" : "12 Tháng";
-    if (!hasCustomDesc) {
-      defaultDesc = isEn
-        ? "Comprehensive 1-year test prep solution for learners aiming for target band 7.5+."
-        : "Giải pháp luyện thi toàn diện trong 1 năm cho người mất gốc hoặc mục tiêu band điểm cao 7.5+.";
-    }
-    if (!hasCustomFeatures) {
+    } else if (pkg.id === "pkg_3") {
       defaultFeatures = isEn
         ? [
             "All features included in Pro Plan",
@@ -144,11 +144,15 @@ const getLocalizedTierInfo = (pkg: PaymentPackage, index: number, isEn: boolean)
             "Cam kết đầu ra chuẩn IELTS Cambridge",
             "Hỗ trợ phân tích chuyên sâu và lộ trình tối ưu bằng AI"
           ];
+    } else {
+      defaultFeatures = isEn
+        ? ["Full access to all system features during active subscription period"]
+        : ["Truy cập đầy đủ các tính năng hệ thống trong thời hạn gói"];
     }
   }
 
   return {
-    name: pkg.name || defaultName,
+    name,
     subLabel,
     durationText,
     description: hasCustomDesc ? pkg.description : defaultDesc,
@@ -260,7 +264,7 @@ export default function PricingPage() {
         if (res.ok) {
           const data = await res.json();
           const activePkgs = (data.packages || []).filter((p: any) => p.isActive);
-          activePkgs.sort((a: any, b: any) => a.price - b.price);
+          activePkgs.sort((a: any, b: any) => (a.durationMonths || 0) - (b.durationMonths || 0) || a.price - b.price);
           setPackages(activePkgs);
         }
       } catch (err) {
@@ -364,6 +368,25 @@ export default function PricingPage() {
     ? `https://img.vietqr.io/image/MB-0779598943-compact2.png?amount=${invoice.amount}&addInfo=QLC%20${invoice.id}&accountName=NGUYEN%20TRAN%20KHIET%20DAN`
     : "";
 
+  // Determine single most popular package based on highest buyerCount
+  let popularPkgId = "pkg_2";
+  let maxBuyerCount = -1;
+
+  packages.forEach((p: any) => {
+    const count = typeof p.buyerCount === "number" ? p.buyerCount : 0;
+    if (count > maxBuyerCount) {
+      maxBuyerCount = count;
+      popularPkgId = p.id;
+    }
+  });
+
+  if (maxBuyerCount <= 0) {
+    const hasPkg2 = packages.some((p: any) => p.id === "pkg_2");
+    if (hasPkg2) popularPkgId = "pkg_2";
+    else if (packages.length > 1) popularPkgId = packages[1].id;
+    else if (packages.length > 0) popularPkgId = packages[0].id;
+  }
+
   return (
     <div
       className="min-h-screen bg-[#FBF8EF] text-[#2C3614] pb-24 relative overflow-x-hidden selection:bg-[#5D6B2D] selection:text-white"
@@ -439,26 +462,26 @@ export default function PricingPage() {
             packages.map((pkg, idx) => {
               const tierInfo = getLocalizedTierInfo(pkg, idx, isEn);
 
-              const isPopular = idx === 1 || pkg.id === "pkg_2"; // Gói Pro là HOT/POPULAR
+              const isPopular = pkg.id === popularPkgId;
               const isOwned =
                 isVip || (sessionUser && (sessionUser.packageId === pkg.id || (sessionUser.role === "ADMIN" && pkg.id === "pkg_3")));
 
-              return (
-                <div
-                  key={pkg.id}
-                  className={`bg-[#FFFFFF] rounded-[28px] border p-7 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                    isPopular
-                      ? "border-2 border-[#5D6B2D] shadow-[0_12px_36px_rgba(93,107,45,0.12)] scale-[1.03] z-10 bg-[#FAF8F2]"
-                      : "border-[#DCE2C8] hover:border-[#C5CEAB] shadow-sm"
-                  }`}
-                >
-                  {/* Popular Badge for Pro Tier */}
-                  {isPopular && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#5D6B2D] to-[#3B5C37] text-[#FFF8EB] text-[10px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-[0_3px_0_#3E4A1B] flex items-center gap-1">
-                      <Crown className="w-3.5 h-3.5 text-[#FFE599]" />
-                      <span>{isEn ? "MOST POPULAR" : "GÓI PHỔ BIẾN NHẤT"}</span>
-                    </div>
-                  )}
+                return (
+                  <div
+                    key={pkg.id}
+                    className={`bg-[#FFFFFF] rounded-[28px] border p-7 flex flex-col justify-between relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                      isPopular
+                        ? "border-2 border-[#5D6B2D] shadow-[0_12px_36px_rgba(93,107,45,0.12)] scale-[1.03] z-10 bg-[#FAF8F2]"
+                        : "border-[#DCE2C8] hover:border-[#C5CEAB] shadow-sm"
+                    }`}
+                  >
+                    {/* Popular Badge for Most Popular Tier */}
+                    {isPopular && (
+                      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#5D6B2D] to-[#3B5C37] text-[#FFF8EB] text-[10px] font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-[0_3px_0_#3E4A1B] flex items-center gap-1">
+                        <Crown className="w-3.5 h-3.5 text-[#FFE599]" />
+                        <span>{isEn ? "MOST POPULAR" : "GÓI PHỔ BIẾN NHẤT"}</span>
+                      </div>
+                    )}
 
                   <div>
                     {/* Header */}
