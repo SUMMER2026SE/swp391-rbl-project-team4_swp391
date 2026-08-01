@@ -48,13 +48,111 @@ const CATEGORIES = [
 
 const LEVELS = ["Tất cả", "5.5", "6.0", "6.5", "7.0", "7.5", "B1", "B2", "C1"];
 
+const FLASHCARD_TRANSLATIONS: Record<string, { meaning: string; phonetic: string }> = {
+  significant: { meaning: "đáng kể, quan trọng", phonetic: "/sɪɡˈnɪf.ɪ.kənt/" },
+  however: { meaning: "tuy nhiên", phonetic: "/haʊˈev.ər/" },
+  therefore: { meaning: "do đó, vì vậy", phonetic: "/ˈðeə.fɔːr/" },
+  although: { meaning: "mặc dù", phonetic: "/ɔːlˈðəʊ/" },
+  furthermore: { meaning: "hơn nữa", phonetic: "/ˌfɜː.ðəˈmɔːr/" },
+  nevertheless: { meaning: "tuy nhiên, tuy thế", phonetic: "/ˌnev.ə.ðəˈles/" },
+  consequently: { meaning: "hậu quả là, do đó", phonetic: "/ˈkɒn.sɪ.kwənt.li/" },
+  moreover: { meaning: "hơn nữa, ngoài ra", phonetic: "/mɔːrˈəʊ.vər/" },
+  "in contrast": { meaning: "ngược lại", phonetic: "/ɪn ˈkɒn.trɑːst/" },
+  "on the other hand": { meaning: "mặt khác", phonetic: "/ɒn ði ˈʌð.ər hænd/" },
+  "for instance": { meaning: "ví dụ như", phonetic: "/fɔːr ˈɪn.stəns/" },
+  "in addition": { meaning: "ngoài ra, thêm vào đó", phonetic: "/ɪn əˈdɪʃ.ən/" },
+  "as a result": { meaning: "kết quả là", phonetic: "/æz eɪ rɪˈzʌlt/" },
+  "in conclusion": { meaning: "tóm lại, kết luận", phonetic: "/ɪn kənˈkluː.ʒən/" },
+  "to sum up": { meaning: "tóm lại", phonetic: "/tuː sʌm ʌp/" },
+  "it is argued that": { meaning: "có ý kiến cho rằng", phonetic: "/ɪt ɪz ˈɑːɡ.juːd ðæt/" },
+  "there is evidence to suggest": { meaning: "có bằng chứng chỉ ra rằng", phonetic: "/ðeər ɪz ˈev.ɪ.dəns tuː səˈdʒest/" },
+  "it is widely accepted that": { meaning: "được chấp nhận rộng rãi rằng", phonetic: "/ɪt ɪz ˈwaɪd.li əkˈsep.tɪd ðæt/" },
+  "this suggests that": { meaning: "điều này cho thấy rằng", phonetic: "/ðɪs səˈdʒests ðæt/" },
+  arguably: { meaning: "có thể cho rằng", phonetic: "/ˈɑːɡ.ju.ə.bli/" },
+  sustainable: { meaning: "bền vững", phonetic: "/səˈsteɪ.nə.bəl/" },
+  emissions: { meaning: "khí thải", phonetic: "/iˈmɪʃ.ənz/" },
+  "renewable energy": { meaning: "năng lượng tái tạo", phonetic: "/rɪˈnjuː.ə.bəl ˈen.ə.dʒi/" },
+  "climate change": { meaning: "biến đổi khí hậu", phonetic: "/ˈklaɪ.mət tʃeɪndʒ/" },
+  biodiversity: { meaning: "đa dạng sinh học", phonetic: "/ˌbaɪ.əʊ.daɪˈvɜː.sə.ti/" },
+  deforestation: { meaning: "sự phá rừng", phonetic: "/diːˌfɒr.ɪˈsteɪ.ʃən/" },
+  "carbon footprint": { meaning: "dấu chân carbon", phonetic: "/ˌkɑː.bən ˈfʊt.prɪnt/" },
+  conservation: { meaning: "sự bảo tồn", phonetic: "/ˌkɒn.səˈveɪ.ʃən/" },
+  pollution: { meaning: "sự ô nhiễm", phonetic: "/pəˈluː.ʃən/" },
+  ecosystem: { meaning: "hệ sinh thái", phonetic: "/ˈiː.kəʊˌsɪs.təm/" },
+  urbanisation: { meaning: "đô thị hóa", phonetic: "/ˌɜː.bə.naɪˈzeɪ.ʃən/" },
+  globalisation: { meaning: "toàn cầu hóa", phonetic: "/ˌɡləʊ.bəl.aɪˈzeɪ.ʃən/" },
+  inequality: { meaning: "sự bất bình đẳng", phonetic: "/ˌɪn.ɪˈkwɒl.ə.ti/" },
+  infrastructure: { meaning: "cơ sở hạ tầng", phonetic: "/ˈɪn.frəˌstrʌk.tʃər/" },
+  "population growth": { meaning: "sự gia tăng dân số", phonetic: "/ˌpɒp.jəˈleɪ.ʃən ɡrəʊθ/" },
+  poverty: { meaning: "sự nghèo đói", phonetic: "/ˈpɒv.ə.ti/" },
+  migration: { meaning: "sự di cư", phonetic: "/maɪˈɡreɪ.ʃən/" },
+  diversity: { meaning: "sự đa dạng", phonetic: "/daɪˈvɜː.sə.ti/" },
+  wellbeing: { meaning: "sự khỏe mạnh, hạnh phúc", phonetic: "/ˌwelˈbiː.ɪŋ/" },
+  "mental health": { meaning: "sức khỏe tinh thần", phonetic: "/ˈmen.təl helθ/" },
+  technology: { meaning: "công nghệ", phonetic: "/tekˈnɒl.ə.dʒi/" },
+  "artificial intelligence": { meaning: "trí tuệ nhân tạo", phonetic: "/ˌɑː.tɪ.fɪʃ.əl ɪnˈtel.ɪ.dʒəns/" },
+  automation: { meaning: "tự động hóa", phonetic: "/ˌɔː.təˈmeɪ.ʃən/" },
+  innovation: { meaning: "sự đổi mới, sáng kiến", phonetic: "/ˌɪn.əˈveɪ.ʃən/" },
+  digital: { meaning: "kỹ thuật số", phonetic: "/ˈdɪdʒ.ɪ.təl/" },
+  "social media": { meaning: "mạng xã hội", phonetic: "/ˌsəʊ.ʃəl ˈmiː.di.ə/" },
+  internet: { meaning: "mạng internet", phonetic: "/ˈɪn.tə.net/" },
+  data: { meaning: "dữ liệu", phonetic: "/ˈdeɪ.tə/" },
+  cybersecurity: { meaning: "an ninh mạng", phonetic: "/ˌsaɪ.bər.sɪˈkʊə.rə.ti/" },
+  algorithm: { meaning: "thuật toán", phonetic: "/ˈæl.ɡə.rɪ.ðəm/" },
+  education: { meaning: "giáo dục", phonetic: "/ˌed.jʊˈkeɪ.ʃən/" },
+  curriculum: { meaning: "chương trình giảng dạy", phonetic: "/kəˈrɪk.jʊ.ləm/" },
+  literacy: { meaning: "trình độ học vấn, biết chữ", phonetic: "/ˈlɪt.ər.ə.si/" },
+  "academic achievement": { meaning: "thành tích học tập", phonetic: "/ˌæk.əˈdem.ɪk əˈtʃiːv.mənt/" },
+  "higher education": { meaning: "giáo dục đại học", phonetic: "/ˌhaɪ.ər ed.jʊˈkeɪ.ʃən/" },
+  "critical thinking": { meaning: "tư duy phản biện", phonetic: "/ˌkrɪt.ɪ.kəl ˈθɪŋ.kɪŋ/" },
+  "lifelong learning": { meaning: "học tập suốt đời", phonetic: "/ˈlaɪf.lɒŋ ˈlɜː.nɪŋ/" },
+  "vocational training": { meaning: "đào tạo nghề", phonetic: "/vəʊˈkeɪ.ʃən.əl ˈtreɪ.nɪŋ/" },
+  "tuition fees": { meaning: "học phí", phonetic: "/tʃuːˈɪʃ.ən fiːz/" },
+  "academic pressure": { meaning: "áp lực học tập", phonetic: "/ˌæk.əˈdem.ɪk ˈpreʃ.ər/" },
+  economy: { meaning: "nền kinh tế", phonetic: "/ɪˈkɒn.ə.mi/" },
+  unemployment: { meaning: "tình trạng thất nghiệp", phonetic: "/ˌʌn.ɪmˈplɔɪ.mənt/" },
+  inflation: { meaning: "lạm phát", phonetic: "/ɪnˈfleɪ.ʃən/" },
+  investment: { meaning: "sự đầu tư", phonetic: "/ɪnˈvest.mənt/" },
+  subsidy: { meaning: "tiền trợ cấp", phonetic: "/ˈsʌb.sɪ.di/" },
+  taxation: { meaning: "hệ thống thuế, sự đánh thuế", phonetic: "/tækˈseɪ.ʃən/" },
+  trade: { meaning: "thương mại, giao dịch", phonetic: "/treɪd/" },
+  GDP: { meaning: "tổng sản phẩm quốc nội", phonetic: "/ˌdʒiː.diːˈpiː/" },
+  privatisation: { meaning: "sự tư nhân hóa", phonetic: "/ˌpraɪ.və.taɪˈzeɪ.ʃən/" },
+  "economic growth": { meaning: "sự tăng trưởng kinh tế", phonetic: "/ˌiː.kəˈnɒm.ɪk ɡrəʊθ/" },
+  government: { meaning: "chính phủ", phonetic: "/ˈɡʌv.ən.mənt/" },
+  legislation: { meaning: "pháp luật, luật ban hành", phonetic: "/ˌledʒ.ɪˈsleɪ.ʃən/" },
+  policy: { meaning: "chính sách", phonetic: "/ˈpɒl.ə.si/" },
+  regulation: { meaning: "quy định, quy chế", phonetic: "/ˌreɡ.jəˈleɪ.ʃən/" },
+  democracy: { meaning: "nền dân chủ", phonetic: "/dɪˈmɒk.rə.si/" },
+  corruption: { meaning: "sự tham nhũng", phonetic: "/kəˈrʌp.ʃən/" },
+  accountability: { meaning: "trách nhiệm giải trình", phonetic: "/əˌkaʊn.təˈbɪl.ə.ti/" },
+  "public sector": { meaning: "khu vực công", phonetic: "/ˌpʌb.lɪk ˈsek.tər/" },
+  "welfare state": { meaning: "nhà nước phúc lợi", phonetic: "/ˈwel.feər steɪt/" },
+  diplomacy: { meaning: "ngoại giao", phonetic: "/dɪˈpləʊ.mə.si/" },
+  obesity: { meaning: "bệnh béo phì", phonetic: "/əʊˈbiː.sə.ti/" },
+  vaccination: { meaning: "sự tiêm chủng", phonetic: "/ˌvæk.sɪˈneɪ.ʃən/" },
+  pandemic: { meaning: "đại dịch", phonetic: "/pænˈdem.ɪk/" },
+  nutrition: { meaning: "dinh dưỡng", phonetic: "/njuːˈtrɪʃ.ən/" },
+  "life expectancy": { meaning: "tuỏi thọ trung bình", phonetic: "/ˈlaɪf ɪkˌspek.tən.si/" },
+  "chronic disease": { meaning: "bệnh mãn tính", phonetic: "/ˌkrɒn.ɪk dɪˈziːz/" },
+  "healthcare system": { meaning: "hệ thống y tế", phonetic: "/ˈhelθ.keər ˈsɪs.təm/" },
+  "mortality rate": { meaning: "tỷ lệ tử vong", phonetic: "/mɔːˈtæl.ə.ti reɪt/" },
+  "sedentary lifestyle": { meaning: "lối sống ít vận động", phonetic: "/ˈsed.ən.tər.i ˈlaɪf.staɪl/" },
+  "mental illness": { meaning: "bệnh tâm thần", phonetic: "/ˈmen.təl ˈɪl.nəs/" },
+  facilitate: { meaning: "tạo điều kiện thuận lợi", phonetic: "/fəˈsɪl.ɪ.teɪt/" },
+  alleviate: { meaning: "giảm bớt, làm nhẹ bớt", phonetic: "/əˈliː.vi.eɪt/" },
+  exacerbate: { meaning: "làm trầm trọng thêm", phonetic: "/ɪɡˈzæs.ə.beɪt/" },
+  mitigate: { meaning: "giảm thiểu, làm dịu bớt", phonetic: "/ˈmɪt.ɪ.ɡeɪt/" },
+  unprecedented: { meaning: "chưa từng có tiền lệ", phonetic: "/ʌnˈpres.ɪ.den.tɪd/" },
+  paradigm: { meaning: "mô hình, kiểu mẫu", phonetic: "/ˈpær.ə.daɪm/" },
+  empirical: { meaning: "dựa trên thực nghiệm", phonetic: "/ɪmˈpɪr.ɪ.kəl/" },
+  nominalisation: { meaning: "sự danh từ hóa", phonetic: "/ˌnɒm.ɪ.nə.laɪˈzeɪ.ʃən/" }
+};
+
 export default function VocabularyPage() {
   const { user } = useAuth();
   const { isVip } = useSubscription();
   const { remaining, showModal, setShowModal, incrementCount } = useVocabLimit();
-  
-  // Tabs: "dictionary" | "notebook"
-  const [activePageTab, setActivePageTab] = useState<"dictionary" | "notebook">("dictionary");
   
   // Data States
   const [words, setWords] = useState<VocabularyItem[]>([]);
@@ -78,9 +176,6 @@ export default function VocabularyPage() {
   // Flashcards state
   const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
 
-  // Notebook tab filter
-  const [notebookSearchQuery, setNotebookSearchQuery] = useState("");
-
   // Fetch Data
   const fetchData = async () => {
     try {
@@ -103,10 +198,11 @@ export default function VocabularyPage() {
         const wordsMap = new Map(wordsData?.map((w: any) => [w.word.toLowerCase(), w]) || []);
         const mappedFlash = flashData.map((f: any) => {
           const matched = wordsMap.get(f.word.toLowerCase());
+          const fallback = FLASHCARD_TRANSLATIONS[f.word.toLowerCase()];
           return {
             ...f,
-            meaning: matched?.meaning || "Đang cập nhật...",
-            phonetic: matched?.phonetic || ""
+            meaning: matched?.meaning || fallback?.meaning || "Đang cập nhật...",
+            phonetic: matched?.phonetic || fallback?.phonetic || ""
           };
         });
         setFlashcards(mappedFlash);
@@ -253,11 +349,6 @@ export default function VocabularyPage() {
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
-  const filteredNotebook = Object.values(savedWords).filter(item => {
-    return item.word.toLowerCase().includes(notebookSearchQuery.toLowerCase()) ||
-      (item.definition && item.definition.toLowerCase().includes(notebookSearchQuery.toLowerCase()));
-  });
-
   return (
     <div className="min-h-screen bg-[#F5F3EE] p-6 text-gray-900 font-sans">
       <div className="max-w-6xl mx-auto">
@@ -276,36 +367,9 @@ export default function VocabularyPage() {
               Kho từ vựng IELTS theo chủ đề và band điểm. Click vào từ để xem phát âm, ví dụ ngữ cảnh, và lưu vào sổ tay học tập của riêng bạn.
             </p>
           </div>
-
-          {/* PAGE TABS */}
-          <div className="flex bg-white/60 p-1.5 rounded-xl border border-gray-200/50 shadow-sm self-start">
-            <button
-              onClick={() => setActivePageTab("dictionary")}
-              className={`px-4 py-2 text-xs font-extrabold rounded-lg transition duration-200 ${
-                activePageTab === "dictionary"
-                  ? "bg-green-700 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Từ điển IELTS
-            </button>
-            <button
-              onClick={() => setActivePageTab("notebook")}
-              className={`px-4 py-2 text-xs font-extrabold rounded-lg transition duration-200 ${
-                activePageTab === "notebook"
-                  ? "bg-green-700 text-white shadow-sm"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              Sổ tay của tôi ({Object.keys(savedWords).length})
-            </button>
-          </div>
         </header>
 
-        {activePageTab === "dictionary" ? (
-          /* ======================================================= */
-          /*                       TAB: TỪ ĐIỂN                      */
-          /* ======================================================= */
+        <div>
           <div>
             {/* SEARCH AND FILTERS */}
             <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm mb-6 flex flex-col gap-4">
@@ -554,86 +618,7 @@ export default function VocabularyPage() {
               </section>
             )}
           </div>
-        ) : (
-          /* ======================================================= */
-          /*                      TAB: SỔ TAY CÁ NHÂN                */
-          /* ======================================================= */
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-gray-100 mb-6">
-              <div>
-                <h2 className="text-2xl font-black text-gray-900">Sổ tay từ vựng của tôi</h2>
-                <p className="text-xs text-gray-400 font-semibold mt-0.5">
-                  Lưu trữ tất cả các từ vựng bạn đã đánh dấu để ôn tập riêng.
-                </p>
-              </div>
-
-              {/* Notebook Search */}
-              <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4.5 h-4.5" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm trong sổ tay..."
-                  value={notebookSearchQuery}
-                  onChange={(e) => setNotebookSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold text-gray-900 focus:bg-white focus:border-green-600 transition outline-none"
-                />
-              </div>
-            </div>
-
-            {!user ? (
-              <div className="text-center py-12 text-gray-400 font-semibold text-sm">
-                Vui lòng đăng nhập để lưu trữ và xem từ vựng cá nhân.
-              </div>
-            ) : filteredNotebook.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 font-semibold text-sm">
-                {notebookSearchQuery ? "Không tìm thấy từ vựng phù hợp." : "Sổ tay của bạn hiện chưa có từ vựng nào."}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredNotebook.map((item) => (
-                  <div
-                    key={item.word}
-                    className="p-5 border border-gray-200 rounded-2xl bg-[#F5F3EE]/30 hover:border-green-300 hover:shadow-sm transition flex flex-col justify-between gap-4"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <h3 className="font-extrabold text-lg text-gray-900">{item.word}</h3>
-                        <span className="text-[9px] font-black bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                          {item.category || "General"}
-                        </span>
-                      </div>
-                      <p className="text-sm font-bold text-gray-700 mt-2 leading-snug">{item.definition}</p>
-                      {item.example && (
-                        <p className="text-xs text-gray-500 italic mt-2 border-l-2 border-green-500/30 pl-2 leading-relaxed">
-                          "{item.example}"
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between border-t border-gray-200/50 pt-3 mt-1">
-                      <button
-                        onClick={() => handlePronounce(item.word)}
-                        className="p-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-green-600 transition"
-                        title="Nghe phát âm"
-                      >
-                        <Volume2 className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() => handleRemoveFromNotebook(item.word)}
-                        className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs rounded-xl transition flex items-center gap-1"
-                        title="Xóa khỏi sổ tay"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Xóa
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        </div>
       </div>
       {showModal && <VocabLimitModal onClose={() => setShowModal(false)} />}
     </div>
