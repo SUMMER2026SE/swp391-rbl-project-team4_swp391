@@ -112,19 +112,25 @@ export default function VocabularyPage() {
         setFlashcards(mappedFlash);
       }
 
-      // Fetch user notebook if logged in
-      if (user) {
-        const { data: notebookData } = await supabase
-          .from("user_notebook")
-          .select("*")
-          .eq("user_id", user.id);
-        
-        if (notebookData) {
-          const savedMap: Record<string, NotebookItem> = {};
-          notebookData.forEach((item: NotebookItem) => {
-            savedMap[item.word.toLowerCase()] = item;
-          });
-          setSavedWords(savedMap);
+      // Fetch user notebook (supporting both real session and dev mock)
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+      if (token || process.env.NODE_ENV === 'development') {
+        const headers: Record<string, string> = token
+          ? { Authorization: `Bearer ${token}` }
+          : { 'x-mock-user-id': 'usr_2' };
+
+        const notebookRes = await fetch("/api/notebook", { headers });
+        if (notebookRes.ok) {
+          const notebookResult = await notebookRes.json();
+          const notebookData = notebookResult.data;
+          if (notebookData) {
+            const savedMap: Record<string, NotebookItem> = {};
+            notebookData.forEach((item: NotebookItem) => {
+              savedMap[item.word.toLowerCase()] = item;
+            });
+            setSavedWords(savedMap);
+          }
         }
       }
     } catch (err) {
@@ -150,36 +156,41 @@ export default function VocabularyPage() {
 
   // Save to Notebook
   const handleSaveToNotebook = async (item: VocabularyItem) => {
-    if (!user) return;
     try {
-      // Delete first to avoid duplicates since there is no unique constraint on (user_id, word)
-      await supabase
-        .from("user_notebook")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("word", item.word.toLowerCase());
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : { 'x-mock-user-id': 'usr_2' })
+      };
 
-      const { error } = await supabase.from("user_notebook").insert({
-        user_id: user.id,
-        word: item.word.toLowerCase(),
-        definition: item.meaning,
-        example: item.example || "",
-        category: item.category || "",
-        source: "dictionary"
+      const res = await fetch('/api/notebook', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          word: item.word.toLowerCase(),
+          definition: item.meaning,
+          example: item.example || "",
+          category: item.category || "",
+          source: "dictionary",
+          force: true
+        })
       });
 
-      if (error) throw error;
+      if (!res.ok) throw new Error("Không thể lưu từ vựng");
+      const result = await res.json();
+      const savedItem = result.data;
 
       // Update state
       setSavedWords(prev => ({
         ...prev,
         [item.word.toLowerCase()]: {
-          id: "",
+          id: savedItem?.id || "",
           word: item.word.toLowerCase(),
           definition: item.meaning,
           example: item.example,
           category: item.category,
-          created_at: new Date().toISOString()
+          created_at: savedItem?.created_at || new Date().toISOString()
         }
       }));
     } catch (err) {
@@ -189,15 +200,29 @@ export default function VocabularyPage() {
 
   // Remove from Notebook
   const handleRemoveFromNotebook = async (word: string) => {
-    if (!user) return;
     try {
-      const { error } = await supabase
-        .from("user_notebook")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("word", word.toLowerCase());
+      const targetItem = savedWords[word.toLowerCase()];
+      if (!targetItem) return;
 
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || '';
+      const headers: Record<string, string> = token
+        ? { Authorization: `Bearer ${token}` }
+        : { 'x-mock-user-id': 'usr_2' };
+
+      const idToDelete = targetItem.id;
+      if (idToDelete) {
+        const res = await fetch(`/api/notebook?id=${idToDelete}`, {
+          method: 'DELETE',
+          headers
+        });
+        if (!res.ok) throw new Error("Không thể xoá từ vựng");
+      } else {
+        await supabase
+          .from("user_notebook")
+          .delete()
+          .eq("word", word.toLowerCase());
+      }
 
       setSavedWords(prev => {
         const updated = { ...prev };
@@ -431,8 +456,8 @@ export default function VocabularyPage() {
                         ) : (
                           <button
                             onClick={() => handleSaveToNotebook(selectedWord)}
-                            disabled={!user}
-                            className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-black text-xs rounded-xl transition duration-200 flex items-center gap-1.5 shadow-sm"
+                            disabled={!user && process.env.NODE_ENV !== "development"}
+                            className="px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white font-black text-xs rounded-xl transition duration-200 flex items-center gap-1.5 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Plus className="w-4 h-4" />
                             Lưu vào sổ tay
