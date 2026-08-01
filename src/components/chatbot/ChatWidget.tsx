@@ -10,6 +10,32 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname() || "";
 
+  // Normalize pathname by removing locale prefix if it exists (e.g., /vi/reading/... -> /reading/...)
+  const cleanPath = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, "");
+
+  // Detect if the user is on an active exam/test-taking page
+  const isExamPage =
+    // Reading
+    (cleanPath.startsWith("/reading/cam/") && !cleanPath.includes("/review") && !cleanPath.includes("/result")) ||
+    (cleanPath === "/reading/test") ||
+    (/^\/reading\/[^/]+$/.test(cleanPath) && !["result", "song-ngu", "bilingual", "cam", "test"].includes(cleanPath.split("/")[2] || "")) ||
+    
+    // Listening
+    (cleanPath.startsWith("/listening/cam-test/") && !cleanPath.includes("/review") && !cleanPath.includes("/result")) ||
+    (/^\/listening\/[^/]+$/.test(cleanPath) && !["result", "cam-test", "dictation"].includes(cleanPath.split("/")[2] || "")) ||
+    
+    // Writing
+    (cleanPath.startsWith("/writing/tests/") && !cleanPath.includes("/review") && !cleanPath.includes("/result")) ||
+    (cleanPath === "/writing/test") ||
+    (/^\/writing\/[^/]+$/.test(cleanPath) && !["result", "dich-cau", "translation", "tests", "test"].includes(cleanPath.split("/")[2] || "")) ||
+    
+    // Speaking
+    (cleanPath === "/speaking/test");
+
+  if (isExamPage) {
+    return null;
+  }
+
   // Detect pages with fixed bottom bars, pagination, or floating controls
   const hasBottomBar =
     pathname.includes("/admin") ||
