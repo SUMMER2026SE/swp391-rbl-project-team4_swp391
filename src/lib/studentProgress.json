@@ -43,14 +43,15 @@
       "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
       "currentStreak": 0,
       "longestStreak": 0,
-      "lastStudyDate": "2026-07-15",
-      "lastStudyTimestamp": "2026-07-15T08:15:19.864Z",
+      "lastStudyDate": "2026-07-20",
+      "lastStudyTimestamp": "2026-07-20T06:00:08.793Z",
       "dailyGoalMinutes": 30,
-      "todayMinutes": 10,
+      "todayMinutes": 0,
       "lastGoalMetDate": null,
       "history": {
         "2026-06-25": 10,
-        "2026-07-15": 10
+        "2026-07-15": 10,
+        "2026-07-20": 0
       }
     },
     "f9080ad5-09e8-4801-a0c6-d675219cbe57": {
@@ -114,6 +115,17 @@
     },
     "f01a64cd-1f91-4e43-ab89-a1bec75836b2": {
       "userId": "f01a64cd-1f91-4e43-ab89-a1bec75836b2",
+      "currentStreak": 0,
+      "longestStreak": 0,
+      "lastStudyDate": null,
+      "lastStudyTimestamp": null,
+      "dailyGoalMinutes": 30,
+      "todayMinutes": 0,
+      "lastGoalMetDate": null,
+      "history": {}
+    },
+    "3e0a3aad-2ece-485a-a04f-e9c0a02cca3f": {
+      "userId": "3e0a3aad-2ece-485a-a04f-e9c0a02cca3f",
       "currentStreak": 0,
       "longestStreak": 0,
       "lastStudyDate": null,
@@ -201,6 +213,13 @@
       "date": "2026-07-12",
       "timestamp": "2026-07-12T15:42:14.281Z",
       "activity": "Hoàn thành bài Luyện nói IELTS Speaking - Chủ đề: Cambridge 18 Speaking Test 1 (Đạt điểm AI: 6.0)"
+    },
+    {
+      "id": "log_6v1tmnj",
+      "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
+      "date": "2026-07-20",
+      "timestamp": "2026-07-20T06:00:08.793Z",
+      "activity": "Hoàn thành bài Luyện nói IELTS Speaking - Chủ đề: Cambridge 19 Speaking Test 9 (Đạt điểm AI: 4.0)"
     }
   ],
   "notifications": [
@@ -230,6 +249,60 @@
       "type": "SYSTEM",
       "status": "UNREAD",
       "createdAt": "2026-07-01T09:02:48.766Z"
+    },
+    {
+      "id": "notify_n5irjho",
+      "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4.5 lên 5.5 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-07-20T06:07:37.616Z"
+    },
+    {
+      "id": "notify_911wbfj",
+      "userId": "f9080ad5-09e8-4801-a0c6-d675219cbe57",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4 lên 5.5 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-07-20T06:41:55.384Z"
+    },
+    {
+      "id": "notify_2hetd58",
+      "userId": "21f122e7-06c7-4df1-af22-4f2adca21c95",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4 lên 5.5 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-07-22T16:36:54.535Z"
+    },
+    {
+      "id": "notify_54w60mc",
+      "userId": "f9080ad5-09e8-4801-a0c6-d675219cbe57",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4.5 lên 5.5 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-08-01T10:31:37.586Z"
+    },
+    {
+      "id": "notify_1rkcazs",
+      "userId": "f9080ad5-09e8-4801-a0c6-d675219cbe57",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4 lên 5.5 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-08-01T11:12:25.636Z"
+    },
+    {
+      "id": "notify_dihpqqb",
+      "userId": "f9080ad5-09e8-4801-a0c6-d675219cbe57",
+      "title": "Lộ trình học mới đã bắt đầu! 🚀",
+      "content": "Chúc mừng bạn! Lộ trình học cá nhân hóa nâng Band từ 4.5 lên 6 đã sẵn sàng. Hãy bắt đầu chinh phục ngay hôm nay!",
+      "type": "SYSTEM",
+      "status": "UNREAD",
+      "createdAt": "2026-08-02T01:54:55.109Z"
     }
   ],
   "vocabularies": [

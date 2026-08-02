@@ -6,7 +6,7 @@ import { routing } from "./i18n/routing";
 const intlMiddleware = createMiddleware(routing);
 const ADMIN_PATHS = ["/admin"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Run next-intl middleware for locale routing
   const response = intlMiddleware(request);
 
@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   );
 
   // NOTE: this app stores the Supabase session in localStorage (not cookies), so
-  // the middleware cannot read the JWT or the user's role here. We only do a
+  // the middleware/proxy cannot read the JWT or the user's role here. We only do a
   // presence check (is the user logged in?). Actual ADMIN/INSTRUCTOR role
   // enforcement happens in the admin layout (client-side, reads profiles.role)
   // and in every admin API route via requireRole().

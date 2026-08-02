@@ -65,6 +65,8 @@ interface WritingGradeResult {
 function ResultContent() {
   const searchParams = useSearchParams();
   const attemptId = searchParams.get("id");
+  const source = searchParams.get("source");
+  const taskId = searchParams.get("task_id");
 
   const [attempt, setAttempt] = useState<WritingAttemptPayload | null>(null);
   const [grade, setGrade] = useState<WritingGradeResult | null>(null);
