@@ -580,9 +580,10 @@ export default function OrientationPage() {
           <h3 className="text-xs font-black text-emerald-700 uppercase tracking-wider border-b border-slate-50 pb-2">
             Urban Agriculture: The Green Revolution in Cities
           </h3>
-          <div className="text-[11.5px] text-slate-500 font-medium leading-relaxed whitespace-pre-line">
-            {questions.reading[0]?.passage}
-          </div>
+          <div 
+            className="text-[11.5px] text-slate-500 font-medium leading-relaxed [&_p]:mb-3"
+            dangerouslySetInnerHTML={{ __html: questions.reading[0]?.passage || "" }}
+          />
         </div>
 
         {/* Questions */}
