@@ -25,7 +25,11 @@ import {
   Undo2,
   TrendingUp,
   Lightbulb,
-  Award
+  Award,
+  Trophy,
+  Timer,
+  Route,
+  ClipboardCheck
 } from "lucide-react";
 
 export default function OrientationPage() {
@@ -379,436 +383,673 @@ export default function OrientationPage() {
     "Hoàn tất đánh giá. Trình bày kết quả..."
   ];
 
+  // ─── SHARED QUIZ CHROME ────────────────────────────────────
+  // Card shell reused by every question block across steps 1–4.
+  const cardClass =
+    "bg-white rounded-xl border-[3px] border-black p-6 md:p-7 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]";
+
+  const renderStepHeader = (
+    part: number,
+    title: string,
+    Icon: any,
+    range: string,
+    tintClass: string,
+    labelClass: string
+  ) => (
+    <div className="bg-white rounded-xl border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] p-5 md:p-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
+        <div className={`w-14 h-14 rounded-lg border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${tintClass}`}>
+          <Icon className="w-7 h-7" />
+        </div>
+        <div className="space-y-1">
+          <span className={`block text-[11px] font-black uppercase tracking-[0.2em] ${labelClass}`}>
+            Phần {part} / 4
+          </span>
+          <h2 className="text-2xl md:text-3xl font-black text-[#1b3d1e] tracking-tight leading-none">
+            {title}
+          </h2>
+        </div>
+      </div>
+      <span className="rounded-full bg-[#2c4728] text-white px-4 py-2 text-[11px] font-extrabold tracking-wide border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+        {range}
+      </span>
+    </div>
+  );
+
+  const renderStepNav = (
+    onBack: () => void,
+    onNext: () => void,
+    nextLabel: string,
+    nextBgClass: string,
+    isFinal = false
+  ) => (
+    <div className="flex flex-wrap justify-between items-center gap-4 pt-2 pb-2">
+      <button
+        onClick={onBack}
+        className="inline-flex items-center gap-2 rounded-full bg-white border-[3px] border-black px-7 py-3.5 text-sm font-black text-[#1b3d1e] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[7px_7px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 cursor-pointer select-none"
+      >
+        <ChevronLeft className="w-5 h-5" /> Quay lại
+      </button>
+      <button
+        onClick={onNext}
+        className={`inline-flex items-center gap-2.5 rounded-full border-[3px] border-black px-8 py-3.5 md:px-10 md:py-4 text-sm md:text-base font-black text-white shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 cursor-pointer select-none ${nextBgClass}`}
+      >
+        <span>{nextLabel}</span>
+        {isFinal ? <ArrowRight className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+      </button>
+    </div>
+  );
+
   // ─── STEP 0: INTRO ─────────────────────────────────────────
   const renderIntro = () => (
-    <div className="space-y-8 text-left max-w-3xl mx-auto py-4">
+    <div className="text-left w-full max-w-[1240px] mx-auto space-y-8 md:space-y-10">
       {isRetest && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-5 md:p-6 flex gap-4 items-start shadow-sm">
-          <Sparkles className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+        <div className="bg-[#fff8e8] border-[3px] border-black rounded-xl p-5 md:p-6 flex gap-4 items-start shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
+          <div className="w-11 h-11 shrink-0 rounded-lg bg-[#B38F4D] border-2 border-black flex items-center justify-center text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+            <Sparkles className="w-5 h-5" />
+          </div>
           <div className="space-y-1">
-            <h4 className="text-sm font-black text-[#0d153a]">Bài Kiểm Tra Lại (Retest)</h4>
-            <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+            <h4 className="text-base font-black text-[#1b3d1e]">Bài Kiểm Tra Lại (Retest)</h4>
+            <p className="text-[13px] text-[#2d4a2d]/75 font-semibold leading-relaxed">
               Đây là bài kiểm tra lại để đánh giá tiến bộ của bạn so với lộ trình đang theo.
             </p>
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center text-center space-y-4">
-        <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#3B5C37] to-[#B38F4D] flex items-center justify-center text-white shadow-lg animate-pulse">
-          <BrainCircuit className="w-8 h-8" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl md:text-3xl font-black text-[#0d153a] tracking-tight">
-            Kiểm Tra Năng Lực Đầu Vào
-          </h1>
-          <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">
-            IELTS Placement Diagnostic Test — 4 Kỹ Năng
-          </p>
-        </div>
-        <p className="text-xs md:text-sm text-slate-500 max-w-xl font-medium leading-relaxed">
-          Bài kiểm tra ~30 phút kiểm tra đủ 4 kỹ năng Listening, Reading, Writing, Speaking. Sau khi nộp bài, AI sẽ phân tích và đề xuất lộ trình học 12 tuần tối ưu cho bạn.
-        </p>
-      </div>
 
-      <div className="grid md:grid-cols-4 gap-4">
-        {[
-          { 
-            icon: Volume2, 
-            label: "Listening", 
-            detail: "Transcript + Điền từ & Trắc nghiệm (3 câu)",
-            iconClass: "bg-blue-50 border-blue-100 text-blue-500"
-          },
-          { 
-            icon: BookOpen, 
-            label: "Reading", 
-            detail: "Đọc hiểu + T/F/NG + MCQ (4 câu)",
-            iconClass: "bg-emerald-50 border-emerald-100 text-emerald-500"
-          },
-          { 
-            icon: PenTool, 
-            label: "Writing", 
-            detail: "Task 1 báo cáo + Task 2 luận điểm",
-            iconClass: "bg-orange-50 border-orange-100 text-orange-500"
-          },
-          { 
-            icon: Mic, 
-            label: "Speaking", 
-            detail: "Part 1 câu ngắn + Part 2 Cue Card",
-            iconClass: "bg-pink-50 border-pink-100 text-pink-500"
-          }
-        ].map(({ icon: Icon, label, detail, iconClass }) => (
-          <div key={label} className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm space-y-2">
-            <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${iconClass}`}>
-              <Icon className="w-5 h-5" />
+      {/* ── HERO ─────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden rounded-xl border-[3px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+        style={{ background: "linear-gradient(105deg, #1a331c 0%, #3B5C37 45%, #5c8257 100%)" }}
+      >
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iYSIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCBmaWxsPSJ1cmwoI2EpIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIvPjwvc3ZnPg==')] opacity-60 pointer-events-none" />
+        <div className="absolute -top-24 -right-16 w-80 h-80 rounded-full bg-[#B38F4D]/25 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-28 -left-20 w-80 h-80 rounded-full bg-white/10 blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 grid lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-14 items-center p-8 sm:p-10 md:p-14 lg:p-16 min-h-[440px] md:min-h-[520px]">
+          {/* Left: copy + CTA */}
+          <div className="space-y-7">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 backdrop-blur-sm px-4 py-2 text-[10px] md:text-[11px] font-black uppercase tracking-[0.18em] text-white">
+              <Sparkles className="w-3.5 h-3.5 text-[#e3c98a]" />
+              IELTS Placement Diagnostic Test
+            </span>
+
+            <div className="space-y-4">
+              <h1 className="font-black text-white tracking-tight leading-[1.05]">
+                <span className="block text-3xl sm:text-4xl md:text-5xl">Kiểm Tra</span>
+                <span className="block text-4xl sm:text-5xl md:text-6xl lg:text-[64px]">
+                  Năng Lực <span className="text-[#e3c98a]">Đầu Vào</span>
+                </span>
+              </h1>
+              <p className="text-[14px] md:text-[16px] lg:text-[17px] text-white/85 font-medium leading-relaxed max-w-[560px]">
+                Bài kiểm tra ~30 phút bao quát đủ 4 kỹ năng Listening, Reading, Writing và Speaking.
+                Sau khi nộp bài, AI sẽ phân tích điểm mạnh — điểm yếu và đề xuất lộ trình học 12 tuần
+                tối ưu riêng cho bạn.
+              </p>
             </div>
-            <h4 className="text-xs font-black text-[#0d153a] uppercase tracking-wider">{label}</h4>
-            <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">{detail}</p>
-          </div>
-        ))}
-      </div>
 
-      <div className="bg-[#3B5C37]/5 border border-[#3B5C37]/20 rounded-2xl p-4 flex gap-3.5 items-start">
-        <AlertCircle className="w-5 h-5 text-[#3B5C37] shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <h5 className="text-xs font-black text-[#3B5C37]">Lưu ý quan trọng:</h5>
-          <p className="text-[11px] text-[#3B5C37]/80 font-medium leading-relaxed">
-            Vui lòng làm bài nghiêm túc, không tra từ điển hay dùng công cụ dịch để AI đo đúng trình độ thực tế của bạn.
+            {/* Meta chips */}
+            <div className="flex flex-wrap items-center gap-3">
+              {[
+                { icon: Timer, text: "~30 phút" },
+                { icon: ClipboardCheck, text: "4 kỹ năng · 7+ câu hỏi" },
+                { icon: Route, text: "Lộ trình 12 tuần" },
+              ].map(({ icon: Icon, text }) => (
+                <span
+                  key={text}
+                  className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-2 text-[11px] md:text-xs font-bold text-white/90 backdrop-blur-sm"
+                >
+                  <Icon className="w-3.5 h-3.5 text-[#e3c98a]" />
+                  {text}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 pt-1">
+              <button
+                onClick={() => setStep(1)}
+                className="inline-flex items-center justify-center gap-2.5 rounded-full bg-white px-8 py-4 md:px-10 md:py-4.5 text-sm md:text-base font-black text-[#1f3e1b] border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 cursor-pointer select-none"
+              >
+                <span>Bắt Đầu Làm Bài</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <span className="text-[11px] md:text-xs text-white/60 font-semibold italic">
+                Miễn phí · Không giới hạn số lần kiểm tra
+              </span>
+            </div>
+          </div>
+
+          {/* Right: AI orb */}
+          <div className="hidden lg:flex flex-col items-center justify-center gap-6">
+            <div className="relative w-[240px] h-[240px] flex items-center justify-center">
+              <div
+                className="absolute inset-0 rounded-full border-2 border-dashed border-white/30 animate-spin"
+                style={{ animationDuration: "18s" }}
+              />
+              <div
+                className="absolute inset-6 rounded-full border border-[#e3c98a]/50 animate-spin"
+                style={{ animationDuration: "9s", animationDirection: "reverse" }}
+              />
+              <div className="w-[136px] h-[136px] rounded-full bg-gradient-to-tr from-[#3B5C37] to-[#B38F4D] border-[3px] border-black shadow-[0_12px_32px_rgba(0,0,0,0.35)] flex items-center justify-center">
+                <BrainCircuit className="w-16 h-16 text-white animate-pulse" />
+              </div>
+            </div>
+            <div className="w-full max-w-[260px] rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm px-5 py-4 text-center">
+              <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-white/60">
+                Kết quả bạn nhận được
+              </span>
+              <span className="block mt-1.5 text-xl font-black text-white leading-tight">
+                Band ước tính + Lộ trình AI
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4 SKILL CARDS ────────────────────────────────── */}
+      <section className="space-y-5">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <h2 className="text-2xl md:text-3xl font-black text-[#1b3d1e] tracking-tight">
+            Bài kiểm tra gồm những gì?
+          </h2>
+          <p className="text-[13px] font-semibold text-[#5b6484]">
+            4 phần thi tuần tự — bạn có thể quay lại chỉnh sửa trước khi nộp.
           </p>
         </div>
-      </div>
 
-      <div className="flex justify-center pt-2">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[
+            {
+              icon: Volume2,
+              label: "Listening",
+              detail: "Nghe audio kèm transcript, làm dạng Điền từ và Trắc nghiệm.",
+              badge: "3 câu hỏi",
+              tint: "bg-[#dbeafe] text-[#2563eb]",
+            },
+            {
+              icon: BookOpen,
+              label: "Reading",
+              detail: "Đọc hiểu bài học thuật với dạng True/False/Not Given và MCQ.",
+              badge: "4 câu hỏi",
+              tint: "bg-[#dcfce7] text-[#16a34a]",
+            },
+            {
+              icon: PenTool,
+              label: "Writing",
+              detail: "Task 1 mô tả biểu đồ (150 từ) và Task 2 bài luận (250 từ).",
+              badge: "2 bài viết",
+              tint: "bg-[#ffedd5] text-[#ea580c]",
+            },
+            {
+              icon: Mic,
+              label: "Speaking",
+              detail: "Part 1 trả lời ngắn và Part 2 Cue Card, ghi âm trực tiếp.",
+              badge: "2 phần nói",
+              tint: "bg-[#fce7f3] text-[#db2777]",
+            },
+          ].map(({ icon: Icon, label, detail, badge, tint }, idx) => (
+            <div
+              key={label}
+              className="group relative flex flex-col bg-white rounded-xl border-[3px] border-black p-6 min-h-[268px] shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
+            >
+              <span className="absolute top-5 right-6 text-2xl font-black text-black/10 select-none">
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+
+              <div
+                className={`w-14 h-14 rounded-lg border-2 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${tint}`}
+              >
+                <Icon className="w-7 h-7" />
+              </div>
+
+              <h3 className="mt-5 text-[19px] md:text-[20px] font-black text-[#1b3d1e] tracking-tight">
+                {label}
+              </h3>
+              <p className="mt-2 flex-1 text-[13px] font-semibold text-[#2d4a2d]/70 leading-relaxed">
+                {detail}
+              </p>
+              <span className="mt-5 inline-flex w-max items-center rounded-full bg-[#2c4728] text-white px-4 py-1.5 text-[11px] font-extrabold tracking-wide shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                {badge}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS + NOTE ──────────────────────────── */}
+      <section className="grid lg:grid-cols-[1.6fr_1fr] gap-6">
+        <div className="rounded-xl bg-white border border-[#e8ebf3] p-7 md:p-9 shadow-[0_4px_32px_rgba(20,28,60,0.07)]">
+          <h3 className="text-xl md:text-2xl font-black text-[#1b3d1e] tracking-tight">
+            Quy trình 3 bước
+          </h3>
+          <div className="mt-7 space-y-6">
+            {[
+              {
+                icon: ClipboardCheck,
+                title: "Làm bài kiểm tra 4 kỹ năng",
+                desc: "Hoàn thành lần lượt Listening → Reading → Writing → Speaking trong khoảng 30 phút.",
+              },
+              {
+                icon: BrainCircuit,
+                title: "AI chấm và phân tích",
+                desc: "Hệ thống đối chiếu đáp án, đánh giá bài viết và bài nói để ước tính band điểm hiện tại.",
+              },
+              {
+                icon: Route,
+                title: "Nhận lộ trình cá nhân hóa",
+                desc: "Chọn band mục tiêu, thời gian học mỗi ngày và ngày thi — AI dựng lộ trình 12 tuần chia 3 giai đoạn.",
+              },
+            ].map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} className="flex items-start gap-4">
+                <div className="relative shrink-0">
+                  <div className="w-11 h-11 rounded-lg bg-[#f2f6ee] border-2 border-[#3B5C37]/15 flex items-center justify-center text-[#3B5C37]">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  {i < 2 && <div className="absolute left-1/2 top-11 h-6 w-0.5 -translate-x-1/2 bg-[#3B5C37]/15" />}
+                </div>
+                <div className="pt-0.5">
+                  <h4 className="text-[15px] md:text-base font-extrabold text-[#121a3c]">{title}</h4>
+                  <p className="mt-1 text-[13px] font-medium text-[#5b6484] leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-[#f2f6ee] border-[3px] border-[#3B5C37]/20 p-7 md:p-9 flex flex-col justify-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-[#3B5C37] flex items-center justify-center text-white shadow-md">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <h4 className="text-lg font-black text-[#1b3d1e]">Lưu ý quan trọng</h4>
+          <p className="text-[13px] font-semibold text-[#3B5C37]/85 leading-relaxed">
+            Vui lòng làm bài nghiêm túc, không tra từ điển hay dùng công cụ dịch — để AI đo đúng
+            trình độ thực tế và xây lộ trình phù hợp nhất với bạn.
+          </p>
+        </div>
+      </section>
+
+      {/* ── BOTTOM CTA ───────────────────────────────────── */}
+      <div className="flex flex-col items-center gap-3 pt-2 pb-4">
         <button
           onClick={() => setStep(1)}
-          className="px-10 py-4 rounded-2xl bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] hover:opacity-95 text-white font-extrabold text-xs shadow-lg transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-95 duration-200"
+          className="inline-flex items-center justify-center gap-2.5 rounded-full bg-[#3B5C37] hover:bg-[#1f3e1b] px-10 py-4 md:px-12 md:py-5 text-sm md:text-base font-black text-white border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] active:translate-x-0 active:translate-y-0 active:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 cursor-pointer select-none"
         >
-          <span>Bắt Đầu Làm Bài</span>
-          <ArrowRight className="w-4 h-4 text-white" />
+          <span>Bắt Đầu Làm Bài Ngay</span>
+          <ArrowRight className="w-5 h-5" />
         </button>
+        <span className="text-[11px] font-semibold text-[#5b6484] italic">
+          Bạn có thể thoát giữa chừng, nhưng kết quả sẽ không được lưu.
+        </span>
       </div>
     </div>
   );
 
   // ─── STEP 1: LISTENING ─────────────────────────────────────
   const renderListening = () => (
-    <div className="space-y-6 text-left max-w-2xl mx-auto py-2">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-        <div className="space-y-1">
-          <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider">PHẦN 1 / 4</span>
-          <h2 className="text-lg font-black text-[#0d153a] flex items-center gap-1.5">
-            <Volume2 className="w-5 h-5 text-blue-500" /> Listening Practice
-          </h2>
-        </div>
-        <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-xl">Q1 - Q3</span>
-      </div>
+    <div className="space-y-6 text-left w-full max-w-4xl mx-auto">
+      {renderStepHeader(1, "Listening Practice", Volume2, "Q1 - Q3", "bg-[#dbeafe] text-[#2563eb]", "text-[#2563eb]")}
 
-      {/* Audio Player */}
-      {questions.listening[0]?.audioSrc && (
-        <div className="bg-blue-50/50 border-2 border-blue-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0">
-              <Volume2 className="w-5 h-5 animate-pulse" />
+      <div className={cardClass}>
+        {/* Audio Player */}
+        {questions.listening[0]?.audioSrc && (
+          <div className="bg-[#eef4ff] rounded-lg border-2 border-black/10 p-4 md:p-5 mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#2563eb] text-white flex items-center justify-center shrink-0">
+                <Volume2 className="w-5 h-5 animate-pulse" />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-sm font-black text-[#1b3d1e] uppercase tracking-wide">File âm thanh bài nghe</p>
+                <p className="text-[13px] text-[#5b6484] font-semibold leading-tight">{questions.listening[0]?.audioDescription}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs font-black text-[#0d153a] uppercase tracking-wider">File âm thanh bài nghe</p>
-              <p className="text-[10px] text-gray-500 font-semibold leading-tight">{questions.listening[0]?.audioDescription}</p>
-            </div>
-          </div>
-          <audio 
-            src={questions.listening[0].audioSrc} 
-            controls 
-            className="w-full sm:w-80 h-9 outline-none block"
-          />
-        </div>
-      )}
-
-      {questions.listening.map((q: any, idx: number) => (
-        <div key={q.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
-          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-              Audio {idx + 1} — {q.audioDescription}
-            </p>
-          </div>
-
-          <label className="text-xs font-extrabold text-[#0d153a] block">
-            Q{idx + 1}. {typeof q.questionText === "string" ? q.questionText.replace(/\{\d+\}/g, "_______") : q.questionText}
-          </label>
-
-          {q.type === "fill_in_blank" && (
-            <input
-              type="text"
-              placeholder="Nhập câu trả lời..."
-              value={answers[q.id] || ""}
-              onChange={e => handleAnswerChange(q.id, e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+            <audio
+              src={questions.listening[0].audioSrc}
+              controls
+              className="w-full lg:w-[400px] h-10 outline-none block"
             />
-          )}
+          </div>
+        )}
 
-          {q.type === "multiple_choice" && (
-            <div className="grid sm:grid-cols-2 gap-2">
-              {q.options?.map((opt: any) => {
-                const isString = typeof opt === "string";
-                const letter = isString ? opt.charAt(0) : (opt.key || opt.letter || opt.value || "");
-                const text = isString ? opt : (opt.text || opt.label || opt.value || "");
-                const isSelected = answers[q.id] === letter;
-                const keyStr = isString ? opt : (opt.key || JSON.stringify(opt));
-                return (
-                  <button
-                    key={keyStr}
-                    type="button"
-                    onClick={() => handleAnswerChange(q.id, letter)}
-                    className={`text-left p-3 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-                      isSelected ? "border-blue-500 bg-blue-50/30 text-blue-700" : "border-slate-100 bg-white hover:border-slate-200 text-slate-500"
-                    }`}
-                  >
-                    {text}
-                  </button>
-                );
-              })}
+        <div className="divide-y-2 divide-black/5">
+          {questions.listening.map((q: any, idx: number) => (
+            <div key={q.id} className="py-6 first:pt-0 last:pb-0 space-y-4">
+              <label className="flex items-start gap-3 text-base md:text-[17px] font-extrabold text-[#1b3d1e] leading-snug">
+                <span className="shrink-0 w-7 h-7 rounded-full bg-[#dbeafe] text-[#2563eb] border-2 border-black text-[11px] font-black flex items-center justify-center">
+                  {idx + 1}
+                </span>
+                <span className="pt-0.5">
+                  {typeof q.questionText === "string" ? q.questionText.replace(/\{\d+\}/g, "_______") : q.questionText}
+                </span>
+              </label>
+
+              <div className="pl-10">
+                {q.type === "fill_in_blank" && (
+                  <input
+                    type="text"
+                    placeholder="Nhập câu trả lời..."
+                    value={answers[q.id] || ""}
+                    onChange={e => handleAnswerChange(q.id, e.target.value)}
+                    className="w-full px-5 py-3.5 rounded-lg border-2 border-black/15 bg-[#fafbfe] text-sm font-semibold text-[#1b3d1e] placeholder:text-slate-400 placeholder:font-medium focus:border-[#2563eb] focus:bg-white outline-none transition-all"
+                  />
+                )}
+
+                {q.type === "multiple_choice" && (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {q.options?.map((opt: any) => {
+                      const isString = typeof opt === "string";
+                      const letter = isString ? opt.charAt(0) : (opt.key || opt.letter || opt.value || "");
+                      const text = isString ? opt : (opt.text || opt.label || opt.value || "");
+                      const isSelected = answers[q.id] === letter;
+                      const keyStr = isString ? opt : (opt.key || JSON.stringify(opt));
+                      return (
+                        <button
+                          key={keyStr}
+                          type="button"
+                          onClick={() => handleAnswerChange(q.id, letter)}
+                          className={`text-left px-4 py-3.5 rounded-lg border-2 text-sm font-bold transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-black bg-[#dbeafe] text-[#1e40af] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                              : "border-black/15 bg-[#fafbfe] hover:border-black/40 hover:bg-white text-[#5b6484]"
+                          }`}
+                        >
+                          {text}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          ))}
         </div>
-      ))}
-
-      <div className="flex justify-between items-center pt-2">
-        <button onClick={() => setStep(0)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-          <ChevronLeft className="w-4 h-4" /> Quay lại
-        </button>
-        <button onClick={() => setStep(2)} className="px-6 py-3 rounded-xl bg-blue-500 text-white text-xs font-black hover:opacity-95 shadow flex items-center gap-1.5 cursor-pointer">
-          <span>Tiếp tục Reading</span> <ChevronRight className="w-4 h-4" />
-        </button>
       </div>
+
+      {renderStepNav(() => setStep(0), () => setStep(2), "Tiếp tục Reading", "bg-[#2563eb] hover:bg-[#1d4ed8]")}
     </div>
   );
 
   // ─── STEP 2: READING ───────────────────────────────────────
   const renderReading = () => (
-    <div className="space-y-6 text-left max-w-4xl mx-auto py-2">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-        <div className="space-y-1">
-          <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">PHẦN 2 / 4</span>
-          <h2 className="text-lg font-black text-[#0d153a] flex items-center gap-1.5">
-            <BookOpen className="w-5 h-5 text-emerald-500" /> Reading Practice
-          </h2>
-        </div>
-        <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-xl">Q4 - Q7</span>
-      </div>
+    <div className="space-y-6 text-left w-full max-w-[1240px] mx-auto">
+      {renderStepHeader(2, "Reading Practice", BookOpen, "Q4 - Q7", "bg-[#dcfce7] text-[#16a34a]", "text-[#16a34a]")}
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Passage */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm max-h-[440px] overflow-y-auto space-y-3">
-          <h3 className="text-xs font-black text-emerald-700 uppercase tracking-wider border-b border-slate-50 pb-2">
-            Urban Agriculture: The Green Revolution in Cities
-          </h3>
+        <div className={`${cardClass} lg:sticky lg:top-6 h-fit max-h-[640px] overflow-y-auto space-y-4`}>
+          <div className="flex items-center gap-3 border-b-2 border-black/10 pb-3">
+            <div className="w-10 h-10 rounded-lg bg-[#dcfce7] text-[#16a34a] border-2 border-black flex items-center justify-center shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <h3 className="text-base md:text-[17px] font-black text-[#1b3d1e] leading-tight">
+              Urban Agriculture: The Green Revolution in Cities
+            </h3>
+          </div>
           <div 
-            className="text-[11.5px] text-slate-500 font-medium leading-relaxed [&_p]:mb-3"
+            className="text-[14px] text-[#3d4663] font-medium leading-[1.8] whitespace-pre-line"
             dangerouslySetInnerHTML={{ __html: questions.reading[0]?.passage || "" }}
           />
         </div>
 
         {/* Questions */}
-        <div className="space-y-5">
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
-            <h4 className="text-xs font-black text-[#0d153a] uppercase tracking-wider border-b border-slate-50 pb-2">Q4-6: True / False / Not Given</h4>
-            {questions.reading[0]?.items?.map((item: any, idx: number) => (
-              <div key={idx} className="space-y-2 border-b border-slate-50 pb-3">
-                <p className="text-xs font-bold text-[#0d153a] leading-tight">Q{4 + idx}. {item.statement}</p>
-                <div className="flex gap-2">
-                  {["TRUE", "FALSE", "NOT GIVEN"].map(opt => {
-                    const key = `r1_${idx}`;
-                    const isSelected = answers[key] === opt;
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        onClick={() => handleAnswerChange(key, opt)}
-                        className={`flex-1 py-1.5 rounded-xl border text-[10px] font-extrabold text-center transition-all cursor-pointer ${
-                          isSelected ? "border-emerald-500 bg-emerald-50/30 text-emerald-700" : "border-slate-100 bg-white hover:border-slate-200 text-slate-500"
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    );
-                  })}
+        <div className={cardClass}>
+          <div className="divide-y-2 divide-black/5">
+            {/* Q4-6 True / False / Not Given */}
+            <section className="pb-7 space-y-5">
+              <h4 className="text-[11px] font-black text-[#16a34a] uppercase tracking-[0.2em]">
+                Q4-6 · True / False / Not Given
+              </h4>
+              {questions.reading[0]?.items?.map((item: any, idx: number) => (
+                <div key={idx} className="space-y-3">
+                  <p className="flex items-start gap-3 text-[15px] font-extrabold text-[#1b3d1e] leading-snug">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-[#dcfce7] text-[#16a34a] border-2 border-black text-[11px] font-black flex items-center justify-center">
+                      {4 + idx}
+                    </span>
+                    <span className="pt-0.5">{item.statement}</span>
+                  </p>
+                  <div className="flex gap-2.5 pl-10">
+                    {["TRUE", "FALSE", "NOT GIVEN"].map(opt => {
+                      const key = `r1_${idx}`;
+                      const isSelected = answers[key] === opt;
+                      return (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => handleAnswerChange(key, opt)}
+                          className={`flex-1 py-2.5 rounded-lg border-2 text-[11px] font-black text-center transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-black bg-[#dcfce7] text-[#15803d] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                              : "border-black/15 bg-[#fafbfe] hover:border-black/40 hover:bg-white text-[#5b6484]"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </section>
 
-          <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
-            <h4 className="text-xs font-black text-[#0d153a] uppercase tracking-wider border-b border-slate-50 pb-2">Q7: Multiple Choice</h4>
-            <p className="text-xs font-bold text-[#0d153a] leading-tight">{questions.reading[1]?.questionText}</p>
-            <div className="grid sm:grid-cols-2 gap-2 mt-2.5">
-              {questions.reading[1]?.options?.map((opt: any) => {
-                const isString = typeof opt === "string";
-                const letter = isString ? opt.charAt(0) : (opt.key || opt.letter || opt.value || "");
-                const text = isString ? opt : (opt.text || opt.label || opt.value || "");
-                const isSelected = answers.r2 === letter;
-                const keyStr = isString ? opt : (opt.key || JSON.stringify(opt));
-                return (
-                  <button
-                    key={keyStr}
-                    type="button"
-                    onClick={() => handleAnswerChange("r2", letter)}
-                    className={`w-full text-left p-3 rounded-xl border text-xs font-medium transition-all flex items-start gap-2.5 cursor-pointer ${
-                      isSelected ? "border-emerald-500 bg-emerald-50/30 text-emerald-700 font-bold" : "border-slate-100 bg-white hover:border-slate-200 text-slate-500"
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${isSelected ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300"}`}>
-                      {isSelected && <Check className="w-2.5 h-2.5" />}
-                    </div>
-                    <span>{text}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {/* Q7 Multiple Choice */}
+            <section className="pt-7 space-y-4">
+              <h4 className="text-[11px] font-black text-[#16a34a] uppercase tracking-[0.2em]">
+                Q7 · Multiple Choice
+              </h4>
+              <p className="flex items-start gap-3 text-[15px] font-extrabold text-[#1b3d1e] leading-snug">
+                <span className="shrink-0 w-7 h-7 rounded-full bg-[#dcfce7] text-[#16a34a] border-2 border-black text-[11px] font-black flex items-center justify-center">
+                  7
+                </span>
+                <span className="pt-0.5">{questions.reading[1]?.questionText}</span>
+              </p>
+              <div className="grid gap-3 pl-10">
+                {questions.reading[1]?.options?.map((opt: any) => {
+                  const isString = typeof opt === "string";
+                  const letter = isString ? opt.charAt(0) : (opt.key || opt.letter || opt.value || "");
+                  const text = isString ? opt : (opt.text || opt.label || opt.value || "");
+                  const isSelected = answers.r2 === letter;
+                  const keyStr = isString ? opt : (opt.key || JSON.stringify(opt));
+                  return (
+                    <button
+                      key={keyStr}
+                      type="button"
+                      onClick={() => handleAnswerChange("r2", letter)}
+                      className={`w-full text-left px-4 py-3.5 rounded-lg border-2 text-sm transition-all flex items-start gap-3 cursor-pointer ${
+                        isSelected
+                          ? "border-black bg-[#dcfce7] text-[#15803d] font-bold shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                          : "border-black/15 bg-[#fafbfe] hover:border-black/40 hover:bg-white text-[#5b6484] font-semibold"
+                      }`}
+                    >
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${isSelected ? "border-black bg-[#16a34a] text-white" : "border-black/25"}`}>
+                        {isSelected && <Check className="w-3 h-3" />}
+                      </div>
+                      <span>{text}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-2">
-        <button onClick={() => setStep(1)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-          <ChevronLeft className="w-4 h-4" /> Quay lại
-        </button>
-        <button onClick={() => setStep(3)} className="px-6 py-3 rounded-xl bg-emerald-500 text-white text-xs font-black hover:opacity-95 shadow flex items-center gap-1.5 cursor-pointer">
-          <span>Tiếp tục Writing</span> <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
+      {renderStepNav(() => setStep(1), () => setStep(3), "Tiếp tục Writing", "bg-[#16a34a] hover:bg-[#15803d]")}
     </div>
   );
 
   // ─── STEP 3: WRITING ───────────────────────────────────────
-  const renderWriting = () => (
-    <div className="space-y-6 text-left max-w-3xl mx-auto py-2">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-        <div className="space-y-1">
-          <span className="text-[10px] font-black text-orange-600 uppercase tracking-wider">PHẦN 3 / 4</span>
-          <h2 className="text-lg font-black text-[#0d153a] flex items-center gap-1.5">
-            <PenTool className="w-5 h-5 text-orange-500" /> Writing Practice
-          </h2>
-        </div>
-        <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-xl">Task 1 + Task 2</span>
-      </div>
+  const renderWriting = () => {
+    const wordBadge = (count: number, min: number) => (
+      <span
+        className={`rounded-full border-2 border-black px-3.5 py-1.5 text-[11px] font-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+          count >= min ? "bg-[#dcfce7] text-[#15803d]" : "bg-[#ffedd5] text-[#c2410c]"
+        }`}
+      >
+        {count} / {min} từ
+      </span>
+    );
 
-      {/* Task 1 */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-black text-orange-600 uppercase tracking-widest">TASK 1 — Academic Report</span>
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded ${getWordCount(answers.w1) >= 150 ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"}`}>
-            {getWordCount(answers.w1)} / 150 từ
-          </span>
-        </div>
-        <div 
-          className="text-xs font-bold text-slate-700 italic"
-          dangerouslySetInnerHTML={{ __html: questions.writing[0]?.prompt || "" }}
-        />
+    return (
+      <div className="space-y-6 text-left w-full max-w-4xl mx-auto">
+        {renderStepHeader(3, "Writing Practice", PenTool, "Task 1 + Task 2", "bg-[#ffedd5] text-[#ea580c]", "text-[#ea580c]")}
 
-        {questions.writing[0]?.cloudinaryUrl && (
-          <div className="my-4 max-w-xl mx-auto rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50 flex items-center justify-center p-2">
-            <img 
-              src={questions.writing[0].cloudinaryUrl} 
-              alt="Writing Task 1 Chart" 
-              className="max-h-[300px] object-contain w-auto h-auto rounded-lg"
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = 'none';
-              }}
-            />
+        <div className={cardClass}>
+          <div className="divide-y-2 divide-black/5">
+            {/* Task 1 */}
+            <section className="pb-7 space-y-4">
+              <div className="flex flex-wrap justify-between items-center gap-3">
+                <span className="text-[11px] font-black text-[#ea580c] uppercase tracking-[0.2em]">
+                  Task 1 · Academic Report
+                </span>
+                {wordBadge(getWordCount(answers.w1), 150)}
+              </div>
+
+              <div
+                className="text-[15px] font-bold text-[#3d4663] italic leading-relaxed [&_p]:mb-2"
+                dangerouslySetInnerHTML={{ __html: questions.writing[0]?.prompt || "" }}
+              />
+
+              {questions.writing[0]?.cloudinaryUrl && (
+                <div className="max-w-2xl mx-auto rounded-lg overflow-hidden border-2 border-black/15 bg-[#fafbfe] flex items-center justify-center p-3">
+                  <img
+                    src={questions.writing[0].cloudinaryUrl}
+                    alt="Writing Task 1 Chart"
+                    className="max-h-[380px] object-contain w-auto h-auto rounded"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+
+              {questions.writing[0]?.chartDescription && (
+                <pre className="text-[12px] font-mono bg-[#fafbfe] p-4 rounded-lg border-2 border-black/15 whitespace-pre-line text-[#3d4663] leading-relaxed">
+                  {questions.writing[0]?.chartDescription}
+                </pre>
+              )}
+
+              <textarea
+                rows={10}
+                placeholder="Nhập bài làm Task 1 của bạn (ít nhất 150 từ)..."
+                value={answers.w1 || ""}
+                onChange={e => handleAnswerChange("w1", e.target.value)}
+                className={`w-full p-5 rounded-lg border-2 bg-[#fafbfe] text-sm font-medium text-[#1b3d1e] leading-relaxed placeholder:text-slate-400 outline-none focus:bg-white transition-all resize-y ${
+                  getWordCount(answers.w1) >= 150 ? "border-[#16a34a]" : "border-black/15 focus:border-[#ea580c]"
+                }`}
+              />
+            </section>
+
+            {/* Task 2 */}
+            <section className="pt-7 space-y-4">
+              <div className="flex flex-wrap justify-between items-center gap-3">
+                <span className="text-[11px] font-black text-[#ea580c] uppercase tracking-[0.2em]">
+                  Task 2 · Essay
+                </span>
+                {wordBadge(getWordCount(answers.w2), 250)}
+              </div>
+
+              <div
+                className="text-[15px] font-bold text-[#3d4663] italic leading-relaxed [&_p]:mb-2"
+                dangerouslySetInnerHTML={{ __html: questions.writing[1]?.prompt || "" }}
+              />
+
+              <textarea
+                rows={14}
+                placeholder="Nhập bài làm Task 2 của bạn (ít nhất 250 từ)..."
+                value={answers.w2 || ""}
+                onChange={e => handleAnswerChange("w2", e.target.value)}
+                className={`w-full p-5 rounded-lg border-2 bg-[#fafbfe] text-sm font-medium text-[#1b3d1e] leading-relaxed placeholder:text-slate-400 outline-none focus:bg-white transition-all resize-y ${
+                  getWordCount(answers.w2) >= 250 ? "border-[#16a34a]" : "border-black/15 focus:border-[#ea580c]"
+                }`}
+              />
+            </section>
           </div>
-        )}
-
-        {questions.writing[0]?.chartDescription && (
-          <pre className="text-[10px] font-mono bg-slate-50 p-3.5 rounded-xl border border-slate-100 whitespace-pre-line text-slate-600 leading-normal mt-2.5">
-            {questions.writing[0]?.chartDescription}
-          </pre>
-        )}<textarea
-          rows={6}
-          placeholder="Nhập bài làm Task 1 của bạn (ít nhất 150 từ)..."
-          value={answers.w1 || ""}
-          onChange={e => handleAnswerChange("w1", e.target.value)}
-          className={`w-full p-4 rounded-xl border text-xs font-medium outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all ${getWordCount(answers.w1) >= 150 ? "border-emerald-300" : "border-slate-200"}`}
-        />
-      </div>
-
-      {/* Task 2 */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-black text-orange-600 uppercase tracking-widest">TASK 2 — Essay</span>
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded ${getWordCount(answers.w2) >= 250 ? "bg-emerald-50 text-emerald-600" : "bg-orange-50 text-orange-600"}`}>
-            {getWordCount(answers.w2)} / 250 từ
-          </span>
         </div>
-        <div 
-          className="text-xs font-bold text-slate-700 italic"
-          dangerouslySetInnerHTML={{ __html: questions.writing[1]?.prompt || "" }}
-        />
-        <textarea
-          rows={8}
-          placeholder="Nhập bài làm Task 2 của bạn (ít nhất 250 từ)..."
-          value={answers.w2 || ""}
-          onChange={e => handleAnswerChange("w2", e.target.value)}
-          className={`w-full p-4 rounded-xl border text-xs font-medium outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all ${getWordCount(answers.w2) >= 250 ? "border-emerald-300" : "border-slate-200"}`}
-        />
-      </div>
 
-      <div className="flex justify-between items-center pt-2">
-        <button onClick={() => setStep(2)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-          <ChevronLeft className="w-4 h-4" /> Quay lại
-        </button>
-        <button onClick={() => setStep(4)} className="px-6 py-3 rounded-xl bg-orange-500 text-white text-xs font-black hover:opacity-95 shadow flex items-center gap-1.5 cursor-pointer">
-          <span>Tiếp tục Speaking</span> <ChevronRight className="w-4 h-4" />
-        </button>
+        {renderStepNav(() => setStep(2), () => setStep(4), "Tiếp tục Speaking", "bg-[#ea580c] hover:bg-[#c2410c]")}
       </div>
-    </div>
-  );
+    );
+  };
 
   // ─── STEP 4: SPEAKING ──────────────────────────────────────
   const renderSpeaking = () => (
-    <div className="space-y-6 text-left max-w-3xl mx-auto py-2">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-        <div className="space-y-1">
-          <span className="text-[10px] font-black text-pink-600 uppercase tracking-wider">PHẦN 4 / 4</span>
-          <h2 className="text-lg font-black text-[#0d153a] flex items-center gap-1.5">
-            <Mic className="w-5 h-5 text-pink-500" /> Speaking Practice
-          </h2>
-        </div>
-        <span className="text-xs text-slate-400 font-bold bg-slate-100 px-3 py-1 rounded-xl">Part 1 + Part 2</span>
-      </div>
+    <div className="space-y-6 text-left w-full max-w-4xl mx-auto">
+      {renderStepHeader(4, "Speaking Practice", Mic, "Part 1 + Part 2", "bg-[#fce7f3] text-[#db2777]", "text-[#db2777]")}
 
-      {/* Part 1 */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
-        <span className="text-xs font-black text-pink-600 uppercase tracking-widest block">Part 1 — Short Answers</span>
-        <p className="text-[11px] text-slate-400 font-bold italic">{questions.speaking[0]?.instruction}</p>
-        {questions.speaking[0]?.questions?.map((q: string, idx: number) => (
-          <div key={idx} className="space-y-2 border-b border-slate-50 pb-3">
-            <label className="text-xs font-bold text-slate-700 block">Câu {idx + 1}: {q}</label>
-            <VoiceRecorder
-              onTranscription={(txt) => handleAnswerChange(`sp1_${idx}`, txt)}
-              initialValue={answers[`sp1_${idx}`] || ""}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Part 2 */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-black text-pink-600 uppercase tracking-widest">Part 2 — Cue Card</span>
-          <span className={`text-[10px] font-black px-2 py-0.5 rounded ${getWordCount(answers.sp2) >= 80 ? "bg-emerald-50 text-emerald-600" : "bg-pink-50 text-pink-600"}`}>
-            {getWordCount(answers.sp2)} / 80 từ
-          </span>
-        </div>
-        <div className="border border-pink-100 bg-pink-50/10 rounded-2xl p-4 space-y-2">
-          <h4 className="text-xs font-black text-slate-800">Cue Card:</h4>
-          <p className="text-sm font-black text-pink-600">{questions.speaking[1]?.cueCard}</p>
-          <div className="bg-slate-50/50 p-4 rounded-xl border border-dashed border-pink-200 mt-2">
-            {questions.speaking[1]?.bulletPoints?.map((pt: string, i: number) => (
-              <li key={i}>{pt}</li>
+      <div className={cardClass}>
+        <div className="divide-y-2 divide-black/5">
+          {/* Part 1 */}
+          <section className="pb-7 space-y-5">
+            <div className="space-y-1.5">
+              <span className="block text-[11px] font-black text-[#db2777] uppercase tracking-[0.2em]">
+                Part 1 · Short Answers
+              </span>
+              <p className="text-[13px] text-[#5b6484] font-semibold italic">{questions.speaking[0]?.instruction}</p>
+            </div>
+            {questions.speaking[0]?.questions?.map((q: string, idx: number) => (
+              <div key={idx} className="space-y-3">
+                <label className="flex items-start gap-3 text-[15px] font-extrabold text-[#1b3d1e] leading-snug">
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-[#fce7f3] text-[#db2777] border-2 border-black text-[11px] font-black flex items-center justify-center">
+                    {idx + 1}
+                  </span>
+                  <span className="pt-0.5">{q}</span>
+                </label>
+                <div className="pl-10">
+                  <VoiceRecorder
+                    onTranscription={(txt) => handleAnswerChange(`sp1_${idx}`, txt)}
+                    initialValue={answers[`sp1_${idx}`] || ""}
+                  />
+                </div>
+              </div>
             ))}
-          </div>
+          </section>
+
+          {/* Part 2 */}
+          <section className="pt-7 space-y-4">
+            <div className="flex flex-wrap justify-between items-center gap-3">
+              <span className="text-[11px] font-black text-[#db2777] uppercase tracking-[0.2em]">
+                Part 2 · Cue Card
+              </span>
+              <span
+                className={`rounded-full border-2 border-black px-3.5 py-1.5 text-[11px] font-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                  getWordCount(answers.sp2) >= 80 ? "bg-[#dcfce7] text-[#15803d]" : "bg-[#fce7f3] text-[#be185d]"
+                }`}
+              >
+                {getWordCount(answers.sp2)} / 80 từ
+              </span>
+            </div>
+
+            <div className="border-2 border-black/15 bg-[#fdf2f8] rounded-lg p-5 space-y-3">
+              <p className="text-lg md:text-xl font-black text-[#1b3d1e] leading-snug">
+                {questions.speaking[1]?.cueCard}
+              </p>
+              <ul className="bg-white/70 p-4 rounded-lg border-2 border-dashed border-[#db2777]/40 space-y-1.5 list-disc list-inside text-sm font-semibold text-[#3d4663]">
+                {questions.speaking[1]?.bulletPoints?.map((pt: string, i: number) => (
+                  <li key={i}>{pt}</li>
+                ))}
+              </ul>
+            </div>
+
+            <VoiceRecorder
+              onTranscription={(txt) => handleAnswerChange("sp2", txt)}
+              initialValue={answers.sp2 || ""}
+            />
+          </section>
         </div>
-        <VoiceRecorder
-          onTranscription={(txt) => handleAnswerChange("sp2", txt)}
-          initialValue={answers.sp2 || ""}
-        />
       </div>
 
-      <div className="flex justify-between items-center pt-2">
-        <button onClick={() => setStep(3)} className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer">
-          <ChevronLeft className="w-4 h-4" /> Quay lại
-        </button>
-        <button
-          onClick={handleSubmit}
-          className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] text-white text-xs font-black hover:opacity-95 shadow-md flex items-center gap-1.5 cursor-pointer hover:scale-[1.02] active:scale-95 transition-all"
-        >
-          <span>Nộp Bài &amp; AI Phân Tích</span> <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
+      {renderStepNav(
+        () => setStep(3),
+        handleSubmit,
+        "Nộp Bài & AI Phân Tích",
+        "bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] hover:opacity-95",
+        true
+      )}
     </div>
   );
 
   // ─── STEP 5: AI SCANNER ────────────────────────────────────
   const renderScanner = () => (
-    <div className="bg-white rounded-3xl p-8 md:p-12 border border-slate-100 shadow-xl flex flex-col items-center justify-center min-h-[450px] text-center relative overflow-hidden max-w-xl mx-auto py-12">
+    <div className="bg-white rounded-xl p-8 md:p-12 border border-slate-100 shadow-xl flex flex-col items-center justify-center min-h-[450px] text-center relative overflow-hidden max-w-xl mx-auto py-12">
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#3B5C37]/10 blur-3xl rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#B38F4D]/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -829,7 +1070,7 @@ export default function OrientationPage() {
         />
       </div>
 
-      <div className="w-full max-w-xs text-left space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-slate-100/80">
+      <div className="w-full max-w-xs text-left space-y-3 bg-slate-50/50 p-5 rounded-xl border border-slate-100/80">
         {scanSteps.map((msg, idx) => {
           const isDone = scanStepIndex > idx;
           const isActive = scanStepIndex === idx;
@@ -861,7 +1102,7 @@ export default function OrientationPage() {
     return (
       <div className="space-y-8 text-left max-w-4xl mx-auto py-2">
         {comparison && (
-          <div className={`p-6 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${
+          <div className={`p-6 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${
             comparison.reachedTarget 
               ? "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 text-emerald-800" 
               : comparison.improved 
@@ -869,7 +1110,7 @@ export default function OrientationPage() {
                 : "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 text-amber-800"
           }`}>
             <div className="flex items-center gap-3.5">
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
                 comparison.reachedTarget ? "bg-emerald-500/20 text-emerald-700" : comparison.improved ? "bg-blue-500/20 text-blue-700" : "bg-amber-500/20 text-amber-700"
               }`}>
                 {comparison.reachedTarget ? <Trophy className="w-5 h-5" /> : comparison.improved ? <TrendingUp className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
@@ -900,7 +1141,7 @@ export default function OrientationPage() {
             {comparison.reachedTarget && (
               <button
                 onClick={handleCompleteRoadmap}
-                className="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95"
+                className="px-5 py-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0 cursor-pointer hover:scale-[1.02] active:scale-95"
               >
                 <span>Đánh dấu hoàn thành lộ trình 🎉</span>
               </button>
@@ -908,7 +1149,7 @@ export default function OrientationPage() {
           </div>
         )}
         {/* Success banner */}
-        <div className="bg-gradient-to-r from-[#3B5C37] to-[#1f3e1b] rounded-3xl p-6 md:p-8 text-white relative overflow-hidden shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-[#3B5C37] to-[#1f3e1b] rounded-xl p-6 md:p-8 text-white relative overflow-hidden shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="absolute top-0 right-0 w-36 h-36 bg-white/5 blur-xl rounded-full" />
           <div className="space-y-2 z-10 text-center md:text-left">
             <span className="text-[10px] font-black bg-white/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
@@ -921,7 +1162,7 @@ export default function OrientationPage() {
               AI đã phân tích bài làm 4 kỹ năng của bạn và đề xuất lộ trình học IELTS cá nhân hóa phù hợp nhất.
             </p>
           </div>
-          <div className="bg-white/10 px-6 py-5 rounded-2xl border border-white/20 text-center z-10 shrink-0 self-center min-w-[160px]">
+          <div className="bg-white/10 px-6 py-5 rounded-xl border border-white/20 text-center z-10 shrink-0 self-center min-w-[160px]">
             <Award className="w-8 h-8 text-[#B38F4D] mx-auto mb-1 animate-bounce" />
             <span className="text-[10px] text-white/70 font-bold block uppercase tracking-wider">Band Ước Tính</span>
             <span className="text-3xl font-black text-white">{calculatedBand.toFixed(1)}</span>
@@ -930,7 +1171,7 @@ export default function OrientationPage() {
 
         {/* Band card + AI analysis */}
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-1 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
+          <div className="md:col-span-1 bg-white rounded-xl p-6 border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center space-y-4">
             <h3 className="font-extrabold text-[#0d153a] text-xs uppercase tracking-wider">Trình Độ Ước Tính</h3>
             <div className="w-28 h-28 rounded-full border-4 border-[#3B5C37]/20 flex items-center justify-center bg-emerald-50/50 shadow-inner">
               <div className="text-center">
@@ -944,7 +1185,7 @@ export default function OrientationPage() {
             </div>
           </div>
 
-          <div className="md:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+          <div className="md:col-span-2 bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-4">
             <h3 className="font-extrabold text-[#0d153a] text-xs uppercase tracking-wider border-b border-slate-50 pb-2.5 flex items-center gap-1.5">
               <BrainCircuit className="w-4 h-4 text-[#3B5C37]" /> Phân Tích Kỹ Năng từ Trợ Lý AI
             </h3>
@@ -991,7 +1232,7 @@ export default function OrientationPage() {
         </div>
 
         {/* Roadmap configuration form */}
-        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-6">
           <h3 className="font-extrabold text-[#0d153a] text-xs uppercase tracking-wider border-b border-slate-50 pb-2.5">
             Cấu Hình Lộ Trình Học Cá Nhân Hóa AI Đề Xuất
           </h3>
@@ -1004,7 +1245,7 @@ export default function OrientationPage() {
               <select
                 value={targetBand}
                 onChange={e => setTargetBand(parseFloat(e.target.value))}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
               >
                 {[5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0].map(b => (
                   <option key={b} value={b}>Band {b.toFixed(1)}{b === 6.5 ? " (Khuyên dùng)" : ""}</option>
@@ -1019,7 +1260,7 @@ export default function OrientationPage() {
               <select
                 value={dailyHours}
                 onChange={e => setDailyHours(parseFloat(e.target.value))}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
               >
                 {[1.0, 1.5, 2.0, 3.0, 4.0].map(h => (
                   <option key={h} value={h}>{h.toFixed(1)} giờ / ngày{h === 2.0 ? " (Khuyên dùng)" : ""}</option>
@@ -1036,7 +1277,7 @@ export default function OrientationPage() {
                 min={new Date().toISOString().split("T")[0]}
                 value={targetDate}
                 onChange={e => setTargetDate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 text-xs font-medium text-[#0d153a] focus:border-[#3B5C37] focus:ring-1 focus:ring-[#3B5C37] outline-none bg-white"
               />
             </div>
           </div>
@@ -1053,7 +1294,7 @@ export default function OrientationPage() {
                     key={skill}
                     type="button"
                     onClick={() => handleSkillsChange(skill)}
-                    className={`py-2.5 px-4 rounded-xl border text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 select-none cursor-pointer ${
+                    className={`py-2.5 px-4 rounded-lg border text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 select-none cursor-pointer ${
                       isChecked ? "border-[#3B5C37] bg-[#3B5C37]/5 text-[#3B5C37]" : "border-slate-100 bg-white hover:border-slate-200 text-slate-500"
                     }`}
                   >
@@ -1066,7 +1307,7 @@ export default function OrientationPage() {
           </div>
 
           {submitError && (
-            <div className="bg-red-50 text-red-600 text-xs p-3.5 rounded-xl border border-red-100 flex items-center gap-2">
+            <div className="bg-red-50 text-red-600 text-xs p-3.5 rounded-lg border border-red-100 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{submitError}</span>
             </div>
@@ -1084,7 +1325,7 @@ export default function OrientationPage() {
             <button
               onClick={handleGenerateRoadmap}
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] text-white font-extrabold text-xs shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#3B5C37] to-[#B38F4D] text-white font-extrabold text-xs shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
@@ -1105,30 +1346,54 @@ export default function OrientationPage() {
   };
 
   return (
-    <div className="bg-slate-50/30 min-h-screen py-6 px-4">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="bg-[#f4f5f9] min-h-screen py-6 px-4 md:px-6">
+      <div
+        className={`mx-auto space-y-6 ${
+          step === 0 ? "max-w-[1280px]" : step === 2 ? "max-w-[1240px]" : "max-w-4xl"
+        }`}
+      >
         {/* Top navigation bar (only during quiz steps) */}
         {step > 0 && step < 5 && (
-          <div className="flex justify-between items-center bg-white py-3 px-4 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex flex-wrap justify-between items-center gap-4 bg-white py-4 px-5 md:px-6 rounded-xl border-[3px] border-black shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]">
             <button
               onClick={() => {
                 if (confirm("Bạn có chắc muốn thoát? Kết quả bài test hiện tại sẽ không được lưu.")) {
                   router.push(`/${locale}/roadmap`);
                 }
               }}
-              className="flex items-center gap-1.5 text-slate-500 hover:text-red-500 text-xs font-bold transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-full bg-white border-2 border-black px-4 py-2 text-xs font-black text-[#1b3d1e] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-red-50 hover:text-red-600 hover:border-red-600 transition-all cursor-pointer select-none"
             >
               <Undo2 className="w-4 h-4" /> Thoát test
             </button>
 
-            {/* Step dots */}
-            <div className="flex gap-2 items-center">
-              {[1, 2, 3, 4].map((s, idx) => {
-                const colors = ["bg-blue-500", "bg-emerald-500", "bg-orange-500", "bg-pink-500"];
+            {/* Step progress */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
+              {[
+                { n: 1, label: "Listening", icon: Volume2, activeClass: "bg-[#2563eb]" },
+                { n: 2, label: "Reading", icon: BookOpen, activeClass: "bg-[#16a34a]" },
+                { n: 3, label: "Writing", icon: PenTool, activeClass: "bg-[#ea580c]" },
+                { n: 4, label: "Speaking", icon: Mic, activeClass: "bg-[#db2777]" },
+              ].map(({ n, label, icon: Icon, activeClass }, idx) => {
+                const isDone = step > n;
+                const isActive = step === n;
                 return (
-                  <React.Fragment key={s}>
-                    <span className={`w-2.5 h-2.5 rounded-full transition-all ${step === s ? `${colors[idx]} scale-110` : step > s ? `${colors[idx]}/40` : "bg-slate-200"}`} />
-                    {idx < 3 && <div className="w-4 h-0.5 bg-slate-200" />}
+                  <React.Fragment key={n}>
+                    <div
+                      className={`flex items-center gap-1.5 rounded-full border-2 px-2.5 sm:px-3.5 py-1.5 text-[11px] font-black transition-all ${
+                        isActive
+                          ? `${activeClass} text-white border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`
+                          : isDone
+                            ? "bg-[#f2f6ee] text-[#3B5C37] border-[#3B5C37]/40"
+                            : "bg-white text-slate-400 border-slate-200"
+                      }`}
+                    >
+                      {isDone ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+                      <span className="hidden md:inline">{label}</span>
+                      <span className="md:hidden">{n}</span>
+                    </div>
+                    {idx < 3 && (
+                      <div className={`w-3 sm:w-5 h-1 rounded-full ${isDone ? "bg-[#3B5C37]/40" : "bg-slate-200"}`} />
+                    )}
                   </React.Fragment>
                 );
               })}
