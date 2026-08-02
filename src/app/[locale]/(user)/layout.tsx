@@ -289,7 +289,7 @@ export default function UserAreaLayout({ children }: { children: React.ReactNode
 
       {/* Main Container */}
       {pathname.includes("/orientation") ? (
-        <div className="flex-1 mx-auto max-w-7xl w-full p-4 md:p-8">
+        <div className="flex-1 mx-auto max-w-[1440px] w-full p-2 md:p-4">
           <main className="w-full">
             {children}
           </main>
