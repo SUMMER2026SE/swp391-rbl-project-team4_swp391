@@ -40,7 +40,7 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="flex items-end space-x-2 p-3 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-b-xl">
+    <div className="flex items-end space-x-2 p-3 border-t border-gray-100 bg-white rounded-b-xl">
       <textarea
         ref={textareaRef}
         rows={1}
@@ -49,15 +49,15 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
         onKeyDown={handleKeyDown}
         placeholder={disabled ? "Đang trả lời..." : "Hỏi về IELTS (ngữ pháp, từ vựng)..."}
         disabled={disabled}
-        className="flex-1 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 border border-gray-200 dark:border-gray-700 resize-none max-h-[120px] transition-colors"
+        className="flex-1 bg-gray-50 text-gray-900 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-[#3B5C37] border border-gray-200 resize-none max-h-[120px] transition-colors"
       />
       <button
         onClick={handleSend}
         disabled={disabled || !text.trim()}
         className={`flex items-center justify-center w-9 h-9 rounded-xl transition-all shadow-sm ${
           disabled || !text.trim()
-            ? "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700 text-white cursor-pointer active:scale-95"
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-[#3B5C37] hover:bg-[#1b3d1e] text-white cursor-pointer active:scale-95"
         }`}
       >
         <SendHorizonal size={18} />

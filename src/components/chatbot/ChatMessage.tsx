@@ -1,85 +1,137 @@
 import React from "react";
-import { Bot, User } from "lucide-react";
+import Image from "next/image";
+import { User, Sparkles, BookOpen, FileText, Headphones, Mic, PenTool, BrainCircuit, Library, LayoutList, Target, Compass, CreditCard, ArrowRight } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Link } from "@/i18n/navigation";
+import { CTA } from "./ChatPanel";
 
 interface ChatMessageProps {
   role: "user" | "assistant";
   content: string;
+  ctas?: CTA[];
+  onClosePanel?: () => void;
 }
 
-export default function ChatMessage({ role, content }: ChatMessageProps) {
+// Map string icon names to Lucide components
+const IconMap: Record<string, React.ElementType> = {
+  BookOpen,
+  FileText,
+  Headphones,
+  Mic,
+  PenTool,
+  BrainCircuit,
+  Library,
+  LayoutList,
+  Target,
+  Compass,
+  CreditCard,
+  Sparkles,
+};
+
+export default function ChatMessage({ role, content, ctas = [], onClosePanel }: ChatMessageProps) {
   const isUser = role === "user";
 
-  const formatMessageContent = (text: string) => {
-    if (!text) return null;
-    
-    return text.split("\n").map((line, idx) => {
-      // Bold text formatting (**bold**)
-      const boldRegex = /\*\*(.*?)\*\*/g;
-      const elements: React.ReactNode[] = [];
-      let lastIndex = 0;
-      let match;
+  const renderCTA = (cta: CTA, index: number) => {
+    const IconComponent = IconMap[cta.icon] || Sparkles;
+    const isPrimary = index === 0;
 
-      while ((match = boldRegex.exec(line)) !== null) {
-        if (match.index > lastIndex) {
-          elements.push(line.substring(lastIndex, match.index));
-        }
-        elements.push(
-          <strong key={match.index} className="font-bold text-gray-900 dark:text-white">
-            {match[1]}
-          </strong>
-        );
-        lastIndex = boldRegex.lastIndex;
-      }
-      
-      if (lastIndex < line.length) {
-        elements.push(line.substring(lastIndex));
-      }
-
-      // Check if it is a bullet list item
-      if (line.trim().startsWith("* ") || line.trim().startsWith("- ")) {
-        // Strip the bullet marker
-        const markerLength = line.trim().startsWith("* ") ? 2 : 2;
-        const indentClass = line.startsWith("  ") ? "ml-6" : "ml-4";
-        return (
-          <li key={idx} className={`${indentClass} list-disc my-1 text-gray-800 dark:text-gray-200 leading-relaxed`}>
-            {elements.length > 0 ? elements : line.trim().substring(markerLength)}
-          </li>
-        );
-      }
-
-      // Render standard paragraph
-      return (
-        <p key={idx} className="min-h-[1.2rem] my-1 text-gray-800 dark:text-gray-200 leading-relaxed">
-          {elements.length > 0 ? elements : line}
-        </p>
-      );
-    });
+    return (
+      <Link
+        key={index}
+        href={cta.href}
+        onClick={() => {
+          if (window.innerWidth < 640 && onClosePanel) {
+            onClosePanel();
+          }
+        }}
+        aria-label={`Đi tới ${cta.label}: ${cta.description}`}
+        className={`group relative flex items-center p-3 rounded-2xl border-2 border-[#1b3d1e] mb-3 transition-transform hover:translate-x-[2px] hover:translate-y-[2px] cursor-pointer no-underline block
+          ${
+            isPrimary
+              ? "bg-[#FCAF3C] text-[#1c1c1c] shadow-[3px_3px_0px_0px_rgba(27,61,30,1)] hover:shadow-[1px_1px_0px_0px_rgba(27,61,30,1)]"
+              : "bg-white text-[#0f1738] shadow-[3px_3px_0px_0px_rgba(27,61,30,1)] hover:shadow-[1px_1px_0px_0px_rgba(27,61,30,1)]"
+          }`}
+      >
+        <div className={`flex items-center justify-center w-10 h-10 rounded-xl mr-3 shrink-0 ${isPrimary ? 'bg-white/30' : 'bg-[#e5ebd8] text-[#3B5C37]'}`}>
+          <IconComponent size={20} strokeWidth={2.5} />
+        </div>
+        <div className="flex-1 min-w-0 pr-2">
+          <div className="flex items-center space-x-2">
+            <h4 className="font-black text-sm m-0 truncate">
+              {cta.label}
+            </h4>
+            {cta.badge && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-current opacity-80 whitespace-nowrap">
+                {cta.badge}
+              </span>
+            )}
+          </div>
+          <p className={`text-xs mt-0.5 m-0 line-clamp-2 font-medium ${isPrimary ? 'text-[#1c1c1c]/80' : 'text-slate-500'}`}>
+            {cta.description}
+          </p>
+        </div>
+        <ArrowRight size={18} className={`shrink-0 transition-transform group-hover:translate-x-1 ${isPrimary ? 'text-[#1b3d1e]' : 'text-slate-400'}`} />
+      </Link>
+    );
   };
 
   return (
-    <div className={`flex w-full items-start space-x-3 my-3 ${isUser ? "flex-row-reverse space-x-reverse" : ""}`}>
+    <div className={`flex w-full items-start space-x-3 my-4 ${isUser ? "flex-row-reverse space-x-reverse" : ""}`}>
       {/* Avatar Icon */}
       <div
-        className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm shrink-0 ${
+        className={`flex items-center justify-center w-8 h-8 rounded-full shadow-sm shrink-0 border ${
           isUser
-            ? "bg-blue-600 text-white"
-            : "bg-gradient-to-tr from-indigo-500 to-purple-500 text-white"
+            ? "bg-[#FCAF3C] text-[#1c1c1c] border-[#1b3d1e]/10"
+            : "bg-[#e5ebd8] text-[#3B5C37] border-[#d8e0cc]"
         }`}
       >
-        {isUser ? <User size={16} /> : <Bot size={16} />}
+        {isUser ? (
+          <User size={16} strokeWidth={3} />
+        ) : (
+          <div className="w-5 h-5 relative">
+            <Image src="/assets/logo-final.png" alt="Bot" fill className="object-contain" />
+          </div>
+        )}
       </div>
 
-      {/* Message Bubble */}
-      <div
-        className={`max-w-[75%] px-4 py-2.5 rounded-2xl shadow-sm border ${
-          isUser
-            ? "bg-blue-600 text-white border-blue-700 rounded-tr-none text-left"
-            : "bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-150 dark:border-gray-750 rounded-tl-none text-left"
-        }`}
-      >
-        <div className={`text-sm ${isUser ? "[&_strong]:text-white [&_li]:text-white" : ""}`}>
-          {formatMessageContent(content)}
+      {/* Message Content Container */}
+      <div className={`max-w-[80%] flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+        
+        {/* Bubble */}
+        <div
+          className={`px-4 py-3 shadow-sm border ${
+            isUser
+              ? "bg-[#3B5C37] text-white border-[#3B5C37] rounded-2xl rounded-tr-md text-left"
+              : "bg-white text-[#0f1738] border-[#e8efe5] rounded-2xl rounded-tl-md text-left"
+          }`}
+        >
+          <div className="text-sm [&_strong]:font-black">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({...props}) => <p className="mb-2 last:mb-0 leading-relaxed" {...props} />,
+                ul: ({...props}) => <ul className="list-disc pl-4 mb-2 last:mb-0 space-y-1" {...props} />,
+                ol: ({...props}) => <ol className="list-decimal pl-4 mb-2 last:mb-0 space-y-1" {...props} />,
+                li: ({...props}) => <li className="leading-relaxed" {...props} />,
+                a: ({...props}) => (
+                  <span className="font-semibold text-gray-700 italic border-b border-dashed border-gray-400" title="Link đã bị vô hiệu hoá">
+                    {props.children}
+                  </span>
+                ),
+              }}
+            >
+              {content || "..."}
+            </ReactMarkdown>
+          </div>
         </div>
+
+        {/* CTA Cards */}
+        {ctas && ctas.length > 0 && (
+          <div className="mt-3 w-full flex flex-col">
+            {ctas.map((cta, idx) => renderCTA(cta, idx))}
+          </div>
+        )}
       </div>
     </div>
   );
